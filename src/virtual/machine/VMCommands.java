@@ -1,0 +1,18 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package virtual.machine;
+
+/**
+ *
+ * @author Andrey
+ */
+public enum VMCommands {
+    NOP, Halt,
+    Push, Push_Addr, Pop, Jmp, 
+    Var_Put, Var_Load,
+    Add, Mul,
+    Var_Put_Local, Var_Load_Local,
+}
