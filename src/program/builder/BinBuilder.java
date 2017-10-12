@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import virtual.machine.DataBinConvertor;
-import virtual.machine.TypesInfo;
+import types.TypesInfo;
 import virtual.machine.VMCommands;
 import virtual.machine.VM;
 import virtual.machine.VmSections;
@@ -81,31 +81,19 @@ public class BinBuilder {
         
     }
      
-    public  BinBuilder addConstSection(LinkedHashMap<ValueDescription, Integer> valuesMap){
+    public  BinBuilder addConstSection(LinkedHashMap<ValueDescription, Integer> valuesMap) {
         /*Byte structure is 
           int   byte  byte[] non fix length
           index|type|value
         */
         ArrayList<Byte> curData = new ArrayList<>();
         for(Map.Entry<ValueDescription, Integer> entry :valuesMap.entrySet()){
-            ValueDescription valDescr = entry.getKey();
-            curData.addAll(binConverter.integerToByteList(entry.getValue()));
-            //TODO:Do transformer class
-            //It's not a pretty nice without it
-            
+            ValueDescription valDescr = entry.getKey();  
             VarType varType = valDescr.getType();
-            int typeSize = typesInfoService.getTypeSize(varType);
-            curData.addAll(binConverter.integerToByteList(typeSize));
+            ArrayList<Byte> byteVal = typesInfoService.convertToBinList(valDescr.getValue(), varType);
             
-            ArrayList<Byte> byteVal = new ArrayList<>();
-            switch(varType){
-                case Integer:
-                    String strValue = valDescr.getValue();
-                    Integer val = Integer.parseInt(strValue);
-                    byteVal = binConverter.integerToByteList(val);
-                    break;
-            }
-            
+            curData.addAll(binConverter.integerToByteList(entry.getValue()));
+            curData.addAll(binConverter.integerToByteList(byteVal.size()));
             curData.addAll(byteVal);
         }
         
@@ -116,8 +104,7 @@ public class BinBuilder {
         writeHeader( VmSections.ConstTableSize, valuesMap.size()); 
         writeHeader( VmSections.ConstStart, getHeadersSize());
         writeHeader( VmSections.VarTableStart, fullData.size()); 
-        
-      
+
         return this;
     }
      

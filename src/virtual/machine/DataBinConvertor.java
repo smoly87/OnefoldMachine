@@ -5,18 +5,55 @@
  */
 package virtual.machine;
 
+import common.VarType;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import types.IType;
+import types.TypeInteger;
+import types.TypesInfo;
 
 /**
  *
  * @author Andrey
  */
-public class DataBinConvertor {
+public class DataBinConvertor  {
     protected static DataBinConvertor instance ;
+    protected HashMap<VarType, IType> convertors;
+    protected TypesInfo typesInfoService;
+    
     private DataBinConvertor(){
-        
+       typesInfoService = TypesInfo.getInstance();
     }
+    public Integer bytesToInt(ArrayList<Byte> arr, int start) {
+       return getIntegerConventor().bytesToInt(arr, start);
+    }
+
+    protected TypeInteger getIntegerConventor(){
+         TypeInteger convertor = (TypeInteger) typesInfoService.getConvertor(VarType.Integer);
+         return convertor;
+    }
+    
+    public Integer bytesToInt(Byte[] arr, int start) {
+        ArrayList<Byte> lst = new ArrayList<Byte>(Arrays.asList(arr));
+        return bytesToInt(lst, start);
+    }
+    
+    
+    public Byte[] integerToByte(int value) {
+        
+        return  getIntegerConventor().toBinary(value);
+    }
+  
+    
+    public int getIntegerValue(Byte[] byteValue)  {
+      
+       return getIntegerConventor().getValue(byteValue);
+    }
+    
+   
    
     public  static DataBinConvertor getInstance(){
         if(instance == null) {
@@ -25,49 +62,20 @@ public class DataBinConvertor {
         return instance;
     }
     
-    public void setIntegerToByteList(ArrayList<Byte> lst, int value, int start){
-        Byte[] byteVal = integerToByte(value);
+    public void setIntegerToByteList(ArrayList<Byte> lst, int value, int start) {
+        Byte[] byteVal =  getIntegerConventor().toBinary(value);
 
         for(int i = 0; i < byteVal.length; i++){
              lst.set(i + start, byteVal[i]);
         }
        
     }
-    
-   /* public int getDataIntFromByteList(ArrayList<Byte> lst,  int start){
-        int endInd = start + VirtualMachine.INT_SIZE;
-        ArrayList<Byte> byteVal = new ArrayList<>(VirtualMachine.INT_SIZE);
-        for(int i = 0; i < endInd; i++){
-            byteVal lst.get(i + start);
-        }
-        return BytesToInt(byteVal);
-    }*/
-    
-    public Byte[] integerToByte(int value){
-         return new Byte[] {
-            (byte)(value >>> 24),
-            (byte)(value >>> 16),
-            (byte)(value >>> 8),
-            (byte)value};
-    }
-    
-    public ArrayList<Byte> integerToByteList(int value){
-        return new ArrayList<>(Arrays.asList(integerToByte(value))); 
-    }
-    
-    public Integer bytesToInt(Byte[] arr, int start){
-         ArrayList<Byte> lst = new ArrayList<Byte>(Arrays.asList(arr));
-         return bytesToInt(lst, start);
-    }
-    public Integer bytesToInt(ArrayList<Byte> arr, int start){
-        int value = 0;
         
-        for(int i = 0; i < 4; i++){
-            Byte curByte = arr.get(i+start);
-            int offset = (3 - i) * 8;
-            value |= (curByte& 0xFF) << (offset);
-        }
-      
-        return value;
+    public ArrayList<Byte> integerToByteList(int value){
+        return new ArrayList<>(Arrays.asList(getIntegerConventor().toBinary(value))); 
     }
+    
+  
+ 
+
 }

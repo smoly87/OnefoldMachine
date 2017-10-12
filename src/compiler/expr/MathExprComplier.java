@@ -33,7 +33,7 @@ public class MathExprComplier extends AstCompiler{
                
                 
                 break;
-            case "Int":
+            case "Integer":
                 String constValue = node.getToken().getValue();
                 programBuilder.addInstruction(VMCommands.Push, constValue, VarType.Integer);
         }

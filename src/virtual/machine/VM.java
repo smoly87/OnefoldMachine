@@ -6,6 +6,7 @@
 
 package virtual.machine;
 
+import types.TypesInfo;
 import common.VarType;
 import virtual.machine.memory.Memory;
 import java.util.ArrayList;

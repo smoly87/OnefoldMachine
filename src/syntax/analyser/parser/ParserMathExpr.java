@@ -67,7 +67,7 @@ public class ParserMathExpr extends Parser{
                     
                     stack.push(token);   
                     break;
-                case "Int": case "Id":
+                case "Integer": case "Id":
                     out.add(token);
                     break;
                 //Как только попадается не оператор, не переменная или число и не скобки
@@ -122,7 +122,7 @@ public class ParserMathExpr extends Parser{
                     stack.push(operNode);
                     
                     break;
-                case "Int": case "Id":
+                case "Integer": case "Id":
                     //Обратный порядок извлечения
                     AstNode varNode = new AstNode();
                     varNode.setToken(token);

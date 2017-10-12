@@ -35,7 +35,7 @@ public class FunctionCallCompiler extends AstCompiler{
                  //ToDO: check in global context
                  funcDescr = programBuilder.getFuncDescr(token.getValue());
                  break;
-             case "Int":
+             case "Integer":
                  programBuilder.addInstruction(VMCommands.Push, node.getToken().getValue(), VarType.Integer);
                  break;
         }

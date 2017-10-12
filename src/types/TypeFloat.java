@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package common;
+package types;
 
 /**
  *
  * @author Andrey
  */
-public enum VarType {
-    Integer, Boolean, String, VarClass
+public class TypeFloat {
+    
 }

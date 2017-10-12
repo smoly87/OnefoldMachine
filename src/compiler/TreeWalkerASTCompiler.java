@@ -5,6 +5,9 @@
  */
 package compiler;
 
+import compiler.exception.CompilerException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import syntax.analyser.AstNode;
 import virtual.machine.Instructions;
 import program.builder.ProgramBuilder;
@@ -28,33 +31,37 @@ public class TreeWalkerASTCompiler  {
     }
     protected void walk(AstNode node, AstCompiler compiler){
         
-        if(node.getCompiler() != null){
-            compiler = node.getCompiler();
-        }
-        
-        if(node.getToken()!= null && node.getToken().getName() == "Function"){
-            programBuilder.setIsLocalContext(true);
-        }
-        
-        if(node.getToken()!= null && node.getToken().getName() == "EndFunction"){
-            programBuilder.setIsLocalContext(false);
-        }
-        if(compiler != null) compiler.compileRootPre(node, programBuilder);
-        if(node.hasChildNodes()){
-            for(AstNode curNode : node.getChildNodes()){
-                if(curNode.hasChildNodes()){
-                    AstCompiler compilerL = compiler;
-                    if(curNode.getCompiler()!=null){
-                        compilerL = curNode.getCompiler();
-                    }
-                    walk(curNode, compilerL);
-                    
-                } else{
-                    if(compiler != null)  compiler.compileChild(curNode, programBuilder);
-                }
+        try {
+            if(node.getCompiler() != null){
+                compiler = node.getCompiler();
             }
-           if(compiler != null) compiler.compileRootPost(node, programBuilder);
-           
+            
+            if(node.getToken()!= null && node.getToken().getName() == "Function"){
+                programBuilder.setIsLocalContext(true);
+            }
+            
+            if(node.getToken()!= null && node.getToken().getName() == "EndFunction"){
+                programBuilder.setIsLocalContext(false);
+            }
+            if(compiler != null) compiler.compileRootPre(node, programBuilder);
+            if(node.hasChildNodes()){
+                for(AstNode curNode : node.getChildNodes()){
+                    if(curNode.hasChildNodes()){
+                        AstCompiler compilerL = compiler;
+                        if(curNode.getCompiler()!=null){
+                            compilerL = curNode.getCompiler();
+                        }
+                        walk(curNode, compilerL);
+                        
+                    } else{
+                        if(compiler != null)  compiler.compileChild(curNode, programBuilder);
+                    }
+                }
+                if(compiler != null) compiler.compileRootPost(node, programBuilder);
+                
+            }
+        } catch (CompilerException ex) {
+           System.err.println("Compilation error: " + ex.getMessage());
         }
     }
 }

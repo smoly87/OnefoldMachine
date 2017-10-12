@@ -23,7 +23,7 @@ public class LetCompiler extends AstCompiler{
         switch(tokName){
              //Do Nothing with mathExpr
              //In math expr loadvar
-             case "Int":
+             case "Integer":
                   if(!programBuilder.isIsLocalContext()){
                      programBuilder.addInstruction(VMCommands.Push, node.getToken().getValue(), VarType.Integer);
                  } else {

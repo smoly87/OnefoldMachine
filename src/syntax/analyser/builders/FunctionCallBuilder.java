@@ -27,7 +27,7 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
     protected Parser getArgBlockRepeatedParser(){
         ParserAlternative argTypesAltParser = new ParserAlternative();
         argTypesAltParser.add(new ParserTag("Float"));
-        argTypesAltParser.add(new ParserTag("Int"));
+        argTypesAltParser.add(new ParserTag("Integer"));
         argTypesAltParser.add(new ParserTag("String"));
         
         ParserChain chainParser = new ParserChain();
