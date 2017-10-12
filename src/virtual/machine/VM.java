@@ -121,11 +121,11 @@ public class VM {
     }
     
     protected VMCommands getMnemonic(Byte code){
-       return VMCommands.values()[(int)code];
+       return VMCommands.values()[code];
     }
     
     protected VarType getVarTypeMnemonic(Byte code){
-       return VarType.values()[(int)code];
+       return VarType.values()[code];
     }
     
 

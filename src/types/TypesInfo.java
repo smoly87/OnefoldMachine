@@ -62,7 +62,7 @@ public class TypesInfo {
     
     
     public int getTypeSize(VarType type)  {
-       IType  convertor =(IType)getConvertor(type);
+       IType  convertor =getConvertor(type);
        return convertor.getTypeSize();
     }
     
