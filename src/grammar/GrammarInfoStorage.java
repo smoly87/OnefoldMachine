@@ -68,7 +68,7 @@ public class GrammarInfoStorage {
                     
                     String tokensStr = curLine.substring(firstColon + 1,  curLine.length());
                     //Обработка #
-                    String[] tokens = tokensStr.split(" ");
+                    String[] tokens = tokensStr.trim().split(" ");
                     ArrayList<TokenInfo> tokensInfoList = new ArrayList<TokenInfo>();
                     for(String tokenStr: tokens){
                         tokensInfoList.add(new TokenInfo(tokenStr, tag, useRegExpr));
