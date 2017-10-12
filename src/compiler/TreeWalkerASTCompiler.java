@@ -39,7 +39,7 @@ public class TreeWalkerASTCompiler  {
         if(node.getToken()!= null && node.getToken().getName() == "EndFunction"){
             programBuilder.setIsLocalContext(false);
         }
-        
+        if(compiler != null) compiler.compileRootPre(node, programBuilder);
         if(node.hasChildNodes()){
             for(AstNode curNode : node.getChildNodes()){
                 if(curNode.hasChildNodes()){
@@ -53,7 +53,7 @@ public class TreeWalkerASTCompiler  {
                     if(compiler != null)  compiler.compileChild(curNode, programBuilder);
                 }
             }
-           if(compiler != null) compiler.compileRoot(node, programBuilder);
+           if(compiler != null) compiler.compileRootPost(node, programBuilder);
            
         }
     }

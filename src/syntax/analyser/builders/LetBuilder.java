@@ -6,7 +6,7 @@
 
 package syntax.analyser.builders;
 
-import compiler.bytecode.LetCompiler;
+import compiler.expr.LetCompiler;
 import java.util.HashMap;
 import java.util.LinkedList;
 import syntax.analyser.AstNode;

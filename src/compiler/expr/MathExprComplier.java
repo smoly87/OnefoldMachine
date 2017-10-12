@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler.bytecode;
+package compiler.expr;
 
 import common.VarType;
 import compiler.AstCompiler;
@@ -35,13 +35,13 @@ public class MathExprComplier extends AstCompiler{
                 break;
             case "Int":
                 String constValue = node.getToken().getValue();
-                programBuilder.addInstruction(VMCommands.Push, constValue, VarType.VarInt);
+                programBuilder.addInstruction(VMCommands.Push, constValue, VarType.Integer);
         }
         
     }
 
     @Override
-    public void compileRoot(AstNode node, ProgramBuilder programBuilder) {
+    public void compileRootPost(AstNode node, ProgramBuilder programBuilder) {
         switch(node.getToken().getName()){
                 case "+":
                     programBuilder.addInstruction(VMCommands.Add);

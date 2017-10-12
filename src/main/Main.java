@@ -7,6 +7,7 @@
 package main;
 
 import common.FullPipeline;
+import common.VarType;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -40,9 +41,9 @@ public class Main {
     public static void main(String[] args) throws Exception{
         // TODO code application logic here
         FullPipeline fullPipe = new  FullPipeline();
-        
+       
        // try{
-            String path = Main.class.getResource("/assets/let_expr.txt").getPath();
+            String path = Main.class.getResource("/assets/func_expr.txt").getPath();
             Scanner scanner = new Scanner( new File(path), "UTF-8" );
             String programSrc = scanner.useDelimiter("\\A").next();
             scanner.close();
@@ -75,6 +76,7 @@ public class Main {
             
             VM virtMachine = new VM();
             virtMachine.run(prog);
+           
            
             
       /*  } catch(Exception e){

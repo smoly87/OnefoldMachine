@@ -58,6 +58,7 @@ public  class ParserChain extends Parser{
         for(Map.Entry<String, Parser> entry: parsersList.entrySet()){
             Parser parser = entry.getValue();
             if(!parser.parse(lexerResults)){
+                //System.out.println("Broken on " + entry.getKey());
                 return false;
             } else {
                 resultMap.put(entry.getKey(), parser.getParseResult());

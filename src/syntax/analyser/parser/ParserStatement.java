@@ -21,18 +21,19 @@ import syntax.analyser.UnexpectedSymbolException;
  */
 public class ParserStatement extends ParserRepeated{
      
-  
-     
-     public ParserStatement(){
-         //TODO: Convert to Alternative Parser
-         ParserAlternative possibleAlts = new ParserAlternative();
+    protected ParserAlternative possibleAlts; 
+    protected void addPossibleStatements(){
          
          possibleAlts.add(this.getParser("Let"));
          possibleAlts.add(this.getParser("Var"));
-         
-         
-         this.setParser(possibleAlts);
-     }
+    } 
+    
+    public ParserStatement(){
+
+        possibleAlts = new ParserAlternative();
+        this.addPossibleStatements();
+        this.setParser(possibleAlts);
+    }
    
      
 }

@@ -8,6 +8,7 @@ package program.builder;
 
 import common.Token;
 import common.VarType;
+import compiler.exception.CompilerException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,11 +34,29 @@ public class ProgramBuilder  {
     protected DataBinConvertor binConvertorService;
     protected LinkedHashMap<String, VarDescription> varsMap;
     protected LinkedHashMap<ValueDescription, Integer> valuesMap;
+    protected HashMap<String, FunctionDescription> funcsMap;
     
     protected int pos;
     protected boolean isLocalContext;
 
     protected ArrayList<Byte> progData;
+    protected int lineCount;
+
+    public int getLineCount() {
+        return lineCount;
+    }
+    
+    public void addFunction(String funcName, FunctionDescription funcDescr){
+        //funcAddressesMap
+        funcsMap.put(funcName, funcDescr);
+    }
+    
+    public FunctionDescription getFuncDescr(String funcName) throws CompilerException{
+        if(!funcsMap.containsKey(funcName)){
+            throw new CompilerException("Call unknown function: " + funcName);
+        }
+        return funcsMap.get(funcName);
+    }
     
     public boolean isIsLocalContext() {
         return isLocalContext;
@@ -54,6 +73,8 @@ public class ProgramBuilder  {
         varsMap = new LinkedHashMap<>();
         valuesMap = new LinkedHashMap<>();
         progData = new ArrayList<>();
+        funcsMap = new HashMap<>();
+        lineCount = 0;
     }
     
     public void addVar(String name, VarType type){
@@ -97,16 +118,16 @@ public class ProgramBuilder  {
     }
     
        
-    public void addData(Byte data){
+    protected void addData(Byte data){
         this.progData.add(data);
     }
     
-    public void addData(ArrayList<Byte> data){
+    protected void addData(ArrayList<Byte> data){
         this.progData.addAll(data);
     }
     
     public void addInstruction(VMCommands command){
-        this.addInstruction(command, "0", VarType.VarInt );
+        this.addInstruction(command, "0", VarType.Integer );
     }
             
     public void addInstruction(VMCommands command, String value, VarType type){
@@ -124,6 +145,7 @@ public class ProgramBuilder  {
         this.addData((byte)command.ordinal());
         this.addData(constBinVal);
         
+        lineCount++;
         asmText.add(command.toString() + " " + value);
     }
     
@@ -135,6 +157,7 @@ public class ProgramBuilder  {
         //Adresses no matter size is 4 byte!!
         this.addData(binConvertorService.integerToByteList(varCode));
         
+        lineCount++;
         asmText.add(command.toString() + " " + varName);
     }
      

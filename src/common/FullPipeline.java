@@ -12,9 +12,11 @@ import lexer.Lexer;
 import syntax.analyser.parser.ParserStatement;
 import lexer.LexerResult;
 import syntax.analyser.AstNode;
+import syntax.analyser.Parser;
 import syntax.analyser.UnexpectedSymbolException;
 import syntax.analyser.parser.ParserException;
 import syntax.analyser.parser.ParserMathExpr;
+import syntax.analyser.parser.ParserProgramBody;
 
 /**
  *
@@ -30,7 +32,7 @@ public class FullPipeline {
     
     public AstNode buildAst(LexerResult lexerResult){
         try {
-            ParserStatement rootParser = new ParserStatement();
+            Parser rootParser = new ParserProgramBody();
             rootParser.parse(lexerResult);
             return rootParser.getParseResult();
         } catch(ParserException e){

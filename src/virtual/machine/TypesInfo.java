@@ -32,7 +32,7 @@ public class TypesInfo {
     public int getTypeSize(VarType type){
         int size = 0;
         switch(type){
-            case VarInt:
+            case Integer:
                 size = VM.INT_SIZE;
                 break;
         }

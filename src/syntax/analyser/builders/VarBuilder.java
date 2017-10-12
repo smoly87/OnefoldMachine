@@ -5,7 +5,7 @@
  */
 package syntax.analyser.builders;
 
-import compiler.bytecode.LetCompiler;
+import compiler.expr.LetCompiler;
 import java.util.HashMap;
 import syntax.analyser.AstNode;
 import syntax.analyser.Parser;
@@ -14,7 +14,7 @@ import syntax.analyser.parser.ParserAlternative;
 import syntax.analyser.parser.ParserChain;
 import syntax.analyser.parser.ParserKeyword;
 import syntax.analyser.parser.ParserMathExpr;
-import compiler.bytecode.VarCompiler;
+import compiler.expr.VarCompiler;
 /**
  *
  * @author Andrey

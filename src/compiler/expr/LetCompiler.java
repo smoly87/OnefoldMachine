@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler.bytecode;
+package compiler.expr;
 
 import common.VarType;
 import compiler.AstCompiler;
@@ -25,9 +25,9 @@ public class LetCompiler extends AstCompiler{
              //In math expr loadvar
              case "Int":
                   if(!programBuilder.isIsLocalContext()){
-                     programBuilder.addInstruction(VMCommands.Push, node.getToken().getValue(), VarType.VarInt);
+                     programBuilder.addInstruction(VMCommands.Push, node.getToken().getValue(), VarType.Integer);
                  } else {
-                     programBuilder.addInstruction(VMCommands.Var_Put_Local, node.getToken().getValue(), VarType.VarInt);
+                     programBuilder.addInstruction(VMCommands.Var_Put_Local, node.getToken().getValue(), VarType.Integer);
                  }
                  break;
              case "Id":
@@ -47,9 +47,6 @@ public class LetCompiler extends AstCompiler{
          }
     }
 
-    @Override
-    public void compileRoot(AstNode node, ProgramBuilder programBuilder) {
-        
-    }
+   
     
 }

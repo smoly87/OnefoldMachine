@@ -1,1 +1,4 @@
-2+3*4*b
+Var a:Integer;
+Var b:Integer;
+Let b =3;
+Let a = 2+30*4*b;;

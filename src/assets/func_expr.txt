@@ -1,0 +1,6 @@
+Function Float test(Var a:Integer;Var b:Integer;){
+Let a = 3;
+Let b = 4;
+Return 2
+}
+Call test(3,4,);

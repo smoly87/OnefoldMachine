@@ -99,7 +99,7 @@ public class BinBuilder {
             
             ArrayList<Byte> byteVal = new ArrayList<>();
             switch(varType){
-                case VarInt:
+                case Integer:
                     String strValue = valDescr.getValue();
                     Integer val = Integer.parseInt(strValue);
                     byteVal = binConverter.integerToByteList(val);

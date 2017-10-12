@@ -6,6 +6,7 @@
 
 package compiler;
 
+import compiler.exception.CompilerException;
 import syntax.analyser.AstNode;
 import program.builder.ProgramBuilder;
 
@@ -14,8 +15,13 @@ import program.builder.ProgramBuilder;
  * @author Andrey
  */
 public abstract class AstCompiler {
-    public abstract void compileChild(AstNode node, ProgramBuilder programBuilder);
+    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    }
     
-    public abstract void compileRoot(AstNode node, ProgramBuilder programBuilder);
-    
+    public  void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+        
+    }
+    public  void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+        
+    }
 }

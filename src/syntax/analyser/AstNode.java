@@ -43,7 +43,10 @@ public class AstNode {
     public void addChildNode(AstNode childNode){
         childNodes.add(childNode);
     }
-    
+    public void addChildNode(AstNode childNode, String nodeName){
+        childNode.setName(nodeName);
+        childNodes.add(childNode);
+    }
     public ArrayList<AstNode> getChildNodes() {
         return childNodes;
     }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler.bytecode;
+package compiler.expr;
 
 /**
  *
@@ -25,18 +25,18 @@ public class VarCompiler extends AstCompiler{
     }
 
     @Override
-    public void compileRoot(AstNode node, ProgramBuilder programBuilder) {
+    public void compileRootPost(AstNode node, ProgramBuilder programBuilder) {
         AstNode idNode = node.getChildNodes().get(0);
         AstNode typeNode = node.getChildNodes().get(1);
         String typeName = typeNode.getToken().getValue();
         
-        VarType type = VarType.VarInt;
+        VarType type = VarType.Integer;
         switch(typeName){
             case "Integer":
-                type = VarType.VarInt;
+                type = VarType.Integer;
                 break;
         }
-        
+        idNode.getToken().setVarType(type);
         programBuilder.addVar(idNode.getToken().getValue(), type);
     }
     

@@ -3,12 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package common;
+package compiler.exception;
 
 /**
  *
  * @author Andrey
  */
-public enum VarType {
-    Integer, VarBool, VarString, VarClass
+public class ArgTypeMistmatchException extends CompilerException{
+    public ArgTypeMistmatchException(String message){
+        super(message);
+    }
 }

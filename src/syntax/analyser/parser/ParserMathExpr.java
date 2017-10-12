@@ -7,7 +7,7 @@
 package syntax.analyser.parser;
 
 import common.Token;
-import compiler.bytecode.MathExprComplier;
+import compiler.expr.MathExprComplier;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Stack;
@@ -108,10 +108,8 @@ public class ParserMathExpr extends Parser{
        for(Token token : out){
             switch(token.getTagName()){
                 case "Operator":
-                    //Проверка, если аргументов не дастаёт
+                    //Проверка, если аргументов не достаёт
                     // Как лучше механизм проверки ошибок сделать?
-                    // Отладка и распечатка дерева
-                    // Где конечный результат?
                     // LogExpr наследуется почти полностью от mathExpr
                     AstNode arg1 = stack.pop();
                     AstNode arg2 = stack.pop();
