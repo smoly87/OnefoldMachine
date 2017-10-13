@@ -5,6 +5,9 @@
  */
 package syntax.analyser.builders;
 
+import common.Tag;
+import common.Token;
+import common.VarType;
 import compiler.expr.FunctionCompiler;
 import compiler.expr.LetCompiler;
 import java.util.HashMap;
@@ -28,8 +31,6 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     }
     
     protected Parser getFunctionBodyParser(){
-        //Todo: special flags for local variables
-        //Override indexes?
         return new ParserRepeated(new ParserStatement());
     }
     
@@ -48,8 +49,7 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     public Parser build() {
         //Указать нужен ли результат парсера
        return this
-            .addKeyword("Function")
-            //.addKeyword(":")   
+            .addKeyword("Function") 
             .addTag("Type")
             .addTag("Id")
             .addKeyword("(")
@@ -70,14 +70,33 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
         rootNode.setCompiler(new FunctionCompiler());
         System.out.println("Function parser has been reached");
         rootNode.addChildNode(result.get("Id"), "Id");
-        rootNode.addChildNode(result.get("VarsBlock"), "VarsBlock");
-        rootNode.addChildNode(result.get("FunctionBody"));
-        /*rootNode.setToken(token);
-        //Think about gloabl agreement of naming
-        rootNode.setName("Let");*/
-      ////  rootNode.addChildNode(result.get("MathExpr"));
-      //  rootNode.addChildNode(result.get("Id"));
+        rootNode.addChildNode(result.get("FunctionBody"), "FunctionBody");
+        transformVarsNode(result.get("VarsBlock"), rootNode);
+        rootNode.addChildNode(result.get("ReturnStatement"), "ReturnStatement");
+   
         
         return rootNode;
+    }
+    
+    protected AstNode transformVarsNode(AstNode varsNode, AstNode rootNode){
+      AstNode res = new AstNode();
+      for(AstNode node : varsNode.getChildNodes()){
+         AstNode idNode = node.getChildNodes().get(0);
+         AstNode typeNode = node.getChildNodes().get(1);
+         
+         String typeName = typeNode.getToken().getValue();
+         VarType type = VarType.valueOf(typeName);
+         
+         
+         Token token  = new Token();
+         token.setTag(new Tag("VarDescription"));
+         token.setValue(idNode.getToken().getValue());
+         token.setVarType(type);
+         idNode.setToken(token);
+         idNode.setName("VarDescription");
+         
+         rootNode.addChildNode(idNode, "VarDescription");
+      }
+      return res; 
     }
 }

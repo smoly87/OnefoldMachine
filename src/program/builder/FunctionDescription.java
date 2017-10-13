@@ -15,6 +15,11 @@ import java.util.HashMap;
 public class FunctionDescription {
     
     protected HashMap<String, VarType> argsMap;
+    
+    public FunctionDescription(){
+        argsMap = new HashMap<>();
+    }
+    
     public void addArgDecription(String varName, VarType varType){
         argsMap.put(varName, varType);
     }

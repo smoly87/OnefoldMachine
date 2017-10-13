@@ -18,7 +18,7 @@ public class TreeWalkerDSTPrint extends TreeWalkerDST{
     protected void callback(AstNode node, int level) {
         String margin = String.join("", Collections.nCopies(level, "-"));
         //Refactor to string Builder
-        if(node!=null && node.getToken()!=null){
+        if(node!=null && node.getToken()!=null ){
              System.out.println(margin + node.getToken().getTagName()+" " +node.getToken().getValue() );
         }
        

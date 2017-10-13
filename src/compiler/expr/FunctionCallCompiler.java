@@ -34,6 +34,7 @@ public class FunctionCallCompiler extends AstCompiler{
              case "Id":
                  //ToDO: check in global context
                  funcDescr = programBuilder.getFuncDescr(token.getValue());
+                 programBuilder.addInstruction(VMCommands.Push, programBuilder.getLineCount().toString(), VarType.Integer);
                  break;
              case "Integer":
                  programBuilder.addInstruction(VMCommands.Push, node.getToken().getValue(), VarType.Integer);
@@ -42,12 +43,16 @@ public class FunctionCallCompiler extends AstCompiler{
     }
 
     @Override
-    public void compileRootPre(AstNode node, ProgramBuilder programBuilder) {
-        callFromLineNum = programBuilder.getLineCount();
+    public void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
+       /* callFromLineNum = programBuilder.getLineCount();
+        programBuilder.addInstruction(VMCommands.Jmp, callFromLineNum.toString());*/
+    }
+
+    @Override
+    public void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
+      // programBuilder.addInstruction(VMCommands.Jmp, programBuilder.getLineCount().toString(), VarType.Integer);
     }
     
-    @Override
-    public void compileRootPost(AstNode node, ProgramBuilder programBuilder) {
-        programBuilder.addInstruction(VMCommands.Jmp, callFromLineNum.toString());
-    }
+
+   
 }

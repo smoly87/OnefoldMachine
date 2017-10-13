@@ -20,7 +20,7 @@ public class ParserFactory {
     protected HashMap<String, Parser> parsersStorage;
     protected static ParserFactory instance;
     
-    public ParserFactory(){
+    private ParserFactory(){
         this.parsersStorage = new HashMap();
     }
     

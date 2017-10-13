@@ -60,8 +60,9 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
         /*rootNode.setToken(token);
         //Think about gloabl agreement of naming
         rootNode.setName("Let");*/
-        rootNode.addChildNode(result.get("ArgsBlock"));
         rootNode.addChildNode(result.get("Id"));
+        rootNode.addChildNode(result.get("ArgsBlock"));
+        
         
         return rootNode;
     }

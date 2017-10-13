@@ -9,12 +9,23 @@ package compiler;
 import compiler.exception.CompilerException;
 import syntax.analyser.AstNode;
 import program.builder.ProgramBuilder;
+import syntax.analyser.CompilersFactory;
 
 /**
  *
  * @author Andrey
  */
 public abstract class AstCompiler {
+    protected CompilersFactory compilersFactory;
+    
+    public AstCompiler(){
+        compilersFactory = CompilersFactory.getInstance();
+    }
+    
+    protected AstCompiler getCompiler(String compilerName){
+        return compilersFactory.getElement(compilerName);
+    }
+    
     public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
     }
     

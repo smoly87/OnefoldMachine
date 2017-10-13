@@ -19,9 +19,18 @@ import syntax.analyser.AstNode;
 import virtual.machine.VMCommands;
 public class VarCompiler extends AstCompiler{
 
+    protected int localVarsCount;
+
+    public int getLocalVarsCount() {
+        return localVarsCount;
+    }
+    public void clearLocalVarsCount(){
+        localVarsCount = 0;
+    }
+    
     @Override
     public void compileChild(AstNode node, ProgramBuilder programBuilder) {
-        
+      
     }
 
     @Override
@@ -30,14 +39,13 @@ public class VarCompiler extends AstCompiler{
         AstNode typeNode = node.getChildNodes().get(1);
         String typeName = typeNode.getToken().getValue();
         
-        VarType type = VarType.Integer;
-        switch(typeName){
-            case "Integer":
-                type = VarType.Integer;
-                break;
-        }
+        VarType type = VarType.valueOf(typeName);
+       
         idNode.getToken().setVarType(type);
         programBuilder.addVar(idNode.getToken().getValue(), type);
+          if(programBuilder.isIsLocalContext()){
+            localVarsCount++;
+        }
     }
     
 }

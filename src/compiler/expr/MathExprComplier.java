@@ -33,9 +33,11 @@ public class MathExprComplier extends AstCompiler{
                
                 
                 break;
-            case "Integer":
+            case "Integer": case "Float":
                 String constValue = node.getToken().getValue();
-                programBuilder.addInstruction(VMCommands.Push, constValue, VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Push, constValue, node.getToken().getVarType());
+                break;
+            default:
         }
         
     }

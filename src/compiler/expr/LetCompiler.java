@@ -23,12 +23,8 @@ public class LetCompiler extends AstCompiler{
         switch(tokName){
              //Do Nothing with mathExpr
              //In math expr loadvar
-             case "Integer":
-                  if(!programBuilder.isIsLocalContext()){
-                     programBuilder.addInstruction(VMCommands.Push, node.getToken().getValue(), VarType.Integer);
-                 } else {
-                     programBuilder.addInstruction(VMCommands.Var_Put_Local, node.getToken().getValue(), VarType.Integer);
-                 }
+             case "Integer":            
+                 programBuilder.addInstruction(VMCommands.Push, node.getToken().getValue(), VarType.Integer);
                  break;
              case "Id":
                  String varName = node.getToken().getValue();

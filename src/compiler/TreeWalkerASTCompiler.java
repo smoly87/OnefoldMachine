@@ -36,13 +36,7 @@ public class TreeWalkerASTCompiler  {
                 compiler = node.getCompiler();
             }
             
-            if(node.getToken()!= null && node.getToken().getName() == "Function"){
-                programBuilder.setIsLocalContext(true);
-            }
             
-            if(node.getToken()!= null && node.getToken().getName() == "EndFunction"){
-                programBuilder.setIsLocalContext(false);
-            }
             if(compiler != null) compiler.compileRootPre(node, programBuilder);
             if(node.hasChildNodes()){
                 for(AstNode curNode : node.getChildNodes()){

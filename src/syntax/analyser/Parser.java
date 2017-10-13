@@ -8,6 +8,7 @@ package syntax.analyser;
 
 import common.Token;
 import common.TokenInfo;
+import compiler.AstCompiler;
 import grammar.GrammarInfo;
 import grammar.GrammarInfoStorage;
 import grammar.GrammarPart;
@@ -27,10 +28,16 @@ public abstract class Parser {
     protected  ParserFactory parsersStorage;
     protected GrammarInfo grammarInfo;
     protected String parserName;
+    protected CompilersFactory compilersFactory;
+    
+    protected AstCompiler getCompiler(String compilerName){
+        return compilersFactory.getElement(compilerName);
+    }
     
     public Parser(){
         parsersStorage = ParserFactory.getInstance();
         grammarInfo = GrammarInfoStorage.getInstance();
+        compilersFactory = CompilersFactory.getInstance();
     }
     
     protected Parser getParser(String name) {

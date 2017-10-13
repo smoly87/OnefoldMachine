@@ -33,6 +33,7 @@ public class ProgramBuilder  {
     protected Instructions instructionsService;
     protected DataBinConvertor binConvertorService;
     protected LinkedHashMap<String, VarDescription> varsMap;
+    protected LinkedHashMap<String, VarDescription> localVarsMap;
     protected LinkedHashMap<ValueDescription, Integer> valuesMap;
     protected HashMap<String, FunctionDescription> funcsMap;
     
@@ -40,9 +41,9 @@ public class ProgramBuilder  {
     protected boolean isLocalContext;
 
     protected ArrayList<Byte> progData;
-    protected int lineCount;
+    protected Integer lineCount;
 
-    public int getLineCount() {
+    public Integer getLineCount() {
         return lineCount;
     }
     

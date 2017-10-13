@@ -12,8 +12,16 @@ package common;
  */
 public class Token {
     protected Tag tag;
-    protected String name;
-    protected String value;
+
+    public void setTag(Tag tag) {
+        this.tag = tag;
+    }
+    protected String name = "";
+    protected String value = "";
+
+    public void setValue(String value) {
+        this.value = value;
+    }
     protected VarType varType;
 
     public VarType getVarType() {
@@ -26,6 +34,9 @@ public class Token {
 
     public String getValue() {
         return value;
+    }
+    
+    public Token(){
     }
     
     public Token(String name, Tag tag, String value){

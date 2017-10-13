@@ -43,7 +43,7 @@ public class VarBuilder extends ParserChain implements ParserBuilder{
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
         AstNode rootNode = new AstNode();
-        rootNode.setCompiler(new VarCompiler());
+        rootNode.setCompiler(this.getCompiler("Var"));
         //Think about gloabl agreement of naming
         rootNode.setName("Var");
         rootNode.addChildNode(result.get("Id"));
