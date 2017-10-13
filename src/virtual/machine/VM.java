@@ -188,6 +188,25 @@ public class VM {
             System.err.println("Command Deg "  + commandD.toString());
     }
     
+    protected int sysMemAllocStack() throws VmStackEmptyPop, VMStackOverflowException {
+         MemoryStack memStack = this.memoryManager.getMemStack();
+         int ptrSize = stackPopInt();
+        /* new Byte[ptrSize]*/
+        // int ptrStart = memStack.push();
+         
+         return 0;
+    }
+    
+    
+    protected void callSysFunc(int funcType) throws VmStackEmptyPop, VMStackOverflowException{
+        VMSysFunction sysFunc = VMSysFunction.values()[funcType];
+        switch(sysFunc){
+            case MemAllocStack:
+                sysMemAllocStack();
+                break;
+        }
+    }
+    
     public void run(Program program) throws Exception{
      // try{  
         this.program = program;
@@ -232,7 +251,7 @@ public class VM {
                 
                 switch (command) {
                     case Push_Addr:
-                        Byte[] value = memoryManager.getByteValue(addr);
+                        Byte[] value = memoryManager.getPtrByteValue(addr);
                         memStack.push(value);
                        System.err.println("Stack push: " + binConvertorService.bytesToInt(value, 0));
                         break;
@@ -258,6 +277,15 @@ public class VM {
                         arg1 = memoryManager.getValue(addr);
                         System.err.println("Var_Load: " + addr + " " + arg1);
                         memStack.push(binConvertorService.integerToByte(arg1));
+                        break;
+                    case Jmp:
+                        if(addr == 0){
+                            addr = stackPopInt();
+                        }
+                        memProg.jump(addr);
+                        break;
+                    case Invoke_Sys_Function:
+                        callSysFunc(addr);
                         break;
                     case Halt:
                         haltFlag = true;

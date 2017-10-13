@@ -9,11 +9,10 @@ package virtual.machine;
  *
  * @author Andrey
  */
-public enum VMCommands {
-    NOP, Halt,
-    Push, Push_Addr, Pop, Jmp, 
-    Var_Put, Var_Load,
-    Add, Mul,
-    Var_Put_Local, Var_Load_Local,
-    Invoke_Sys_Function
+public enum VMSysFunction {
+    MemAlloc,
+    MemAllocStack,
+    GetRegister,
+    SetRegister,
+    Print
 }

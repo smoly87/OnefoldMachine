@@ -72,7 +72,7 @@ public class Memory {
      * @param addr
      * @return 
      */
-    public Byte[] getByteValue(int addr){
+    public Byte[] getPtrByteValue(int addr){
         //First 4 bytes is lenght of pointer
         int ptrSize = binConvertorService.bytesToInt(data, addr);
         //We move forward on 4 bytes. because first 4 bytes is lenght of pointer

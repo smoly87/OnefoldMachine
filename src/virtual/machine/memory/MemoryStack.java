@@ -57,7 +57,7 @@ public class MemoryStack extends Memory{
         return getValue(ptrValueStart , realLen);
     }
     
-    public void push(Byte[] value) throws VMStackOverflowException{
+    public int push(Byte[] value) throws VMStackOverflowException{
        int headAddr = this.getSysRegister(VmSysRegister.StackHeadPos);
        //First 4 bytes is length of pointer
        // Next 4 bytes is previous element
@@ -80,6 +80,6 @@ public class MemoryStack extends Memory{
        this.putValue(newHeadAddr + 2 * VM.INT_SIZE, value);
        
        this.setSysRegister(VmSysRegister.StackHeadPos, newHeadAddr);
-       
+       return newHeadAddr;
     }
 }
