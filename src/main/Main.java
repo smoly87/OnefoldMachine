@@ -43,7 +43,7 @@ public class Main {
         FullPipeline fullPipe = new  FullPipeline();
        
        // try{
-            String path = Main.class.getResource("/assets/math_expr.txt").getPath();
+            String path = Main.class.getResource("/assets/class_expr.txt").getPath();
             Scanner scanner = new Scanner( new File(path), "UTF-8" );
             String programSrc = scanner.useDelimiter("\\A").next();
             scanner.close();
