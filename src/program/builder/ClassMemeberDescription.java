@@ -9,14 +9,14 @@ package program.builder;
  *
  * @author Andrey
  */
-public class MethodDescription extends ClassMemeberDescription{
-    protected int address;
+public class ClassMemeberDescription {
 
-    public int getAddress() {
-        return address;
+    public int getCode() {
+        return code;
     }
 
-    public void setAddress(int address) {
-        this.address = address;
+    public void setCode(int code) {
+        this.code = code;
     }
+    protected int code;
 }

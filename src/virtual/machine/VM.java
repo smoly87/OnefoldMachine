@@ -56,7 +56,7 @@ public class VM {
     protected void allocateVariables() throws VMOutOfMemoryException{
         MemoryHeap memHeap = getMemHeap();
         int secStart = program.readHeader(VmSections.VarTableStart);
-        int secEnd = program.readHeader(VmSections.InstructionsStart);
+        int secEnd = program.readHeader(VmSections.ClassesMetaInfoStart);
 
         int k = 0;
         int i = secStart;
@@ -102,6 +102,35 @@ public class VM {
         }
     }
     
+    protected void allocateClassesMetaInfo(){
+        ArrayList<Byte> progData = program.getData();
+        int secStart = program.readHeader(VmSections.ClassesMetaInfoStart);
+        int secEnd = program.readHeader(VmSections.InstructionsStart);
+        
+        MemoryHeap memHeap = getMemHeap();
+        
+        int i = secStart;
+        while(i < secEnd){
+            int classInd = binConvertorService.bytesToInt(progData, i) ;
+            i += VM.INT_SIZE;
+            int methodsCount = binConvertorService.bytesToInt(progData, i) ;
+            i += VM.INT_SIZE;
+            for(int k = 0; k < methodsCount; k++){
+               int methodCode =  binConvertorService.bytesToInt(progData, i) ; 
+               i += VM.INT_SIZE; 
+               int methodAddr =  binConvertorService.bytesToInt(progData, i) ; 
+               i += VM.INT_SIZE; 
+            }
+            int fieldsCount = binConvertorService.bytesToInt(progData, i) ;
+            i += VM.INT_SIZE; 
+            for(int k = 0; k < fieldsCount; k++){
+               int fieldCode =  binConvertorService.bytesToInt(progData, i) ; 
+               i += VM.INT_SIZE; 
+               int fieldType =  binConvertorService.bytesToInt(progData, i) ;
+               i += VM.INT_SIZE; 
+            }
+        }
+    }
     
     /**
      * It's possible not pretty, because we have postfix Size, however name without it
@@ -113,6 +142,7 @@ public class VM {
     protected void createDescrTables() throws VMOutOfMemoryException {
        this.addrTables.add(VmSections.ConstTableSize);
        this.addrTables.add(VmSections.VarTableSize);
+       this.addrTables.add(VmSections.ClassesTableSize);
     }
     
     protected MemoryHeap getMemHeap(){
@@ -221,6 +251,7 @@ public class VM {
         this.createDescrTables();
         this.allocateData();
         this.allocateVariables();
+        this.allocateClassesMetaInfo();
         this.translateAdresses();
         
       

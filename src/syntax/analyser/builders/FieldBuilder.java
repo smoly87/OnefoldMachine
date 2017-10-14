@@ -5,6 +5,9 @@
  */
 package syntax.analyser.builders;
 
+import common.Tag;
+import common.Token;
+import common.VarType;
 import compiler.expr.LetCompiler;
 import java.util.HashMap;
 import syntax.analyser.AstNode;
@@ -42,13 +45,25 @@ public class FieldBuilder extends ParserChain implements ParserBuilder{
     }
     @Override
     public  AstNode processChainResult(HashMap<String, AstNode> result){
-        //Reorder operators by calculations
+        //Composite result
         AstNode rootNode = new AstNode();
-        rootNode.setCompiler(this.getCompiler("Var"));
-        //Think about gloabl agreement of naming
-        rootNode.setName("Var");
-        rootNode.addChildNode(result.get("Id"));
-        rootNode.addChildNode(result.get("Type"));
+        
+        rootNode.setName("FieldRoot")
+                .setCompiler(this.getCompiler("Field"));
+               
+        
+        String fieldName = result.get("Id").getToken().getValue();
+        String fieldTypeName = result.get("Type").getToken().getValue();
+        
+        Token token = new Token();
+        token.setVarType(VarType.valueOf(fieldTypeName));
+        token.setValue(fieldName);
+        token.setTag(new Tag("Field"));
+        
+        AstNode resNode = new AstNode();
+        resNode.setToken(token);
+        rootNode.addChildNode(resNode, "Field");
+
         
         return rootNode;
     }

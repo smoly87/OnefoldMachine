@@ -1,5 +1,6 @@
 Class foo {
 Public bar:Integer
+Public rebar:Integer
 Function Float test(Var a:Integer;Var b:Integer;){
 Let a = 3;
 Let b = 4;

@@ -13,6 +13,6 @@ package virtual.machine;
     //ConstCount|VarCount|...funcCount|ClassesCount
     // After instructions
 public enum VmSections {
-   ConstTableSize, VarTableSize,
-   ConstStart, VarTableStart,  InstructionsStart
+   ConstTableSize, VarTableSize, ClassesTableSize,
+   ConstStart, VarTableStart, ClassesMetaInfoStart,  InstructionsStart
 }

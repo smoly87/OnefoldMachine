@@ -112,6 +112,7 @@ public class ProgramBuilder  {
         ArrayList<Byte> binData = binBuilder.addHeadersPlaceHolder()
                   .addConstSection(valuesMap)
                   .addVarSection(varsMap)
+                  .addClassesMetaInfo()
                   .addSection(this.progData)
                   .getResult();
         

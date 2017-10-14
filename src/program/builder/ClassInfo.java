@@ -5,6 +5,7 @@
  */
 package program.builder;
 
+import common.VarType;
 import java.util.SortedMap;
 import java.util.TreeSet;
 import javafx.collections.transformation.SortedList;
@@ -15,21 +16,59 @@ import javafx.collections.transformation.SortedList;
  */
 public class ClassInfo {
     protected MetaClassesInfo metaInfo;
-    protected TreeSet<Integer> methodsList;
+    protected TreeSet<MethodDescription> methodsList;
+    protected TreeSet<FieldDescription> fieldsList;
+
+    public TreeSet<MethodDescription> getMethodsList() {
+        return methodsList;
+    }
+
+    public TreeSet<FieldDescription> getFieldsList() {
+        return fieldsList;
+    }
+    
     protected String className;
 
+    protected int code;
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+    
     public String getClassName() {
         return className;
     }
     
     public ClassInfo(String className){
         metaInfo = MetaClassesInfo.getInstance();
-        methodsList = new TreeSet<Integer>();
+        
+        ClassMemeberComparator comparator = new ClassMemeberComparator();
+        methodsList = new TreeSet<>(comparator);
+        fieldsList = new TreeSet<>(comparator);
+        
         this.className = className;
     }
     
-    public void addMethod(String name){
+    public void addMethod(String name, String signature, int address){
        int methodCode =  metaInfo.getMethodCode(name);
-       methodsList.add(methodCode);
+       MethodDescription methodDescr = new MethodDescription();
+       methodDescr.setCode(methodCode);
+       methodDescr.setAddress(address);
+       
+       methodsList.add(methodDescr);
+    }
+    
+    public void addField(String name, VarType type){
+       int methodCode =  metaInfo.getFieldCode(name);
+     
+       FieldDescription fieldDescr = new FieldDescription();
+       fieldDescr.setCode(methodCode);
+       fieldDescr.setFieldType(type);
+       
+       fieldsList.add(fieldDescr);
     }
 }

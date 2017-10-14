@@ -75,7 +75,7 @@ public class BinBuilder {
         //Each varible stored in 2 bytes - code and type
         // Each field is intger
         writeHeader( VmSections.VarTableSize, varsMap.size()); 
-        writeHeader( VmSections.InstructionsStart, fullData.size()); 
+        writeHeader( VmSections.ClassesMetaInfoStart, fullData.size()); 
 
         return this;
         
@@ -107,7 +107,18 @@ public class BinBuilder {
 
         return this;
     }
-     
+    
+
+    
+    public BinBuilder addClassesMetaInfo(){
+        BinBuilderClassesMetaInfo metaBinBuilder = new BinBuilderClassesMetaInfo();
+        fullData.addAll(metaBinBuilder.getClassesMetaInfo());
+        
+        writeHeader( VmSections.ClassesTableSize, MetaClassesInfo.getInstance().classesMap.size()); 
+        writeHeader( VmSections.InstructionsStart, fullData.size()); 
+        return this;
+    }
+    
     public ArrayList<Byte> getResult(){
         return fullData;
     } 

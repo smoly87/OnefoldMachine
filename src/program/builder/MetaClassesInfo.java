@@ -17,6 +17,10 @@ public class MetaClassesInfo {
     protected HashMap<String, Integer> methodCodes;
     protected static MetaClassesInfo instance;
     protected HashMap<String, ClassInfo> classesMap;
+
+    public HashMap<String, ClassInfo> getClassesMap() {
+        return classesMap;
+    }
     
     public static MetaClassesInfo getInstance(){
         if(instance == null){
@@ -32,16 +36,25 @@ public class MetaClassesInfo {
     }
     
     public int getMethodCode(String methodName){
-        int code = 0;
-        if(!methodCodes.containsKey(methodName)){
-            code = methodCodes.size();
-            methodCodes.put(methodName, code);
-        } else {
-            code = methodCodes.get(methodName);
-        }
-        return code;
+         return getOrAddCode(methodCodes, methodName);
     }
     
+    public int getFieldCode(String fieldName){
+        return getOrAddCode(fieldsCodes, fieldName);
+    }
+    
+    
+    protected int getOrAddCode(HashMap<String, Integer> collection, String value){
+        int code = 0;
+        if(!methodCodes.containsKey(value)){
+            code = methodCodes.size();
+            methodCodes.put(value, code);
+        } else {
+            code = methodCodes.get(value);
+        }
+        return code;
+    }        
+            
     public void addClassInfo(ClassInfo classInfo){
         classesMap.put(classInfo.getClassName(), classInfo);
     }
