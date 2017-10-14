@@ -45,12 +45,9 @@ public class FunctionCompiler extends AstCompiler{
     
     @Override
     public void compileChild(AstNode node, ProgramBuilder programBuilder) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-       
-      
-        
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.  
         switch(node.getName()){
-            case "Id":  
+            case "FunctionId":  
                 Token token = node.getToken();
                 this.funcName = token.getValue();
                 funcDescr = new FunctionDescription();
@@ -65,6 +62,7 @@ public class FunctionCompiler extends AstCompiler{
                 programBuilder.addFunction(funcName, funcDescr);
                 break;
         }
+        this.callSubscribers(node, programBuilder);
     }
     @Override
     public void compileRootPre(AstNode node, ProgramBuilder programBuilder) {

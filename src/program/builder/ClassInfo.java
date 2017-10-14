@@ -6,6 +6,7 @@
 package program.builder;
 
 import java.util.SortedMap;
+import java.util.TreeSet;
 import javafx.collections.transformation.SortedList;
 
 /**
@@ -14,9 +15,21 @@ import javafx.collections.transformation.SortedList;
  */
 public class ClassInfo {
     protected MetaClassesInfo metaInfo;
-    protected SortedList<MethodDescription> methodsList;
+    protected TreeSet<Integer> methodsList;
+    protected String className;
+
+    public String getClassName() {
+        return className;
+    }
+    
+    public ClassInfo(String className){
+        metaInfo = MetaClassesInfo.getInstance();
+        methodsList = new TreeSet<Integer>();
+        this.className = className;
+    }
     
     public void addMethod(String name){
-        
+       int methodCode =  metaInfo.getMethodCode(name);
+       methodsList.add(methodCode);
     }
 }

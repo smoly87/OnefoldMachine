@@ -33,10 +33,21 @@ public  class ParserChain extends Parser{
         return this;
     }
     
+    public ParserChain addTag(String tag, String key){
+        parsersList.put(key, new ParserTag(tag));
+        return this;
+    }
+    
     public ParserChain addKeyword(String keyWord){
         parsersList.put(keyWord, new ParserKeyword(keyWord));
         return this;
     }
+    
+    public ParserChain addKeyword(String keyWord, String key){
+        parsersList.put(key, new ParserKeyword(keyWord));
+        return this;
+    }
+    
     public ParserChain add(Parser parser, String name){
         parsersList.put(name, parser);
         return this;

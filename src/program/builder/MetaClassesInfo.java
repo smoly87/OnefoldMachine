@@ -16,6 +16,7 @@ public class MetaClassesInfo {
     protected HashMap<String, Integer> fieldsCodes;
     protected HashMap<String, Integer> methodCodes;
     protected static MetaClassesInfo instance;
+    protected HashMap<String, ClassInfo> classesMap;
     
     public static MetaClassesInfo getInstance(){
         if(instance == null){
@@ -27,6 +28,7 @@ public class MetaClassesInfo {
     private MetaClassesInfo(){
         methodCodes = new HashMap<>();
         fieldsCodes = new HashMap<>();
+        classesMap = new HashMap<>();
     }
     
     public int getMethodCode(String methodName){
@@ -38,6 +40,10 @@ public class MetaClassesInfo {
             code = methodCodes.get(methodName);
         }
         return code;
+    }
+    
+    public void addClassInfo(ClassInfo classInfo){
+        classesMap.put(classInfo.getClassName(), classInfo);
     }
     
     /*public int getFieldCode(String fieldName){

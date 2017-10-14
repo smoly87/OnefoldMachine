@@ -8,6 +8,7 @@ package syntax.analyser.builders;
 import common.Tag;
 import common.Token;
 import common.VarType;
+import compiler.expr.ClassCompiler;
 import compiler.expr.FunctionCompiler;
 import compiler.expr.LetCompiler;
 import java.util.HashMap;
@@ -45,16 +46,18 @@ public class ClassBuilder extends  ParserChain implements ParserBuilder{
             .addTag("Id")
             .addKeyword("{") // Body of function
             .add(getClassFieldsOrMethodsParser(), "ClassFieldsOrMethods") 
-            .addKeyword("}");            
+            .addKeyword("}", "EndClass");            
     }
+    
     @Override
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
         AstNode rootNode = result.get("Class");
-        rootNode.setCompiler(new FunctionCompiler());
+        rootNode.setCompiler(new ClassCompiler());
         System.out.println("Class parser has been reached");
-        rootNode.addChildNode(result.get("Id"), "Id");
+        rootNode.addChildNode(result.get("Id"), "StartClass");
         rootNode.addChildNode(result.get("ClassFieldsOrMethods"), "ClassFieldsOrMethods");
+        rootNode.addChildNode(result.get("EndClass"), "EndClass");
 
         return rootNode;
     }

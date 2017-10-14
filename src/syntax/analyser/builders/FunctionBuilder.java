@@ -59,18 +59,23 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
             .add(getFunctionBodyParser(), "FunctionBody") 
             .addKeyword("Return") 
             .add(getReturnStatementParser(), "ReturnStatement")
-            .addKeyword("}");
+            .addKeyword("}", "EndFunction");
             //.addKeyword(";");
             
     }
     @Override
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
-        AstNode rootNode = result.get("Function");
-        rootNode.setCompiler(new FunctionCompiler());
+        AstNode rootNode = result
+                          .get("Function")
+                          .setCompiler(this.getCompiler("Function"))
+                          .setName("FunctionHeader")
+                          .addChildNode(result.get("Id"), "FunctionId")
+                          .addChildNode(result.get("FunctionBody"), "FunctionBody")
+                          .addChildNode(result.get("EndFunction"), "EndFunction");
+        
         System.out.println("Function parser has been reached");
-        rootNode.addChildNode(result.get("Id"), "Id");
-        rootNode.addChildNode(result.get("FunctionBody"), "FunctionBody");
+
         transformVarsNode(result.get("VarsBlock"), rootNode);
         rootNode.addChildNode(result.get("ReturnStatement"), "ReturnStatement");
    
@@ -79,7 +84,6 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     }
     
     protected AstNode transformVarsNode(AstNode varsNode, AstNode rootNode){
-      AstNode res = new AstNode();
       for(AstNode node : varsNode.getChildNodes()){
          AstNode idNode = node.getChildNodes().get(0);
          AstNode typeNode = node.getChildNodes().get(1);
@@ -97,6 +101,6 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
          
          rootNode.addChildNode(idNode, "VarDescription");
       }
-      return res; 
+      return rootNode; 
     }
 }

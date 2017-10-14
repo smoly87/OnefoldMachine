@@ -24,28 +24,32 @@ public class AstNode {
         return name;
     }
 
-    public void setName(String name) {
+    public AstNode setName(String name) {
         this.name = name;
+        return this;
     }
 
     public AstCompiler getCompiler() {
         return compiler;
     }
 
-    public void setCompiler(AstCompiler compiler) {
+    public AstNode setCompiler(AstCompiler compiler) {
         this.compiler = compiler;
+        return this;
     }
 
     
     public AstNode(){
         this.childNodes = new ArrayList<>();
     }
-    public void addChildNode(AstNode childNode){
+    public AstNode addChildNode(AstNode childNode){
         childNodes.add(childNode);
+           return this;
     }
-    public void addChildNode(AstNode childNode, String nodeName){
+    public AstNode addChildNode(AstNode childNode, String nodeName){
         childNode.setName(nodeName);
         childNodes.add(childNode);
+           return this;
     }
     public ArrayList<AstNode> getChildNodes() {
         return childNodes;
@@ -58,8 +62,9 @@ public class AstNode {
     /**
      * @param token the token to set
      */
-    public void setToken(Token token) {
+    public AstNode setToken(Token token) {
         this.token = token;
+        return this;
     }
     
     public boolean hasChildNodes(){
