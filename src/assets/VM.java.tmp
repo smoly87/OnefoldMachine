@@ -67,6 +67,8 @@ public class VM {
              int varSize = binReader.readIntAndNext();        
              int ptrAddr = memHeap.memAlloc(varSize);
              addrTables.setAddrForIndex(VmSections.VarTableSize, varInd, ptrAddr);
+             System.out.println("Address of var "+ varInd+ ":" + ptrAddr + " size:" + varSize);
+            //getMemHeap().putValue(k * VM.ADDR_SIZE, getMemHeap().memAlloc(ptrSize)); 
         }
     }
     
@@ -84,12 +86,15 @@ public class VM {
         while( binReader.getCurPos() < secEnd){ 
             int varInd =  binReader.readIntAndNext();
             int varSize =  binReader.readIntAndNext();           
-
+            //memHeap.putValue(i, progData, secStart, i);
             int ptrAddr = memHeap.memAlloc(varSize);
             memHeap.putValue(ptrAddr+ INT_SIZE, progData, binReader.getCurPos() , binReader.getCurPos() +   varSize);
             addrTables.setAddrForIndex(VmSections.ConstTableSize, varInd, ptrAddr);
-            
+            System.out.println("Set addr " + ptrAddr + " for ind " + varInd);
+            System.out.println(" dbg get: " + addrTables.getAddrByIndex(VmSections.ConstTableSize, varInd));
             binReader.nextBytes(varSize);  
+            int testVal = memHeap.deferenceIntPtr(ptrAddr);
+            System.out.println("Deference test pointer: " + testVal + " " + varInd);
         }
     }
     
@@ -104,18 +109,23 @@ public class VM {
         binReader.setCurPos(secStart);
  
         while( binReader.getCurPos() < secEnd){ 
-            int classInd = binReader.readIntAndNext();
-            int methodsCount = binReader.readIntAndNext();
-            
+            int classInd = binConvertorService.bytesToInt(progData, i) ;
+            i += VM.INT_SIZE;
+            int methodsCount = binConvertorService.bytesToInt(progData, i) ;
+            i += VM.INT_SIZE;
             for(int k = 0; k < methodsCount; k++){
-               int methodCode = binReader.readIntAndNext();
-               int methodAddr =  binReader.readIntAndNext();
+               int methodCode =  binConvertorService.bytesToInt(progData, i) ; 
+               i += VM.INT_SIZE; 
+               int methodAddr =  binConvertorService.bytesToInt(progData, i) ; 
+               i += VM.INT_SIZE; 
             }
-            
-            int fieldsCount = binReader.readIntAndNext();
+            int fieldsCount = binConvertorService.bytesToInt(progData, i) ;
+            i += VM.INT_SIZE; 
             for(int k = 0; k < fieldsCount; k++){
-               int fieldCode = binReader.readIntAndNext(); 
-               int fieldType =  binReader.readIntAndNext();
+               int fieldCode =  binConvertorService.bytesToInt(progData, i) ; 
+               i += VM.INT_SIZE; 
+               int fieldType =  binConvertorService.bytesToInt(progData, i) ;
+               i += VM.INT_SIZE; 
             }
         }
     }

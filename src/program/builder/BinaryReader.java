@@ -8,6 +8,7 @@ package program.builder;
 import java.util.ArrayList;
 import virtual.machine.DataBinConvertor;
 import virtual.machine.VM;
+import virtual.machine.VmSections;
 
 /**
  *
@@ -16,6 +17,7 @@ import virtual.machine.VM;
 public class BinaryReader {
     protected ArrayList<Byte> data;
     protected int curPos;
+    protected DataBinConvertor binConvertorService;
 
     public void setCurPos(int curPos) {
         this.curPos = curPos;
@@ -24,7 +26,7 @@ public class BinaryReader {
     public int getCurPos() {
         return curPos;
     }
-    protected DataBinConvertor binConvertorService;
+    
     
     public BinaryReader(ArrayList<Byte> data){
         binConvertorService = DataBinConvertor.getInstance();

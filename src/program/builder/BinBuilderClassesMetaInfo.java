@@ -5,8 +5,10 @@
  */
 package program.builder;
 
+import common.VarType;
 import java.util.ArrayList;
 import java.util.Map;
+import types.TypesInfo;
 
 /**
  *
@@ -14,9 +16,11 @@ import java.util.Map;
  */
 public class BinBuilderClassesMetaInfo {
      protected BinObjBuilder binObjBuilder ;
+     protected TypesInfo typesInfo;
      
      public BinBuilderClassesMetaInfo(){
          this.binObjBuilder = new BinObjBuilder();
+         this.typesInfo = TypesInfo.getInstance();
      }
      
      protected void addClassBinMetaInfo(ClassInfo classInfo){
@@ -31,9 +35,12 @@ public class BinBuilderClassesMetaInfo {
         }
         
        
+        
         for(FieldDescription fieldDescr: classInfo.getFieldsList()){
+           int typeSize = typesInfo.getTypeSize(fieldDescr.getFieldType());
+           
            binObjBuilder.addInt(fieldDescr.getCode());
-           binObjBuilder.addInt(fieldDescr.getFieldType().ordinal());
+           binObjBuilder.addInt(typeSize);
         }
         
         
