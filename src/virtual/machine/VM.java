@@ -93,8 +93,8 @@ public class VM {
         }
     }
     
-    protected void allocateClassesMetaInfo(){
-        ArrayList<Byte> progData = program.getData();
+    protected void allocateClassesMetaInfo() throws VMOutOfMemoryException{
+
         int secStart = program.readHeader(VmSections.ClassesMetaInfoStart);
         int secEnd = program.readHeader(VmSections.InstructionsStart);
         
@@ -105,18 +105,13 @@ public class VM {
  
         while( binReader.getCurPos() < secEnd){ 
             int classInd = binReader.readIntAndNext();
-            int methodsCount = binReader.readIntAndNext();
+            int metaInfoSize = binReader.readIntAndNext();
+            int metaTablePtr =  memHeap.memAlloc(metaInfoSize);
+            System.out.println("MetaSize:" + metaInfoSize);
+            addrTables.setAddrForIndex(VmSections.ClassesTableSize, classInd, metaTablePtr);
             
-            for(int k = 0; k < methodsCount; k++){
-               int methodCode = binReader.readIntAndNext();
-               int methodAddr =  binReader.readIntAndNext();
-            }
+            binReader.nextBytes(metaInfoSize - VM.INT_SIZE);
             
-            int fieldsCount = binReader.readIntAndNext();
-            for(int k = 0; k < fieldsCount; k++){
-               int fieldCode = binReader.readIntAndNext(); 
-               int fieldType =  binReader.readIntAndNext();
-            }
         }
     }
     

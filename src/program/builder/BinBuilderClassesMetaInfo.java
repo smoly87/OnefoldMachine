@@ -9,6 +9,7 @@ import common.VarType;
 import java.util.ArrayList;
 import java.util.Map;
 import types.TypesInfo;
+import virtual.machine.VM;
 
 /**
  *
@@ -17,6 +18,7 @@ import types.TypesInfo;
 public class BinBuilderClassesMetaInfo {
      protected BinObjBuilder binObjBuilder ;
      protected TypesInfo typesInfo;
+     protected final int HEADERS_SIZE = 4;
      
      public BinBuilderClassesMetaInfo(){
          this.binObjBuilder = new BinObjBuilder();
@@ -25,25 +27,28 @@ public class BinBuilderClassesMetaInfo {
      
      protected void addClassBinMetaInfo(ClassInfo classInfo){
         //ClassCode|MethodsCount|FieldsCount|MethodsList|FieldsList
-        binObjBuilder.addInt(classInfo.getCode());
-        binObjBuilder.addInt(classInfo.getMethodsList().size());
-        binObjBuilder.addInt(classInfo.getFieldsList().size());
+        int totalSize = 0;
+        binObjBuilder.addInt(classInfo.getCode())
+                     .addInt(totalSize)
+                     .addInt(classInfo.getMethodsList().size())
+                     .addInt(classInfo.getFieldsList().size());
         
         for(MethodDescription methodDescr: classInfo.getMethodsList()){
-           binObjBuilder.addInt(methodDescr.getCode());
-           binObjBuilder.addInt(methodDescr.getAddress());
+           binObjBuilder.addInt(methodDescr.getCode())
+                        .addInt(methodDescr.getAddress());
         }
         
        
         
         for(FieldDescription fieldDescr: classInfo.getFieldsList()){
            int typeSize = typesInfo.getTypeSize(fieldDescr.getFieldType());
-           
-           binObjBuilder.addInt(fieldDescr.getCode());
-           binObjBuilder.addInt(typeSize);
+           totalSize += typeSize;
+           binObjBuilder.addInt(fieldDescr.getCode())
+                        .addInt(typeSize);
         }
-        
-        
+        // 4 is headers size
+        totalSize += (classInfo.getMethodsList().size() + classInfo.getFieldsList().size() + HEADERS_SIZE) * VM.INT_SIZE;
+        binObjBuilder.setInt(1, totalSize);
        
         
     }

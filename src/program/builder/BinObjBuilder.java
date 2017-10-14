@@ -7,6 +7,7 @@ package program.builder;
 
 import java.util.ArrayList;
 import virtual.machine.DataBinConvertor;
+import virtual.machine.VM;
 
 /**
  *
@@ -28,7 +29,11 @@ public class BinObjBuilder {
    
    public BinObjBuilder addInt(int value){
        result.addAll(binConverter.integerToByteList(value));
-       System.out.println("b>" + value);
        return this;
    } 
+   
+   public BinObjBuilder setInt(int pos, int value){
+       binConverter.setIntegerToByteList(result,  value, pos * VM.INT_SIZE);
+       return this;
+   }
 }
