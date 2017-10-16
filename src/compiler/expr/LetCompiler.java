@@ -7,6 +7,7 @@ package compiler.expr;
 
 import common.VarType;
 import compiler.AstCompiler;
+import compiler.exception.CompilerException;
 import syntax.analyser.AstNode;
 import program.builder.ProgramBuilder;
 import virtual.machine.VMCommands;
@@ -18,7 +19,7 @@ import virtual.machine.VMCommands;
 public class LetCompiler extends AstCompiler{
 
     @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) {
+    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
          String tokName = node.getToken().getTagName();
         switch(tokName){
              //Do Nothing with mathExpr
@@ -32,13 +33,10 @@ public class LetCompiler extends AstCompiler{
                  //So we can make protection of modify global vars
                  // And what about Load Var Global and local
                  if(!programBuilder.isIsLocalContext()){
-                     programBuilder.addInstruction(VMCommands.Var_Put, varName);
+                     programBuilder.addInstructionVarArg(VMCommands.Var_Put, varName, programBuilder.isIsLocalContext());
                  } else {
-                     programBuilder.addInstruction(VMCommands.Var_Put_Local, varName);
+                     programBuilder.addInstructionVarArg(VMCommands.Var_Put_Local, varName, programBuilder.isIsLocalContext());
                  }
-                 
-                 
-                
                  break;
          }
     }

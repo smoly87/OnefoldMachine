@@ -12,7 +12,7 @@ package virtual.machine;
 public enum VMCommands {
     NOP, Halt,
     Push, Push_Addr, Pop, Jmp, 
-    Var_Put, Var_Load,
+    Var_Put, Var_Load, Var_Declare_Local,
     Add, Mul,
     Var_Put_Local, Var_Load_Local,
     Invoke_Sys_Function

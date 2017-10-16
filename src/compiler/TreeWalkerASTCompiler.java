@@ -24,12 +24,13 @@ public class TreeWalkerASTCompiler  {
         this.programBuilder = new ProgramBuilder();
     }
     
-    public ProgramBuilder walkTree(AstNode rootNode){
+    public ProgramBuilder walkTree(AstNode rootNode) throws CompilerException{
         
          walk(rootNode, rootNode.getCompiler());
          return programBuilder;
     }
-    protected void walk(AstNode node, AstCompiler compiler){
+    
+    protected void walk(AstNode node, AstCompiler compiler) throws CompilerException{
         
         try {
             if(node.getCompiler() != null){

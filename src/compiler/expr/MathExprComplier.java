@@ -7,8 +7,10 @@ package compiler.expr;
 
 import common.VarType;
 import compiler.AstCompiler;
+import compiler.exception.CompilerException;
 import syntax.analyser.AstNode;
 import program.builder.ProgramBuilder;
+import syntax.analyser.CompilerUndeclaredVariableException;
 import virtual.machine.VMCommands;
 
 /**
@@ -18,7 +20,7 @@ import virtual.machine.VMCommands;
 public class MathExprComplier extends AstCompiler{
 
     @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) {
+    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         switch(node.getToken().getTagName()){
             //TODO: convension of naming
             case "Id":
@@ -26,9 +28,10 @@ public class MathExprComplier extends AstCompiler{
                 // It should be fine with order of code execution
                 String varName = node.getToken().getValue();
                 if(programBuilder.isVarExists(varName)){
-                     programBuilder.addInstruction(VMCommands.Var_Load, varName);
+                     programBuilder.addInstructionVarArg(VMCommands.Var_Load, varName, programBuilder.isIsLocalContext());
+              
                 } else {
-                    programBuilder.addInstruction(VMCommands.Var_Load_Local, varName);
+                    throw new CompilerException(varName);
                 }
                
                 

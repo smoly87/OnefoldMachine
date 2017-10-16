@@ -55,6 +55,16 @@ public class Memory {
         }
         return res;
     }
+    
+    public Byte[] getPtrValue(int addr){
+        int size = this.getIntValue(addr);
+        return this.getValue(addr + VM.INT_SIZE, size);
+    }
+    
+     public int  getIntPtrValue(int addr){
+       // Addr check  
+       return  binConvertorService.bytesToInt(data, addr + VM.INT_SIZE);
+    }
     /**
      * This method uses to get a single cell as integer
      * In most cases it's a pointer to address

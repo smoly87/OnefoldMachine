@@ -70,16 +70,15 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
                           .get("Function")
                           .setCompiler(this.getCompiler("Function"))
                           .setName("FunctionHeader")
-                          .addChildNode(result.get("Id"), "FunctionId")
-                          .addChildNode(result.get("FunctionBody"), "FunctionBody")
-                          .addChildNode(result.get("EndFunction"), "EndFunction");
+                          .addChildNode(result.get("Id"), "FunctionId");
+        
+        transformVarsNode(result.get("VarsBlock"), rootNode);
+        
+        rootNode.addChildNode(result.get("FunctionBody"), "FunctionBody")
+                .addChildNode(result.get("ReturnStatement"), "ReturnStatement")
+                .addChildNode(result.get("EndFunction"), "EndFunction");
         
         System.out.println("Function parser has been reached");
-
-        transformVarsNode(result.get("VarsBlock"), rootNode);
-        rootNode.addChildNode(result.get("ReturnStatement"), "ReturnStatement");
-   
-        
         return rootNode;
     }
     

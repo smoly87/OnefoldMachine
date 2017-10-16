@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
+import program.builder.BinObjBuilder;
 import program.builder.BinaryReader;
 import virtual.machine.memory.MemoryHeap;
 import virtual.machine.memory.MemoryManager;
@@ -89,6 +90,7 @@ public class VM {
             memHeap.putValue(ptrAddr+ INT_SIZE, progData, binReader.getCurPos() , binReader.getCurPos() +   varSize);
             addrTables.setAddrForIndex(VmSections.ConstTableSize, varInd, ptrAddr);
             
+            //System.out.println(String.format("VarInd: %s with value %s", varInd, memHeap.getIntValue(ptrAddr+ INT_SIZE)));
             binReader.nextBytes(varSize);  
         }
     }
@@ -165,11 +167,16 @@ public class VM {
                 case Push:
                   
                     int constAdrPtr = addrTables.getAddrByIndex(VmSections.ConstTableSize, addr); 
-                    System.err.println("Read addr dbg: " + addr+ " ,"+ constAdrPtr);
+                    
                     memHeap.putValue(i + 1, constAdrPtr);
                     memHeap.putValue(i, (byte)VMCommands.Push_Addr.ordinal());
    
                     
+                    break;
+                case Invoke_Sys_Function: case Var_Declare_Local: //case Var_Load_Local: case Var_Put_Local:
+                    constAdrPtr = addrTables.getAddrByIndex(VmSections.ConstTableSize, addr); 
+                    memHeap.putValue(i + 1, constAdrPtr);
+                     
                     break;
                 case Var_Load: 
                     varAdrPtr = addrTables.getAddrByIndex(VmSections.VarTableSize, addr); 
@@ -203,19 +210,52 @@ public class VM {
     
     protected int sysMemAllocStack() throws VmStackEmptyPop, VMStackOverflowException {
          MemoryStack memStack = this.memoryManager.getMemStack();
-         int ptrSize = stackPopInt();
-        /* new Byte[ptrSize]*/
-        // int ptrStart = memStack.push();
+         int dataSize = stackPopInt();
          
-         return 0;
+         Byte[] data = new Byte[dataSize];
+         int ptrStart = memStack.push(data);
+         memStack.push(binConvertorService.integerToByte(ptrStart)); 
+         
+         System.out.println(String.format("Allocate on stack: %s in addr# %s", dataSize, ptrStart));
+         return ptrStart;
+    }
+    
+    protected int sysMemAlloc() throws VmStackEmptyPop, VMOutOfMemoryException, VMStackOverflowException{
+        MemoryHeap memHeap = this.memoryManager.getMemHeap();
+        MemoryStack memStack = this.memoryManager.getMemStack();
+        
+        int dataSize = stackPopInt();
+        int ptrStart = memHeap.memAlloc(dataSize);
+        
+        memStack.push(binConvertorService.integerToByte(ptrStart)); 
+        return ptrStart;
     }
     
     
-    protected void callSysFunc(int funcType) throws VmStackEmptyPop, VMStackOverflowException{
+    protected void callSysFunc(int funcTypeAddrPtr) throws VmStackEmptyPop, VMStackOverflowException, VMOutOfMemoryException{   
+        MemoryStack memStack = this.memoryManager.getMemStack();
+        int funcType  = memStack.getIntPtrValue(funcTypeAddrPtr);
+        int arg;
+        
         VMSysFunction sysFunc = VMSysFunction.values()[funcType];
+      
+         System.err.println("Sys func called: " + sysFunc.toString() + "(" + funcTypeAddrPtr + ")");
         switch(sysFunc){
+            case MemAlloc:
+                sysMemAlloc();
+                break;
             case MemAllocStack:
                 sysMemAllocStack();
+                break;
+            case GetRegister:
+                arg = stackPopInt();
+                int regValue = memoryManager.getSysRegister(VmSysRegister.values()[arg]);
+                memStack.push(binConvertorService.integerToByte(regValue));
+                break;
+            case SetRegister:
+                arg = stackPopInt();
+                regValue = stackPopInt();  
+                memoryManager.setSysRegister(VmSysRegister.values()[arg], regValue);
                 break;
         }
     }
@@ -251,12 +291,12 @@ public class VM {
         MemoryProgram memProg =  new MemoryProgram(memoryManager, startAddr);
         
         MemoryStack memStack = this.memoryManager.getMemStack();
-        
+        MemoryHeap memHeap = this.memoryManager.getMemHeap();
         //Continue in jmp
         
         memProg.jump(startAddr);
         
-        
+        Byte[] value;
         
         while (!haltFlag) {
                 VMCommands command = memProg.getCommand();
@@ -265,9 +305,12 @@ public class VM {
                 
                 switch (command) {
                     case Push_Addr:
-                        Byte[] value = memoryManager.getPtrByteValue(addr);
+                        value = memoryManager.getPtrByteValue(addr);
                         memStack.push(value);
                        System.err.println("Stack push: " + binConvertorService.bytesToInt(value, 0));
+                        break;
+                    case Pop:
+                        memStack.pop();
                         break;
                     case Add:
                         arg1 = stackPopInt();
@@ -281,16 +324,12 @@ public class VM {
                         operRes = arg1 * arg2;
                         memStack.push(binConvertorService.integerToByte(operRes));
                         break;
-                    case Var_Put:
-                      
+                    case Var_Put:        
                         memStack.pop(addr);
-                         arg1 = memoryManager.getIntValue(addr);
-                           System.err.println("Var_PUt: " + addr + " " + arg1 );
                         break;
                     case Var_Load:
-                        arg1 = memoryManager.getValue(addr);
-                        System.err.println("Var_Load: " + addr + " " + arg1);
-                        memStack.push(binConvertorService.integerToByte(arg1));
+                        value = memoryManager.getPtrValue(addr);
+                        memStack.push(value);
                         break;
                     case Jmp:
                         if(addr == 0){
@@ -303,20 +342,36 @@ public class VM {
                         break;
                     case Halt:
                         haltFlag = true;
-                        System.out.println("Program finished with Halt Command"); 
+                        //System.out.println("Program finished with Halt Command"); 
+                        break;
+                    //TODO: Possibly this command should be replaced to call syss func?    
+                    case Var_Declare_Local:
+                        int varSize = stackPopInt();
+                        memStack.push(new Byte[varSize]);
+                        int locVarAddr = memoryManager.getSysRegister(VmSysRegister.StackHeadPos);
+                        int varInd = memHeap.getIntPtrValue(addr);
+                        
+                        System.out.println(String.format( "Local var declared: %s with size %s at addr #%s ", varInd ,varSize, locVarAddr));
+                        int frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackPos)  ;
+                        memStack.putValue(frameStart + varInd * INT_SIZE, locVarAddr);
+                        //int locVarPtrmemHeap.memAlloc(varSize);
+                        break;
+                    case Var_Put_Local:
+                        /*Local var table is allocated at the begin of stack address space
+                        Table Format: int|int|...
+                        This table is table of pointers
+                        */
+                        varInd = addr;
+                        System.err.println(String.format("Put var %s", varInd));
+                         frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackPos)  ;
+                         int varAddr = memStack.getIntValue(frameStart + varInd * INT_SIZE);
+                         
+                         memStack.pop(varAddr);
+                        
                         break;
                     default:
                         System.err.println("Unprocessed command: " + command.toString());
-                    /*case "Pop":
-                    int val = stack.pop();
-                    addr = this.getIntValueMovePointer();
-                    memory.putValue(addr, val);
-                    break;
-                case "Jmp":
-                    this.pos = this.getIntValueMovePointer();
-                    break;  
-                case "InvokeFunc":
-                    break;*/
+               
                 }
                 memProg.next();
             }

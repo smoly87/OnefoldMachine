@@ -10,6 +10,7 @@ package virtual.machine.memory;
  * @author Andrey
  */
 public enum VmSysRegister {
-   LastHeapPos, StackHeadPos, StackSize,
+   LastHeapPos, StackHeadPos, StackSize, FrameStackPos,
    ProgOffsetAddr, ProgEndAddr
+   
 }
