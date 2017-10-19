@@ -12,7 +12,7 @@ package virtual.machine;
 //This address tables 4 bytes - int addr of var, func etc
     //ConstCount|VarCount|...funcCount|ClassesCount
     // After instructions
-public enum VmSections {
-   ConstTableSize, VarTableSize, ClassesTableSize,
+public enum VmExeHeader {
+   ConstTableSize, VarTableSize, ClassesTableSize, ProgramStartPoint,
    ConstStart, VarTableStart, ClassesMetaInfoStart,  InstructionsStart
 }

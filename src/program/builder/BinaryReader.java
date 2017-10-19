@@ -8,7 +8,7 @@ package program.builder;
 import java.util.ArrayList;
 import virtual.machine.DataBinConvertor;
 import virtual.machine.VM;
-import virtual.machine.VmSections;
+import virtual.machine.VmExeHeader;
 
 /**
  *

@@ -41,6 +41,7 @@ public class TreeWalkerASTCompiler  {
             if(compiler != null) compiler.compileRootPre(node, programBuilder);
             if(node.hasChildNodes()){
                 for(AstNode curNode : node.getChildNodes()){
+                    if(curNode == null) continue;
                     if(curNode.hasChildNodes()){
                         AstCompiler compilerL = compiler;
                         if(curNode.getCompiler()!=null){
@@ -56,7 +57,7 @@ public class TreeWalkerASTCompiler  {
                 
             }
         } catch (CompilerException ex) {
-           System.err.println("Compilation error: " + ex.getMessage());
+           System.err.println("Compilation error: " + ex.getMessage()  );
         }
     }
 }

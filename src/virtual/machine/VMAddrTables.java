@@ -14,7 +14,7 @@ import virtual.machine.memory.VmSysRegister;
  * @author Andrey
  */
 public class VMAddrTables {
-    protected HashMap<VmSections, Integer> tablesOffset;
+    protected HashMap<VmExeHeader, Integer> tablesOffset;
     protected Program program;
     protected MemoryHeap memHeap;
     protected int curOffset;
@@ -26,7 +26,7 @@ public class VMAddrTables {
         tablesOffset = new HashMap<>();
     }
         
-    public int getAddrByIndex(VmSections tableType, int varInd){ 
+    public int getAddrByIndex(VmExeHeader tableType, int varInd){ 
         varInd++;
         int tableOffset = tablesOffset.get(tableType);
         //Everywhere is plus 1, because first index is length of pointer
@@ -36,7 +36,7 @@ public class VMAddrTables {
         return varAdrPtr;
     }
     
-    public void setAddrForIndex(VmSections tableType, int varInd, int addr){
+    public void setAddrForIndex(VmExeHeader tableType, int varInd, int addr){
         varInd++;
       int tableOffset = tablesOffset.get(tableType);  
       int cellAddr = varInd  * VM.ADDR_SIZE + tableOffset;
@@ -44,7 +44,7 @@ public class VMAddrTables {
       memHeap.putValue(cellAddr, addr);
     }
     
-    public void add(VmSections tableType) throws VMOutOfMemoryException{
+    public void add(VmExeHeader tableType) throws VMOutOfMemoryException{
          tablesOffset.put(tableType, curOffset);
          int size = program.readHeader(tableType);
          memHeap.memAlloc((size + 1) * VM.INT_SIZE);

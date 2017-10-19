@@ -27,13 +27,7 @@ public class MathExprComplier extends AstCompiler{
                 //TODO: if Var existed in global variables check
                 // It should be fine with order of code execution
                 String varName = node.getToken().getValue();
-                if(programBuilder.isVarExists(varName)){
-                     programBuilder.addInstructionVarArg(VMCommands.Var_Load, varName, programBuilder.isIsLocalContext());
-              
-                } else {
-                    throw new CompilerException(varName);
-                }
-               
+                this.addVarLoadCommand(varName, programBuilder);
                 
                 break;
             case "Integer": case "Float":

@@ -9,6 +9,7 @@ package program.builder;
 import common.Token;
 import common.VarType;
 import compiler.exception.CompilerException;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ import virtual.machine.Program;
 import virtual.machine.VM;
 import virtual.machine.VMCommands;
 import virtual.machine.VMSysFunction;
-import virtual.machine.VmSections;
+import virtual.machine.VmExeHeader;
 
 /**
  *
@@ -38,7 +39,7 @@ public class ProgramBuilder  {
     protected LinkedHashMap<String, VarDescription> varsMap;
     protected LinkedHashMap<String, VarDescription> localVarsMap;
     protected LinkedHashMap<ValueDescription, Integer> valuesMap;
-    protected HashMap<String, FunctionDescription> funcsMap;
+    
     protected int totalLocalVarSizes;
 
     public int getTotalLocalVarSizes() {
@@ -57,17 +58,6 @@ public class ProgramBuilder  {
         return progData.size();
     }
     
-    public void addFunction(String funcName, FunctionDescription funcDescr){
-        //funcAddressesMap
-        funcsMap.put(funcName, funcDescr);
-    }
-    
-    public FunctionDescription getFuncDescr(String funcName) throws CompilerException{
-        if(!funcsMap.containsKey(funcName)){
-            throw new CompilerException("Call unknown function: " + funcName);
-        }
-        return funcsMap.get(funcName);
-    }
     
     public boolean isIsLocalContext() {
         return isLocalContext;
@@ -90,9 +80,11 @@ public class ProgramBuilder  {
         valuesMap = new LinkedHashMap<>();
         localVarsMap = new LinkedHashMap<>();
         progData = new ArrayList<>();
-        funcsMap = new HashMap<>();
+        
         totalLocalVarSizes = 0;
         typesInfo = TypesInfo.getInstance();
+        
+        addInstruction(VMCommands.NOP, 0, VarType.Integer);
     }
     
     public void addVar(String name, VarType type){
@@ -124,6 +116,9 @@ public class ProgramBuilder  {
         }
     }
     
+    public Boolean isLocalVariableExists(String varName){
+        return  localVarsMap.containsKey(varName);
+    }
     
     public int  getVarCode(String name) throws CompilerException{
         if(varsMap.containsKey(name)){
@@ -137,8 +132,7 @@ public class ProgramBuilder  {
         return 0;
     }
   
-    public Program getResult(){
-        // Do it in builder way... add return this
+    public Program getResult() throws CompilerException{
         BinBuilder binBuilder = new BinBuilder();
         
         ArrayList<Byte> binData = binBuilder.addHeadersPlaceHolder()
@@ -146,6 +140,7 @@ public class ProgramBuilder  {
                   .addVarSection(varsMap)
                   .addClassesMetaInfo()
                   .addSection(this.progData)
+                  .addEntryPoint()
                   .getResult();
         
         return new Program(binData);
@@ -173,45 +168,56 @@ public class ProgramBuilder  {
         } else{
             constInd = valuesMap.get(valDescr);
         }
+        // System.err.println(String.format("Changeat pos: %s value: %s ", commandNumStart, value));
         binConvertorService.setIntegerToByteList(progData, constInd, commandNumStart + 1  );
     }
-            
-    public void addInstruction(VMCommands command, String value, VarType type){
-        ValueDescription valDescr = new ValueDescription(type, value);
-        int constInd = 0;
-        if(!valuesMap.containsKey(valDescr)){
-            constInd = valuesMap.size();
-            valuesMap.put(valDescr, constInd);
-        } else{
-            constInd = valuesMap.get(valDescr);
-        }
-        
-        ArrayList<Byte> constBinVal = binConvertorService.integerToByteList(constInd);
-        
-        this.addData((byte)command.ordinal());
-        this.addData(constBinVal);
-        
     
-        asmText.add(command.toString() + " " + value + "("+ constInd +")");
+    public void addInstruction(VMCommands command, int value, VarType type){
+        addInstruction(command, Integer.toString(value), type, true);
+    }        
+    
+    public void addInstruction(VMCommands command, String value, VarType type){
+        addInstruction(command, value, type, true );
+    }
+    
+    public void addInstruction(VMCommands command, String value, VarType type, Boolean constantTransform){
+        this.addData((byte)command.ordinal());
+        ArrayList<Byte> binVal = null;
+        if (constantTransform) {
+            ValueDescription valDescr = new ValueDescription(type, value);
+            int constInd = 0;
+            if (!valuesMap.containsKey(valDescr)) {
+                constInd = valuesMap.size();
+                valuesMap.put(valDescr, constInd);
+            } else {
+                constInd = valuesMap.get(valDescr);
+            }
+
+            binVal = binConvertorService.integerToByteList(constInd);
+            asmText.add(command.toString() + " " + value + "("+ constInd +")");
+        } else {
+            binVal = binConvertorService.integerToByteList(Integer.parseInt(value));
+            asmText.add(command.toString() + " " + value + "("+ value +")");
+        }
+        this.addData(binVal);
+        
     }
     
 
     public void addInstructionVarArg(VMCommands command, String varName, Boolean isLocal) throws CompilerException{
         int varCode ;
         if(isLocal){
-            varCode = this.getLocalVarCode(varName);
+            varCode = this.getLocalVarCode(varName) ;
         } else {
             varCode = this.getVarCode(varName);
         }
         
        
         this.addData((byte)command.ordinal());
-        //TODO: Arg size to int, now we have limit to 256 variables
-        //Adresses no matter size is 4 byte!!
         this.addData(binConvertorService.integerToByteList(varCode));
         
        
-        asmText.add(String.format("%s %s (%s)", command.toString() , varName,varCode ));
+        asmText.add(String.format("%s %s (%s)", command.toString(), varName, varCode ));
     }
      
    

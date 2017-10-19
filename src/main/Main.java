@@ -27,7 +27,7 @@ import virtual.machine.DataBinConvertor;
 import virtual.machine.Program;
 import virtual.machine.VM;
 import virtual.machine.VMCommands;
-import virtual.machine.VmSections;
+import virtual.machine.VmExeHeader;
 
 /**
  *
@@ -43,7 +43,7 @@ public class Main {
         FullPipeline fullPipe = new  FullPipeline();
        
        // try{
-            String path = Main.class.getResource("/assets/class_expr.txt").getPath();
+            String path = Main.class.getResource("/assets/func_expr.txt").getPath();
             Scanner scanner = new Scanner( new File(path), "UTF-8" );
             String programSrc = scanner.useDelimiter("\\A").next();
             scanner.close();
@@ -71,8 +71,8 @@ public class Main {
             System.out.println("Conv from bytes: " + dBin.bytesToInt(val, 0)); ;*/
             
             System.out.println("Headers info");
-            System.out.println(prog.readHeader(VmSections.ConstStart));
-            System.out.println(prog.readHeader(VmSections.VarTableSize));
+            System.out.println(prog.readHeader(VmExeHeader.ConstStart));
+            System.out.println(prog.readHeader(VmExeHeader.VarTableSize));
             
             VM virtMachine = new VM();
             virtMachine.run(prog);

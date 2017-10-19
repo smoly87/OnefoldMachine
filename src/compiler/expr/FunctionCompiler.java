@@ -10,6 +10,7 @@ import common.VarType;
 import compiler.AstCompiler;
 import compiler.exception.CompilerException;
 import program.builder.FunctionDescription;
+import program.builder.MetaClassesInfo;
 import program.builder.ProgramBuilder;
 import syntax.analyser.AstNode;
 import types.TypesInfo;
@@ -29,7 +30,7 @@ public class FunctionCompiler extends AstCompiler{
     protected FunctionDescription funcDescr ;
     protected int funStartCommandNum;
     protected TypesInfo typesInfo;
-    protected int headVarsSize;
+
     
     public FunctionCompiler(){
         typesInfo = TypesInfo.getInstance();
@@ -41,21 +42,21 @@ public class FunctionCompiler extends AstCompiler{
         funcDescr.addArgDecription(token.getValue(), token.getVarType());
         
         programBuilder.addLocalVar(token.getValue(), token.getVarType());
-        int varInd = programBuilder.getLocalVarCode(token.getValue());
+       /* int varInd = programBuilder.getLocalVarCode(token.getValue());
         
         int typeSize = typesInfo.getTypeSize(token.getVarType());
-        headVarsSize += typeSize;
         String typeSizeStr = Integer.toString(typeSize);
         programBuilder.addInstruction(VMCommands.Push, typeSizeStr, VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Var_Declare_Local, Integer.toString(varInd), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Var_Declare_Local, Integer.toString(varInd), VarType.Integer);*/
         
        
     }
     
-    protected void processReturnStatement(AstNode node, ProgramBuilder programBuilder){
+    protected void processReturnStatement(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         Token token = node.getToken(); 
         switch(token.getTagName()){
             case "Id":
+                addVarLoadCommand(token.getValue(), programBuilder);
                 break;
             //All other types Int, Float..    
             default:
@@ -66,27 +67,9 @@ public class FunctionCompiler extends AstCompiler{
     }
     
     
-    protected String regToStr(VmSysRegister reg){
-        return  Integer.toString(reg.ordinal());
-    }
+ 
     
-    protected String sysFuncToStr(VMSysFunction sysFunc){
-        return Integer.toString(sysFunc.ordinal());
-    }
-    
-    protected void createFrameStack(ProgramBuilder programBuilder){
-        programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.StackHeadPos), VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
-
-        programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.FrameStackPos), VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
-
-        funStartCommandNum = programBuilder.getLineCount();
-        programBuilder.addInstruction(VMCommands.Push, "0", VarType.Integer); // PlaceHolder for Var count;
-        //Create table of local variables addresses by index
-        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.MemAllocStack), VarType.Integer);
-
-    }
+   
     
     @Override
     public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
@@ -94,13 +77,18 @@ public class FunctionCompiler extends AstCompiler{
         switch(node.getName()){
             case "FunctionId":  
                 Token token = node.getToken();
-                this.funcName = token.getValue();
-                funcDescr = new FunctionDescription();
-                headVarsSize = 0;
                 
                 programBuilder.setIsLocalContext(true);
                 programBuilder.clearLocalVars();
-                createFrameStack(programBuilder);
+                
+                this.funcName = token.getValue();
+                /*/Start point is nop, this is protection from empty functions 
+                and it relieves from recount numeration of first Line*/
+                programBuilder.addInstruction(VMCommands.NOP, 0, VarType.Integer);
+                
+                funcDescr = new FunctionDescription(this.funcName, programBuilder.getLineCount());
+               
+
                 
                 break;
             case "VarDescription":
@@ -108,10 +96,22 @@ public class FunctionCompiler extends AstCompiler{
                 break;  
             case "ReturnStatement":
                 //Clear local variables table
-                programBuilder.addInstruction(VMCommands.Pop, "0", VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Push, VmSysRegister.FrameStackPos.ordinal(), VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.StackHeadPos.ordinal(), VarType.Integer);
+
                 processReturnStatement(node, programBuilder);
                 processVariables(programBuilder);
-                programBuilder.addFunction(funcName, funcDescr);
+                MetaClassesInfo.getInstance().addFunction(funcName, funcDescr);
+                
+                //Return to call address
+                programBuilder.addInstruction(VMCommands.Push, VmSysRegister.F1.ordinal(), VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
+                //If address is null it will be got from stack
+                programBuilder.addInstruction(VMCommands.Jmp, 0, VarType.Integer);
+                
+                programBuilder.addInstruction(VMCommands.NOP, 0, VarType.Integer);
+                funcDescr.setEndLineNumber(programBuilder.getLineCount() );
+                
                 break;
         }
         this.callSubscribers(node, programBuilder);
@@ -127,12 +127,10 @@ public class FunctionCompiler extends AstCompiler{
     public void processVariables( ProgramBuilder programBuilder) {
          programBuilder.setIsLocalContext(false);
          VarCompiler varCompiler = (VarCompiler)this.getCompiler("Var");
-         int totalVarsCount = declaredVarsCount + varCompiler.getLocalVarsCount();
+         //int totalVarsCount = declaredVarsCount + varCompiler.getLocalVarsCount();
+         funcDescr.setLocalVarsCount(varCompiler.getLocalVarsCount());
          varCompiler.clearLocalVarsCount();
         
-         //Amend placeholder to real value of vars count
-         int localVarsTableSize = totalVarsCount * VM.INT_SIZE ;
-         programBuilder.changeCommandArg(funStartCommandNum, localVarsTableSize , VarType.Integer);
         
     }
     

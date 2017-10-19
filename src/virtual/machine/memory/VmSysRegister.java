@@ -11,6 +11,8 @@ package virtual.machine.memory;
  */
 public enum VmSysRegister {
    LastHeapPos, StackHeadPos, StackSize, FrameStackPos,
-   ProgOffsetAddr, ProgEndAddr
+   ProgOffsetAddr, ProgEndAddr,
+   F1, F2,
+   T1, T2, T3, T4
    
 }

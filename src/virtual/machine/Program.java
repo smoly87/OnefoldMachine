@@ -28,7 +28,7 @@ public class Program {
         return data;
     }
     
-    public int readHeader(VmSections header){
+    public int readHeader(VmExeHeader header){
       int headerOffset =  header.ordinal() * VM.INT_SIZE; 
       return  this.binConvertorService.bytesToInt(data, headerOffset); 
     }

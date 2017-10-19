@@ -6,6 +6,7 @@
 package program.builder;
 
 import common.VarType;
+import compiler.exception.CompilerException;
 import program.builder.VarDescription;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +17,7 @@ import virtual.machine.DataBinConvertor;
 import types.TypesInfo;
 import virtual.machine.VMCommands;
 import virtual.machine.VM;
-import virtual.machine.VmSections;
+import virtual.machine.VmExeHeader;
 
 /**
  *
@@ -41,7 +42,7 @@ public class BinBuilder {
      }
      
      protected int getHeadersSize(){
-         return VmSections.values().length * VM.INT_SIZE;
+         return VmExeHeader.values().length * VM.INT_SIZE;
      }
      
      public BinBuilder addHeadersPlaceHolder(){
@@ -56,7 +57,7 @@ public class BinBuilder {
          return this;
      }
      
-     public void writeHeader(VmSections header, int value){
+     public void writeHeader(VmExeHeader header, int value){
          //All headers is int
          binConverter.setIntegerToByteList(fullData, value, header.ordinal() * VM.INT_SIZE); 
      }
@@ -74,8 +75,8 @@ public class BinBuilder {
         
         //Each varible stored in 2 bytes - code and type
         // Each field is intger
-        writeHeader( VmSections.VarTableSize, varsMap.size()); 
-        writeHeader( VmSections.ClassesMetaInfoStart, fullData.size()); 
+        writeHeader(VmExeHeader.VarTableSize, varsMap.size()); 
+        writeHeader(VmExeHeader.ClassesMetaInfoStart, fullData.size()); 
 
         return this;
         
@@ -101,21 +102,30 @@ public class BinBuilder {
         //Each varible stored in 2 bytes - code and type
         // Each field is intger
         
-        writeHeader( VmSections.ConstTableSize, valuesMap.size()); 
-        writeHeader( VmSections.ConstStart, getHeadersSize());
-        writeHeader( VmSections.VarTableStart, fullData.size()); 
+        writeHeader(VmExeHeader.ConstTableSize, valuesMap.size()); 
+        writeHeader(VmExeHeader.ConstStart, getHeadersSize());
+        writeHeader(VmExeHeader.VarTableStart, fullData.size()); 
 
         return this;
     }
     
 
+    public BinBuilder addEntryPoint() {
+        MetaClassesInfo metaInfo =  MetaClassesInfo.getInstance();
+       /* if(!metaInfo.isFunctionExists("main")){
+            throw new CompilerException("Function with name main not exists! It's mandatory.");
+        }
+        FunctionDescription mainFunc = metaInfo.getFuncDescr("main");*/
+        writeHeader(VmExeHeader.ProgramStartPoint, metaInfo.getEntryPoint());
+        return this;
+    }
     
     public BinBuilder addClassesMetaInfo(){
         BinBuilderClassesMetaInfo metaBinBuilder = new BinBuilderClassesMetaInfo();
         fullData.addAll(metaBinBuilder.getClassesMetaInfo());
         
-        writeHeader( VmSections.ClassesTableSize, MetaClassesInfo.getInstance().classesMap.size()); 
-        writeHeader( VmSections.InstructionsStart, fullData.size()); 
+        writeHeader(VmExeHeader.ClassesTableSize, MetaClassesInfo.getInstance().classesMap.size()); 
+        writeHeader(VmExeHeader.InstructionsStart, fullData.size()); 
         return this;
     }
     

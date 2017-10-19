@@ -21,7 +21,7 @@ import syntax.analyser.parser.ParserTag;
  *
  * @author Andrey
  */
-public class LetBuilder extends ParserChain implements ParserBuilder{
+public class NewObjOperatorBuilder extends ParserChain implements ParserBuilder{
 
    
     protected Parser getRightPartParser(){
@@ -35,12 +35,9 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
     public Parser build() {
         //Указать нужен ли результат парсера
        return this
-            .addKeyword("Let")
-            .addTag("Id")
-            .addKeyword("=")
-            .add(getRightPartParser(), "RightPartExpr")
-            .addKeyword(";");
             
+            .addKeyword("New")
+            .addTag("Id");   
     }
     
     @Override

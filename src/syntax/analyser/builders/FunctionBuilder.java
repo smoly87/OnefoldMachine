@@ -16,6 +16,7 @@ import syntax.analyser.Parser;
 import syntax.analyser.parser.ParserAlternative;
 import syntax.analyser.parser.ParserChain;
 import syntax.analyser.parser.ParserMathExpr;
+import syntax.analyser.parser.ParserOptional;
 import syntax.analyser.parser.ParserRepeated;
 import syntax.analyser.parser.ParserStatement;
 import syntax.analyser.parser.ParserTag;
@@ -27,7 +28,7 @@ import syntax.analyser.parser.ParserTag;
 public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     
     protected Parser getVarBlockRepeatedParser(){
-        return new ParserRepeated(this.getParser("Var"));
+        return new ParserOptional( new ParserRepeated(this.getParser("Var")));
     }
     
     protected Parser getFunctionBodyParser(){

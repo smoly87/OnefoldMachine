@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import program.builder.BinObjBuilder;
 import program.builder.BinaryReader;
 import virtual.machine.memory.MemoryHeap;
@@ -33,6 +35,7 @@ public class VM {
     
     public static  int ADDR_SIZE = 4;
     public static  int INT_SIZE = 4;
+    public static int COMMAND_SIZE =  1 + INT_SIZE; 
     //... not realised yet
  
 
@@ -57,8 +60,8 @@ public class VM {
     
     protected void allocateVariables() throws VMOutOfMemoryException{
         MemoryHeap memHeap = getMemHeap();
-        int secStart = program.readHeader(VmSections.VarTableStart);
-        int secEnd = program.readHeader(VmSections.ClassesMetaInfoStart);
+        int secStart = program.readHeader(VmExeHeader.VarTableStart);
+        int secEnd = program.readHeader(VmExeHeader.ClassesMetaInfoStart);
         
         BinaryReader binReader = new BinaryReader(program.getData());
         binReader.setCurPos(secStart);
@@ -67,13 +70,13 @@ public class VM {
              int varInd = binReader.readIntAndNext();
              int varSize = binReader.readIntAndNext();        
              int ptrAddr = memHeap.memAlloc(varSize);
-             addrTables.setAddrForIndex(VmSections.VarTableSize, varInd, ptrAddr);
+             addrTables.setAddrForIndex(VmExeHeader.VarTableSize, varInd, ptrAddr);
         }
     }
     
     protected void allocateData() throws VMOutOfMemoryException{
-        int secStart = program.readHeader(VmSections.ConstStart);
-        int secEnd = program.readHeader(VmSections.VarTableStart);
+        int secStart = program.readHeader(VmExeHeader.ConstStart);
+        int secEnd = program.readHeader(VmExeHeader.VarTableStart);
         
         MemoryHeap memHeap = getMemHeap();
         
@@ -88,7 +91,7 @@ public class VM {
 
             int ptrAddr = memHeap.memAlloc(varSize);
             memHeap.putValue(ptrAddr+ INT_SIZE, progData, binReader.getCurPos() , binReader.getCurPos() +   varSize);
-            addrTables.setAddrForIndex(VmSections.ConstTableSize, varInd, ptrAddr);
+            addrTables.setAddrForIndex(VmExeHeader.ConstTableSize, varInd, ptrAddr);
             
             //System.out.println(String.format("VarInd: %s with value %s", varInd, memHeap.getIntValue(ptrAddr+ INT_SIZE)));
             binReader.nextBytes(varSize);  
@@ -97,8 +100,8 @@ public class VM {
     
     protected void allocateClassesMetaInfo() throws VMOutOfMemoryException{
 
-        int secStart = program.readHeader(VmSections.ClassesMetaInfoStart);
-        int secEnd = program.readHeader(VmSections.InstructionsStart);
+        int secStart = program.readHeader(VmExeHeader.ClassesMetaInfoStart);
+        int secEnd = program.readHeader(VmExeHeader.InstructionsStart);
         
         MemoryHeap memHeap = getMemHeap();
         
@@ -110,7 +113,7 @@ public class VM {
             int metaInfoSize = binReader.readIntAndNext();
             int metaTablePtr =  memHeap.memAlloc(metaInfoSize);
             System.out.println("MetaSize:" + metaInfoSize);
-            addrTables.setAddrForIndex(VmSections.ClassesTableSize, classInd, metaTablePtr);
+            addrTables.setAddrForIndex(VmExeHeader.ClassesTableSize, classInd, metaTablePtr);
             
             binReader.nextBytes(metaInfoSize - VM.INT_SIZE);
             
@@ -125,9 +128,9 @@ public class VM {
      */
    
     protected void createDescrTables() throws VMOutOfMemoryException {
-       this.addrTables.add(VmSections.ConstTableSize);
-       this.addrTables.add(VmSections.VarTableSize);
-       this.addrTables.add(VmSections.ClassesTableSize);
+       this.addrTables.add(VmExeHeader.ConstTableSize);
+       this.addrTables.add(VmExeHeader.VarTableSize);
+       this.addrTables.add(VmExeHeader.ClassesTableSize);
     }
     
     protected MemoryHeap getMemHeap(){
@@ -151,22 +154,26 @@ public class VM {
         
         MemoryHeap memHeap = getMemHeap();        
    
-        for(int i = progStart; i < progEnd; i += 5){
+        for(int i = progStart; i < progEnd; i += COMMAND_SIZE){
             Byte commandCode = memHeap.getValue(i, 1)[0];
             VMCommands command = getMnemonic(commandCode);
-            
+            int constAdrPtr =0;
             int addr = getMemHeap().getIntValue(i + 1);
             int varAdrPtr;
             switch(command){
                 case Jmp:
                    
                     //Convert relative adress to absolute
-                    int absAddr =  addr + progStart; 
+                    
+                    if(addr !=0 ){
+                        int absAddr =  addr + progStart; 
                     memoryManager.putValue(i + 1, absAddr);
+                    }
+                    
                     break;
                 case Push:
                   
-                    int constAdrPtr = addrTables.getAddrByIndex(VmSections.ConstTableSize, addr); 
+                    constAdrPtr = addrTables.getAddrByIndex(VmExeHeader.ConstTableSize, addr); 
                     
                     memHeap.putValue(i + 1, constAdrPtr);
                     memHeap.putValue(i, (byte)VMCommands.Push_Addr.ordinal());
@@ -174,19 +181,19 @@ public class VM {
                     
                     break;
                 case Invoke_Sys_Function: case Var_Declare_Local: //case Var_Load_Local: case Var_Put_Local:
-                    constAdrPtr = addrTables.getAddrByIndex(VmSections.ConstTableSize, addr); 
+                    constAdrPtr = addrTables.getAddrByIndex(VmExeHeader.ConstTableSize, addr); 
                     memHeap.putValue(i + 1, constAdrPtr);
                      
                     break;
                 case Var_Load: 
-                    varAdrPtr = addrTables.getAddrByIndex(VmSections.VarTableSize, addr); 
+                    varAdrPtr = addrTables.getAddrByIndex(VmExeHeader.VarTableSize, addr); 
                     memHeap.putValue(i, (byte)VMCommands.Push_Addr.ordinal());
                     memHeap.putValue(i + 1, varAdrPtr);
                     
                     break;
                 case Var_Put:
                     
-                    varAdrPtr = addrTables.getAddrByIndex(VmSections.VarTableSize, addr); 
+                    varAdrPtr = addrTables.getAddrByIndex(VmExeHeader.VarTableSize, addr); 
                     memHeap.putValue(i + 1, varAdrPtr);
                     // Change Push to Push ptr of value.
                    
@@ -249,7 +256,15 @@ public class VM {
                 break;
             case GetRegister:
                 arg = stackPopInt();
-                int regValue = memoryManager.getSysRegister(VmSysRegister.values()[arg]);
+                VmSysRegister register = VmSysRegister.values()[arg];
+                int regValue = memoryManager.getSysRegister(register);
+                
+                //This registres is used to store addresses, so it's need to be transformed to absolute address
+                if(register == VmSysRegister.F1){
+                    regValue += memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
+                }
+                
+                
                 memStack.push(binConvertorService.integerToByte(regValue));
                 break;
             case SetRegister:
@@ -265,10 +280,11 @@ public class VM {
         this.program = program;
         
         
-        int startInstrsInd = program.readHeader(VmSections.InstructionsStart);
+        int startInstrsInd = program.readHeader(VmExeHeader.InstructionsStart);
+        int progStartPoint = program.readHeader(VmExeHeader.ProgramStartPoint);
         
         memoryManager.allocateProgramInstructions(program.getData(), startInstrsInd);
-        int startAddr = memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
+        int startAddr = progStartPoint + memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
         
         this.addrTables = new VMAddrTables(program, getMemHeap());
         this.createDescrTables();
@@ -278,8 +294,8 @@ public class VM {
         this.translateAdresses();
         
       
-   
-       
+        System.out.println("Entry Point is " + startAddr);
+        showFullCode();
         
         int addr;
         Byte[] arg1Byte, arg2Byte;
@@ -301,7 +317,7 @@ public class VM {
         while (!haltFlag) {
                 VMCommands command = memProg.getCommand();
                 addr = memProg.getCommandAddrArg();
-                 System.err.println("Command "  + command.toString() + " Addr: " + addr);
+                 System.out.println(String.format("Command %s at line %s Addr: %s", command.toString(),memProg.getAddr(), addr ));
                 
                 switch (command) {
                     case Push_Addr:
@@ -334,9 +350,12 @@ public class VM {
                     case Jmp:
                         if(addr == 0){
                             addr = stackPopInt();
+                            System.out.println("Jump addr from stack");
                         }
+                        System.out.println("Jump to addr:" + addr);
                         memProg.jump(addr);
-                        break;
+                        continue;
+                        
                     case Invoke_Sys_Function:
                         callSysFunc(addr);
                         break;
@@ -362,12 +381,18 @@ public class VM {
                         This table is table of pointers
                         */
                         varInd = addr;
-                        System.err.println(String.format("Put var %s", varInd));
-                         frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackPos)  ;
-                         int varAddr = memStack.getIntValue(frameStart + varInd * INT_SIZE);
+                        frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackPos)  ;
+                        int varAddr = memStack.getIntValue(frameStart + varInd * INT_SIZE);
                          
-                         memStack.pop(varAddr);
+                        memStack.pop(varAddr);
                         
+                        break;
+                    case Mov:
+                        int regInd = addr;
+                        int val = memoryManager.getSysRegister(VmSysRegister.values()[stackPopInt()]);
+                        memoryManager.setSysRegister(VmSysRegister.values()[regInd], val);
+                        break;
+                    case NOP:
                         break;
                     default:
                         System.err.println("Unprocessed command: " + command.toString());
@@ -382,15 +407,50 @@ public class VM {
     }
     
     protected void varValuesDebug(){
-     int N =  program.readHeader(VmSections.VarTableSize);
+     int N =  program.readHeader(VmExeHeader.VarTableSize);
      for(int i = 0; i < N; i++){
-          int varAddrPtr =  addrTables.getAddrByIndex(VmSections.VarTableSize, i);
+          int varAddrPtr =  addrTables.getAddrByIndex(VmExeHeader.VarTableSize, i);
          int varAddr = getMemHeap().getIntValue(varAddrPtr) ;
          System.out.println("Value of " + i +" var is " +getMemHeap().getIntValue(varAddrPtr + VM.INT_SIZE) );
      }
         System.out.println("Stack pos " + this.memoryManager.getSysRegister(VmSysRegister.StackHeadPos));
     }
     
+    protected void showFullCode(){
+        int startInstrsInd = program.readHeader(VmExeHeader.InstructionsStart);
+        int progStartPoint = program.readHeader(VmExeHeader.ProgramStartPoint);
+        int startAddr =  memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
+     
+        MemoryProgram memProg =  new MemoryProgram(memoryManager, startAddr);
+        
+        MemoryStack memStack = this.memoryManager.getMemStack();
+        MemoryHeap memHeap = this.memoryManager.getMemHeap();
+        //Continue in jmp
+        
+        memProg.jump(startAddr);
+       Boolean haltFlag = false;  
+       while (!haltFlag) {
+             VMCommands command = memProg.getCommand();
+             
+             String argVal ="";
+             Integer addr = memProg.getCommandAddrArg();
+             
+             switch(command){
+               
+                 case Halt:
+                     break;
+                 default:
+                     argVal = String.format("%s(%s)", addr,  Integer.toString(memoryManager.getIntPtrValue(addr))) ;
+                     
+             }
+             
+             if(command == VMCommands.Halt) haltFlag = true;
+            
+             System.out.println(String.format("%s| %s| %s", memProg.getAddr(), memProg.getCommand().toString(), argVal));
+             memProg.next();
+        }
+        
+    }
     
   
 }

@@ -9,6 +9,7 @@ import common.VarType;
 import java.util.SortedMap;
 import java.util.TreeSet;
 import javafx.collections.transformation.SortedList;
+import types.TypesInfo;
 
 /**
  *
@@ -19,6 +20,8 @@ public class ClassInfo {
     protected TreeSet<MethodDescription> methodsList;
     protected TreeSet<FieldDescription> fieldsList;
 
+
+    
     public TreeSet<MethodDescription> getMethodsList() {
         return methodsList;
     }
@@ -70,5 +73,15 @@ public class ClassInfo {
        fieldDescr.setFieldType(type);
        
        fieldsList.add(fieldDescr);
+    }
+    
+    public int getFieldsSize(){
+        int totalSize = 0;
+        TypesInfo typesInfo = TypesInfo.getInstance();
+        for(FieldDescription fieldDescription:fieldsList){
+            totalSize += typesInfo.getTypeSize(fieldDescription.getFieldType()); 
+        }
+        
+        return totalSize;
     }
 }

@@ -18,6 +18,8 @@ public class ParserProgramBody extends ParserStatement{
         this.possibleAlts.add(this.getParser("Function"));
         this.possibleAlts.add(this.getParser("FunctionCall"));
         this.possibleAlts.add(this.getParser("Class"));
+        
+        this.possibleAlts.add(new ParserRepeated(new ParserStatement()));
     }
     
 }

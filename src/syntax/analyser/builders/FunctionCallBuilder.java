@@ -14,6 +14,7 @@ import syntax.analyser.Parser;
 import syntax.analyser.parser.ParserAlternative;
 import syntax.analyser.parser.ParserChain;
 import syntax.analyser.parser.ParserMathExpr;
+import syntax.analyser.parser.ParserOptional;
 import syntax.analyser.parser.ParserRepeated;
 import syntax.analyser.parser.ParserStatement;
 import syntax.analyser.parser.ParserTag;
@@ -24,20 +25,29 @@ import syntax.analyser.parser.ParserTag;
  */
 public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
     
-    protected Parser getArgBlockRepeatedParser(){
+    protected Parser getTypesListParser(){
         ParserAlternative argTypesAltParser = new ParserAlternative();
         argTypesAltParser.add(new ParserTag("Float"));
         argTypesAltParser.add(new ParserTag("Integer"));
         argTypesAltParser.add(new ParserTag("String"));
         
+        return argTypesAltParser;
+    }
+    
+    protected Parser getArgBlockRepeatedParser(){
+        
+        
         ParserChain chainParser = new ParserChain();
-        chainParser.add(argTypesAltParser, "arg")
+        chainParser.add(getTypesListParser(), "Arg")
                    .addKeyword(","); 
         
-        return new ParserRepeated(chainParser);
+        return new ParserOptional(new ParserRepeated(chainParser));
     }
     
    
+    protected Parser getLastArgParser(){
+        return new ParserOptional(getTypesListParser());
+    }
     
     public Parser build() {
         //Указать нужен ли результат парсера
@@ -47,7 +57,8 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
             .addTag("Id")
             .addKeyword("(")
             .add(getArgBlockRepeatedParser(), "ArgsBlock")
-            .addKeyword(")");
+            .add(getLastArgParser(), "LastArg")
+            .addKeyword(")", "EndCall");
             
             //.addKeyword(";");
             
@@ -60,9 +71,23 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
         /*rootNode.setToken(token);
         //Think about gloabl agreement of naming
         rootNode.setName("Let");*/
-        rootNode.addChildNode(result.get("Id"));
-        rootNode.addChildNode(result.get("ArgsBlock"));
         
+        rootNode.addChildNode(result.get("Id"), "FunctionId");
+
+        AstNode argNode = result.get("ArgsBlock");
+        if(result.get("LastArg") != null){
+            if(argNode == null) argNode = new AstNode();
+            argNode.addChildNode(result.get("LastArg"), "Arg");
+        }
+        if(argNode != null){
+            rootNode.addChildNode(argNode, "ArgsBlock");
+        }
+        
+        
+        
+        
+        rootNode.addChildNode(result.get("EndCall"), "EndCall");
+        System.out.println("FunctionCall parser has been reached");
         
         return rootNode;
     }

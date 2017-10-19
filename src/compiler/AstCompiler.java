@@ -11,6 +11,9 @@ import java.util.LinkedList;
 import syntax.analyser.AstNode;
 import program.builder.ProgramBuilder;
 import syntax.analyser.CompilersFactory;
+import virtual.machine.VMCommands;
+import virtual.machine.VMSysFunction;
+import virtual.machine.memory.VmSysRegister;
 
 /**
  *
@@ -52,5 +55,27 @@ public abstract class AstCompiler {
     }
     public  void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         if(subscribers.size() > 0) callSubscribers(node, programBuilder);
+    }
+    
+    protected String regToStr(VmSysRegister reg){
+        return  Integer.toString(reg.ordinal());
+    }
+    
+    protected String sysFuncToStr(VMSysFunction sysFunc){
+        return Integer.toString(sysFunc.ordinal());
+    }
+    
+    protected void addVarLoadCommand(String varName,  ProgramBuilder programBuilder) throws CompilerException{
+        if (programBuilder.isVarExists(varName)) {
+            programBuilder.addInstructionVarArg(VMCommands.Var_Load, varName, programBuilder.isIsLocalContext());
+            return;
+        }
+        
+        if (programBuilder.isLocalVariableExists(varName)) {
+            programBuilder.addInstructionVarArg(VMCommands.Var_Load, varName, programBuilder.isIsLocalContext());
+            return;
+        }
+
+        throw new CompilerException("Undeclared variable: " + varName);
     }
 }

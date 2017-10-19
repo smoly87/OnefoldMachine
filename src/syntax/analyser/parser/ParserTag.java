@@ -39,7 +39,7 @@ public class ParserTag extends Parser{
             resNode.setToken(token);
             setParseResult(resNode);
             
-            lexerResults.next();
+            if(lexerResults.hasNext())lexerResults.next();
             return true;
         }
         return false;

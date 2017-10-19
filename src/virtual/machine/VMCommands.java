@@ -15,5 +15,6 @@ public enum VMCommands {
     Var_Put, Var_Load, Var_Declare_Local,
     Add, Mul,
     Var_Put_Local, Var_Load_Local,
-    Invoke_Sys_Function
+    Invoke_Sys_Function,
+    Mov
 }

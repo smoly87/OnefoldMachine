@@ -28,6 +28,7 @@ public abstract class TreeWalkerDST {
        
         if(node.hasChildNodes()){
             for(AstNode curNode : node.getChildNodes()){
+                if(curNode == null) continue;
                 callback(curNode, level  + 1);
                 if(curNode.hasChildNodes()) walk(curNode, level + 2);
             }

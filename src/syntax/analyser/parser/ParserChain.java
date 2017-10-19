@@ -57,7 +57,7 @@ public  class ParserChain extends Parser{
     public  AstNode processChainResult(HashMap<String, AstNode> result){
          AstNode rootNode = new AstNode();
          for(Map.Entry<String, AstNode> entry: result.entrySet()){
-             rootNode.addChildNode(entry.getValue());
+             rootNode.addChildNode(entry.getValue(), entry.getKey());
          }
          
          return rootNode;

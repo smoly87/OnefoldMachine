@@ -33,7 +33,7 @@ public class MemoryProgram {
     
     public void next(){
         //One byte command and arg
-        addr += 1 + VM.INT_SIZE ;
+        addr += VM.COMMAND_SIZE ;
     }
     
     public VMCommands getCommand(){
