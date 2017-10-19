@@ -7,6 +7,7 @@
 package syntax.analyser.builders;
 
 import compiler.expr.LetCompiler;
+import compiler.expr.NewObjOperatorCompiler;
 import java.util.HashMap;
 import java.util.LinkedList;
 import syntax.analyser.AstNode;
@@ -24,31 +25,25 @@ import syntax.analyser.parser.ParserTag;
 public class NewObjOperatorBuilder extends ParserChain implements ParserBuilder{
 
    
-    protected Parser getRightPartParser(){
-        ParserAlternative altParser = new ParserAlternative();
-        altParser.add(new ParserMathExpr());
-        altParser.add(this.getParser("FunctionCall"));
-        
-        return altParser;
-    }
-    
+       
     public Parser build() {
         //Указать нужен ли результат парсера
        return this
             
             .addKeyword("New")
-            .addTag("Id");   
+            .addTag("Id")
+            .addKeyword("(").addKeyword(")");   
     }
     
     @Override
     public  AstNode processChainResult(HashMap<String, AstNode> result){
 
-        AstNode rootNode = result.get("Let");
-        rootNode.setCompiler(new LetCompiler());
+        AstNode rootNode = result.get("New");
+        rootNode.setCompiler(new NewObjOperatorCompiler());
 
-        rootNode.addChildNode(result.get("RightPartExpr"));
-        rootNode.addChildNode(result.get("Id"));
-        System.out.println("Let has been reached");
+        
+        rootNode.addChildNode(result.get("Id"), "ClassName");
+        System.out.println("New obj has been reached");
         return rootNode;
     }
     

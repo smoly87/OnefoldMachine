@@ -8,4 +8,6 @@ Let b = 40;
 Let c = 50;
 Return 60
 }
-};
+}
+Var a:Integer;
+Let a = New foo();

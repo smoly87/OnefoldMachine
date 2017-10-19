@@ -26,7 +26,11 @@ public class NewObjOperatorCompiler extends AstCompiler{
 
    
    
-    
+    protected void addCommandSetFieldValue(ProgramBuilder programBuilder, Integer fieldNum, Integer value){
+        programBuilder.addInstruction(VMCommands.Push, value, VarType.Integer);// fieldValue
+        programBuilder.addInstruction(VMCommands.Push, fieldNum, VarType.Integer); // fieldNum
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetPtrField), VarType.Integer);
+    }
     @Override
     public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         Token token =  node.getToken();
@@ -37,7 +41,7 @@ public class NewObjOperatorCompiler extends AstCompiler{
                  //ToDO: Check if class exists
                  MetaClassesInfo metaInfo = MetaClassesInfo.getInstance();
                  String className = token.getValue();
-                 ClassInfo classInfo = null; 
+                 ClassInfo classInfo = metaInfo.getClassInfo(className); 
                 
                  if(classInfo == null){
                      throw new CompilerException(String.format("Class %s not found", className));
@@ -49,10 +53,15 @@ public class NewObjOperatorCompiler extends AstCompiler{
                  
                 programBuilder.addInstruction(VMCommands.Push, fieldsSize, VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.MemAllocPtr), VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Dup, 0, VarType.Integer);
                 
-                programBuilder.addInstruction(VMCommands.Push,classInfo.getCode(), VarType.Integer);// fieldValue
-                programBuilder.addInstruction(VMCommands.Push, 0, VarType.Integer); // fieldNum
-                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetPtrField), VarType.Integer);
+                //Set ClassID
+                addCommandSetFieldValue(programBuilder, 0, classInfo.getCode());
+                programBuilder.addInstruction(VMCommands.Dup, 0, VarType.Integer); //Dup for save Ptr
+                
+                //Set LinksCount
+                addCommandSetFieldValue(programBuilder, 1, 0);
+                programBuilder.addInstruction(VMCommands.Dup, 0, VarType.Integer); //Dup for save Ptr
 
 
                 

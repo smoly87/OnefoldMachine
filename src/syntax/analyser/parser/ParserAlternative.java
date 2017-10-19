@@ -33,8 +33,9 @@ public class ParserAlternative extends Parser{
         return false;
     }
     
-    public void add(Parser parser ){
+    public ParserAlternative add(Parser parser ){
         parsers.add(parser);
+        return this;
     }
     
 }

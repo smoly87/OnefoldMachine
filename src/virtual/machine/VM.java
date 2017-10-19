@@ -238,21 +238,50 @@ public class VM {
         return ptrStart;
     }
     
+    protected int sysMemAllocPtr() throws VmStackEmptyPop, VMOutOfMemoryException, VMStackOverflowException{
+        MemoryHeap memHeap = this.memoryManager.getMemHeap();
+        MemoryStack memStack = this.memoryManager.getMemStack();
+        
+        int dataSize = stackPopInt();
+        int ptrStart = memHeap.memAlloc(dataSize + VM.INT_SIZE);
+        memHeap.putValue(ptrStart, dataSize);
+        
+        
+        memStack.push(binConvertorService.integerToByte(ptrStart)); 
+        return ptrStart;
+    }
     
+     protected void sysSetPtrField() throws VmStackEmptyPop, VMOutOfMemoryException, VMStackOverflowException{
+        MemoryHeap memHeap = this.memoryManager.getMemHeap();
+        MemoryStack memStack = this.memoryManager.getMemStack();
+        
+        
+        int fieldNum = stackPopInt();
+        int fieldValue = stackPopInt();
+        int ptrAddr = stackPopInt();
+        
+        //Restore ptr to stack
+        
+     }
     protected void callSysFunc(int funcTypeAddrPtr) throws VmStackEmptyPop, VMStackOverflowException, VMOutOfMemoryException{   
         MemoryStack memStack = this.memoryManager.getMemStack();
         int funcType  = memStack.getIntPtrValue(funcTypeAddrPtr);
         int arg;
+        int retVal;
         
         VMSysFunction sysFunc = VMSysFunction.values()[funcType];
       
-         System.err.println("Sys func called: " + sysFunc.toString() + "(" + funcTypeAddrPtr + ")");
+         System.out.println("Sys func called: " + sysFunc.toString() + "(" + funcTypeAddrPtr + ")");
         switch(sysFunc){
             case MemAlloc:
-                sysMemAlloc();
+                retVal = sysMemAlloc();
+                System.out.println("Mem alloc at adress: " + retVal);
                 break;
             case MemAllocStack:
                 sysMemAllocStack();
+                break;
+            case MemAllocPtr:
+                sysMemAllocPtr();
                 break;
             case GetRegister:
                 arg = stackPopInt();
@@ -272,6 +301,11 @@ public class VM {
                 regValue = stackPopInt();  
                 memoryManager.setSysRegister(VmSysRegister.values()[arg], regValue);
                 break;
+            case SetPtrField:
+                sysSetPtrField();
+                break;
+            default:
+                System.err.println("Callede unreliased function: " + sysFunc.toString());
         }
     }
     
@@ -393,6 +427,11 @@ public class VM {
                         memoryManager.setSysRegister(VmSysRegister.values()[regInd], val);
                         break;
                     case NOP:
+                        break;
+                    case Dup:
+                        value = memStack.pop();
+                        memStack.push(value);
+                        memStack.push(value);
                         break;
                     default:
                         System.err.println("Unprocessed command: " + command.toString());
