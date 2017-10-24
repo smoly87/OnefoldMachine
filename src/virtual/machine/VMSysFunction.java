@@ -14,8 +14,9 @@ public enum VMSysFunction {
     MemAllocStack,
     GetRegister,
     SetRegister,
-    Print,
     MemAllocPtr,
     SetPtrField,
-    GetPtrField
+    GetPtrField,
+    Print,
+    PrintObjField
 }

@@ -11,3 +11,4 @@ Return 60
 Var a:Integer;
 Let a = New foo();
 Let a.rebar = 4;
+Sys PrintObjField(a, 3);

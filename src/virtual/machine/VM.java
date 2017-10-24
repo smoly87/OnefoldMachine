@@ -336,6 +336,14 @@ public class VM {
         
     }
     
+    protected void sysPrintObjField() throws  VmExecutionExeption{
+        int fieldNum = stackPopInt();
+        int ptrAddr = stackPopInt();
+        int fieldOffset = getFieldOffsetObj(ptrAddr, fieldNum);
+        int value = getMemHeap().getIntValue(ptrAddr + VM.INT_SIZE + fieldOffset);
+        System.err.println(String.format("PRINT_OBJ_FIELD: Value: %s FieldNum: %s  ", value, fieldNum) );
+    }
+    
     protected void callSysFunc(int funcTypeAddrPtr) throws VmExecutionExeption{   
         MemoryStack memStack = this.memoryManager.getMemStack();
         int funcType  = memStack.getIntPtrValue(funcTypeAddrPtr);
@@ -376,6 +384,9 @@ public class VM {
                 break;
             case SetPtrField:
                 sysSetPtrField();
+                break;
+            case PrintObjField:
+                sysPrintObjField();
                 break;
             default:
                 System.err.println("Callede unreliased function: " + sysFunc.toString());
