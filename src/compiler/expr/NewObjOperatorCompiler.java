@@ -9,6 +9,8 @@ import common.Token;
 import common.VarType;
 import compiler.AstCompiler;
 import compiler.exception.CompilerException;
+import java.awt.geom.Line2D;
+import java.util.LinkedList;
 import program.builder.ClassInfo;
 import program.builder.FunctionDescription;
 import program.builder.MetaClassesInfo;
@@ -31,6 +33,7 @@ public class NewObjOperatorCompiler extends AstCompiler{
         programBuilder.addInstruction(VMCommands.Push, fieldNum, VarType.Integer); // fieldNum
         programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetPtrField), VarType.Integer);
     }
+    
     @Override
     public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         Token token =  node.getToken();
@@ -46,10 +49,9 @@ public class NewObjOperatorCompiler extends AstCompiler{
                  if(classInfo == null){
                      throw new CompilerException(String.format("Class %s not found", className));
                  }
-                
-                
-                //Class|LinksCount
-                Integer fieldsSize = classInfo.getFieldsSize() + 2 * VM.INT_SIZE;
+               
+           
+                Integer fieldsSize = classInfo.getFieldsSize();
                  
                 programBuilder.addInstruction(VMCommands.Push, fieldsSize, VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.MemAllocPtr), VarType.Integer);

@@ -9,6 +9,11 @@ package virtual.machine;
  *
  * @author Andrey
  */
-public class VMOutOfMemoryException extends VmExecutionExeption{
+public class VmExecutionExeption extends Exception{
+    public VmExecutionExeption(){
+    }
+    public VmExecutionExeption(String message) {
+        super(message);
+    }
     
 }

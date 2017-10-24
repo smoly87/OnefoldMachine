@@ -9,6 +9,6 @@ package virtual.machine;
  *
  * @author Andrey
  */
-public class VMOutOfMemoryException extends VmExecutionExeption{
-    
+public enum VmMetaClassHeader {
+    CLASS_CODE, TOTAL_SIZE, METHODS_COUNT,  FIELDS_COUNT
 }

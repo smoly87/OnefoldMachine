@@ -6,6 +6,7 @@
 
 package compiler;
 
+import common.VarType;
 import compiler.exception.CompilerException;
 import java.util.LinkedList;
 import syntax.analyser.AstNode;
@@ -78,4 +79,7 @@ public abstract class AstCompiler {
 
         throw new CompilerException("Undeclared variable: " + varName);
     }
+    
+     
+ 
 }

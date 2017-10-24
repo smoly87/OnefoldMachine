@@ -13,11 +13,12 @@ import common.VarType;
  */
 public class VarDescription {
     protected int code;
+    protected int classId;
 
     
     protected VarType type;
 
-    public VarDescription( VarType type, Byte code) {
+    public VarDescription( VarType type, int code) {
         this.code = code;
         this.type = type;
     }

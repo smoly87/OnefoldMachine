@@ -70,4 +70,12 @@ public class AstNode {
     public boolean hasChildNodes(){
         return childNodes.size() > 0;
     }
+    
+    public AstNode findChild(String nodeName){
+        for(AstNode childNode: this.getChildNodes()){
+            if(childNode.getName().equals(nodeName)) return childNode;
+        }
+        
+        return null;
+    }
 }

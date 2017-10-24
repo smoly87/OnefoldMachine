@@ -8,7 +8,6 @@ package grammar;
 
 import common.TokenInfo;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 /**

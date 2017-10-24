@@ -9,6 +9,6 @@ package virtual.machine;
  *
  * @author Andrey
  */
-public class VmStackEmptyPop extends Exception {
+public class VmStackEmptyPop extends VmExecutionExeption {
     
 }

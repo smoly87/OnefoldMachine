@@ -53,6 +53,10 @@ public class ClassInfo {
         methodsList = new TreeSet<>(comparator);
         fieldsList = new TreeSet<>(comparator);
         
+        //Add auto generated fields ClassId|LinksCount
+        this.addField("__ClassId", VarType.Integer);
+        this.addField("__LinksCount", VarType.Integer);
+        
         this.className = className;
     }
     

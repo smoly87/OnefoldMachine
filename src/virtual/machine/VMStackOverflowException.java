@@ -9,6 +9,6 @@ package virtual.machine;
  *
  * @author Andrey
  */
-public class VMStackOverflowException extends Exception{
+public class VMStackOverflowException extends VmExecutionExeption{
     
 }

@@ -49,11 +49,21 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
         return new ParserOptional(getTypesListParser());
     }
     
+    protected Parser optClassNameParser(){
+        ParserChain chainParser = new ParserChain();
+        
+        chainParser.addTag("Id", "ClassName")
+                   .addKeyword(".");
+        
+        return new ParserOptional(chainParser);
+    }
+    
     public Parser build() {
         //Указать нужен ли результат парсера
        return this
             .addKeyword("Call")
-            //.addKeyword(":")   
+            //.addKeyword(":")  
+            .add(this.getParser("ObjNameBlock"), "ObjName")   
             .addTag("Id")
             .addKeyword("(")
             .add(getArgBlockRepeatedParser(), "ArgsBlock")
@@ -68,9 +78,10 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
         //Reorder operators by calculations
         AstNode rootNode = result.get("Call");
         rootNode.setCompiler(new FunctionCallCompiler());
-        /*rootNode.setToken(token);
-        //Think about gloabl agreement of naming
-        rootNode.setName("Let");*/
+
+        if(result.get("ObjName") != null){
+           rootNode.addChildNode(result.get("ObjName"), "ObjName");
+        }
         
         rootNode.addChildNode(result.get("Id"), "FunctionId");
 
@@ -83,9 +94,7 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
             rootNode.addChildNode(argNode, "ArgsBlock");
         }
         
-        
-        
-        
+          
         rootNode.addChildNode(result.get("EndCall"), "EndCall");
         System.out.println("FunctionCall parser has been reached");
         

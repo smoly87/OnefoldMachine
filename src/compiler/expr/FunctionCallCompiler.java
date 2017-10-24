@@ -96,7 +96,12 @@ public class FunctionCallCompiler extends AstCompiler{
               createFrameStack(programBuilder);
               break;
             case "EndCall":
-               
+                if(varNum < funcDescr.getArgsCount()) {
+                    throw new CompilerException(String.format(
+                            "It should be exactly %s params in call function %s. %s given", 
+                            funcDescr.getArgsCount(), funcDescr.getFuncName(), varNum
+                    ));
+                }
                 //Add number of line to return after function
                 programBuilder.addInstruction(VMCommands.Push, 0, VarType.Integer); 
                 int commandRet = programBuilder.getLineCount() - VM.COMMAND_SIZE;

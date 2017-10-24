@@ -33,6 +33,10 @@ public class FunctionDescription {
         return lineNumber;
     }
     protected String funcName;
+
+    public String getFuncName() {
+        return funcName;
+    }
     protected Integer localVarsCount;
 
     public Integer getLocalVarsCount() {

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import program.builder.BinBuilderClassesMetaInfo;
 import program.builder.BinObjBuilder;
 import program.builder.BinaryReader;
 import virtual.machine.memory.MemoryHeap;
@@ -98,7 +99,7 @@ public class VM {
         }
     }
     
-    protected void allocateClassesMetaInfo() throws VMOutOfMemoryException{
+    protected void allocateClassesMetaInfo() throws VMOutOfMemoryException, VmExecutionExeption{
 
         int secStart = program.readHeader(VmExeHeader.ClassesMetaInfoStart);
         int secEnd = program.readHeader(VmExeHeader.InstructionsStart);
@@ -110,14 +111,78 @@ public class VM {
  
         while( binReader.getCurPos() < secEnd){ 
             int classInd = binReader.readIntAndNext();
-            int metaInfoSize = binReader.readIntAndNext();
+            int metaInfoSize = binReader.readInt();
             int metaTablePtr =  memHeap.memAlloc(metaInfoSize);
-            System.out.println("MetaSize:" + metaInfoSize);
+            System.out.println(String.format("Class_ID: %s MetaSize: %s", classInd, metaInfoSize)  );
             addrTables.setAddrForIndex(VmExeHeader.ClassesTableSize, classInd, metaTablePtr);
             
-            binReader.nextBytes(metaInfoSize - VM.INT_SIZE);
+            binReader.prevBytes(VM.INT_SIZE);
+            Byte[] metaData =  binReader.readAndNextBytes(metaInfoSize + VM.INT_SIZE);
+            memHeap.putValue(metaTablePtr, metaData);
             
         }
+        printClassMetaInfo(0);
+    }
+    
+    protected int getClassId(int objPtr){ 
+        //First field is size, second is classID, third is linkCount
+        return getMemHeap().getIntValue(objPtr + VM.INT_SIZE);
+    }
+    
+    protected int getClassMetaDataPointer(int classId){ 
+   
+        Integer classMetaDataPtr = addrTables.getAddrByIndex(VmExeHeader.ClassesTableSize, classId); 
+        
+        return classMetaDataPtr;
+    }
+    
+    protected int getFieldOffset(int classMetaDataPtr, int fieldNum) throws VmExecutionExeption{
+        BinaryReader binReader = new BinaryReader(this.getMemHeap().getData());
+        int fieldsCount = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.FIELDS_COUNT);
+        int methodsCount = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.METHODS_COUNT);
+        int headersSize = BinBuilderClassesMetaInfo.HEADERS_SIZE * VM.INT_SIZE;
+        int fieldsStart = headersSize + methodsCount * 2 * VM.INT_SIZE;
+        
+        binReader.setCurPos(classMetaDataPtr + fieldsStart);
+        
+        boolean flag = true;
+        int offset = 0;
+        
+        int k = 0;
+        while(k < fieldsCount){
+            int fieldCode = binReader.readIntAndNext();
+            
+            if(fieldCode == fieldNum){
+                return offset;
+            }
+            
+            int fieldSize = binReader.readIntAndNext();
+            offset += fieldSize;
+            k++;
+        }
+        
+       throw new VmExecutionExeption(String.format("Field"));
+    }
+    
+    protected int readClassMetaDataHeader(int classMetaDataPtr, VmMetaClassHeader header){
+        return getMemHeap().getIntValue(classMetaDataPtr + header.ordinal() * VM.INT_SIZE);
+    }
+    
+    protected int getFieldOffsetObj(int objPtr, int fieldNum) throws VmExecutionExeption{
+         int classId = getClassId(objPtr);
+         int metaDataPtr = this.getClassMetaDataPointer(classId);
+         return getFieldOffset(metaDataPtr, fieldNum);
+    }
+    protected void printClassMetaInfo(int classId) throws VmExecutionExeption{
+        int metaDataPtr = this.getClassMetaDataPointer(classId);
+        int fieldsCount = readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.FIELDS_COUNT);
+        int methodsCount = readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.METHODS_COUNT);
+        
+        System.out.println(String.format("Fields: %s, methods: %s", fieldsCount, methodsCount));
+        
+        int fieldOffset = getFieldOffset(metaDataPtr, 1);
+         System.out.println(String.format("Offset of field %s is %s", 1, fieldOffset));
+        
     }
     
     /**
@@ -251,19 +316,27 @@ public class VM {
         return ptrStart;
     }
     
-     protected void sysSetPtrField() throws VmStackEmptyPop, VMOutOfMemoryException, VMStackOverflowException{
+    
+    
+    protected void sysSetPtrField() throws VmExecutionExeption{
+        //TODO: Absolutley need to count field address, not ptr
         MemoryHeap memHeap = this.memoryManager.getMemHeap();
         MemoryStack memStack = this.memoryManager.getMemStack();
         
         
         int fieldNum = stackPopInt();
-        int fieldValue = stackPopInt();
+        Byte[] fieldValue = memStack.pop();
         int ptrAddr = stackPopInt();
         
-        //Restore ptr to stack
+        int fieldOffset = getFieldOffsetObj(ptrAddr, fieldNum);
+        memHeap.putValue(ptrAddr + VM.INT_SIZE + fieldOffset, fieldValue);
         
-     }
-    protected void callSysFunc(int funcTypeAddrPtr) throws VmStackEmptyPop, VMStackOverflowException, VMOutOfMemoryException{   
+       // memHeap.putValue(ptrAddr, fieldValue);
+       
+        
+    }
+    
+    protected void callSysFunc(int funcTypeAddrPtr) throws VmExecutionExeption{   
         MemoryStack memStack = this.memoryManager.getMemStack();
         int funcType  = memStack.getIntPtrValue(funcTypeAddrPtr);
         int arg;
@@ -271,7 +344,7 @@ public class VM {
         
         VMSysFunction sysFunc = VMSysFunction.values()[funcType];
       
-         System.out.println("Sys func called: " + sysFunc.toString() + "(" + funcTypeAddrPtr + ")");
+         System.err.println("Sys func called: " + sysFunc.toString() + "(" + funcTypeAddrPtr + ")");
         switch(sysFunc){
             case MemAlloc:
                 retVal = sysMemAlloc();
@@ -455,6 +528,7 @@ public class VM {
         System.out.println("Stack pos " + this.memoryManager.getSysRegister(VmSysRegister.StackHeadPos));
     }
     
+  
     protected void showFullCode(){
         int startInstrsInd = program.readHeader(VmExeHeader.InstructionsStart);
         int progStartPoint = program.readHeader(VmExeHeader.ProgramStartPoint);

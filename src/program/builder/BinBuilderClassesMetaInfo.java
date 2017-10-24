@@ -18,7 +18,7 @@ import virtual.machine.VM;
 public class BinBuilderClassesMetaInfo {
      protected BinObjBuilder binObjBuilder ;
      protected TypesInfo typesInfo;
-     protected final int HEADERS_SIZE = 4;
+     public static final int HEADERS_SIZE = 4;
      
      public BinBuilderClassesMetaInfo(){
          this.binObjBuilder = new BinObjBuilder();
@@ -26,7 +26,7 @@ public class BinBuilderClassesMetaInfo {
      }
      
      protected void addClassBinMetaInfo(ClassInfo classInfo){
-        //ClassCode|MethodsCount|FieldsCount|MethodsList|FieldsList
+        //ClassCode|TotalSize|MethodsCount|FieldsCount|   MethodsList|FieldsList
         int totalSize = 0;
         binObjBuilder.addInt(classInfo.getCode())
                      .addInt(totalSize)

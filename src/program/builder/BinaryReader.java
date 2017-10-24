@@ -39,8 +39,25 @@ public class BinaryReader {
        return res;
     }
     
+    public int readInt(){
+       int res = binConvertorService.bytesToInt(data, curPos);
+       return res;
+    }
+    
+    public Byte[] readAndNextBytes(int bytesCount){
+      
+       Byte[] res = data.subList(curPos, curPos + bytesCount).toArray(new Byte[bytesCount]);
+       curPos += bytesCount;
+       return res;
+    }
+    
     public int nextBytes(int bytesCount){
         curPos += bytesCount;
+        return curPos;
+    }
+    
+    public int prevBytes(int bytesCount){
+        curPos -= bytesCount;
         return curPos;
     }
 }

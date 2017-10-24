@@ -15,6 +15,7 @@ import syntax.analyser.parser.ParserAlternative;
 import syntax.analyser.parser.ParserChain;
 import syntax.analyser.parser.ParserKeyword;
 import syntax.analyser.parser.ParserMathExpr;
+import syntax.analyser.parser.ParserOptional;
 import syntax.analyser.parser.ParserTag;
 
 /**
@@ -24,11 +25,31 @@ import syntax.analyser.parser.ParserTag;
 public class LetBuilder extends ParserChain implements ParserBuilder{
 
    
+    protected Parser getRightPartObjField(){
+        ParserChain chainParser = new ParserChain();
+        
+        chainParser.addTag("Id", "RightPartObjName")
+                   .addKeyword(".")
+                   .addTag("Id", "RightPartFieldName");
+        
+        return new ParserOptional(chainParser);
+    }
+    
+    protected Parser getObjNameLeftParser(){
+         ParserChain chainParser = new ParserChain();
+        
+        chainParser.addTag("Id", "LeftObjName")
+                   .addKeyword(".");
+        
+        return new ParserOptional(chainParser);
+    }
+    
     protected Parser getRightPartParser(){
         ParserAlternative altParser = new ParserAlternative();
         altParser.add(new ParserMathExpr())
                  .add(this.getParser("FunctionCall"))
-                 .add(this.getParser("NewObjOperator"));
+                 .add(this.getParser("NewObjOperator"))
+                 .add(this.getRightPartObjField());
         
         return altParser;
     }
@@ -36,8 +57,9 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
     public Parser build() {
         //Указать нужен ли результат парсера
        return this
-            .addKeyword("Let")
-            .addTag("Id")
+            .addKeyword("Let", "LetStart")
+            .add(this.getObjNameLeftParser(), "LeftObjName")
+            .addTag("Id", "LeftVarName")
             .addKeyword("=")
             .add(getRightPartParser(), "RightPartExpr")
             .addKeyword(";");
@@ -47,13 +69,21 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
     @Override
     public  AstNode processChainResult(HashMap<String, AstNode> result){
 
-        AstNode rootNode = result.get("Let");
+        AstNode rootNode = result.get("LetStart");
+        
+        
+        if(result.get("LeftObjName") != null){
+            rootNode.addChildNode(result.get("LeftObjName"), "LeftObjName"); 
+            rootNode.addChildNode(result.get("RightPartExpr"), "RightPartExpr");          
+        } else{
+            rootNode.addChildNode(result.get("RightPartExpr"), "RightPartExpr");
+        }
+        
+        rootNode.addChildNode(result.get("LeftVarName"), "LeftVarName");
+        
         rootNode.setCompiler(new LetCompiler());
-
-        rootNode.addChildNode(result.get("RightPartExpr"));
-        rootNode.addChildNode(result.get("Id"));
-        System.out.println("Let has been reached");
         return rootNode;
+        
     }
     
 }

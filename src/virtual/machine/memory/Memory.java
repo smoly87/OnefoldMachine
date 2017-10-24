@@ -18,6 +18,10 @@ import virtual.machine.VM;
  */
 public class Memory {
     protected ArrayList<Byte> data;
+
+    public ArrayList<Byte> getData() {
+        return data;
+    }
     protected DataBinConvertor binConvertorService;
     protected int segmentOffset ;
 
@@ -123,6 +127,11 @@ public class Memory {
         for(int i = start; i < end; i++, k++){
             data.set(addr + k, byteVal.get(i));
         }
+    }
+    
+    public void putPtrValue(int addr, Byte[] byteVal){
+       binConvertorService.integerToByte(byteVal.length);
+       
     }
     
     protected int getRegisterAddr(VmSysRegister register){
