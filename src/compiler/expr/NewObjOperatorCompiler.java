@@ -28,7 +28,7 @@ public class NewObjOperatorCompiler extends AstCompiler{
 
    
    
-    protected void addCommandSetFieldValue(ProgramBuilder programBuilder, Integer fieldNum, Integer value){
+    protected void addCommandSetFieldValue(ProgramBuilder programBuilder, Integer fieldNum, Integer value) throws CompilerException{
         programBuilder.addInstruction(VMCommands.Push, value, VarType.Integer);// fieldValue
         programBuilder.addInstruction(VMCommands.Push, fieldNum, VarType.Integer); // fieldNum
         programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetPtrField), VarType.Integer);

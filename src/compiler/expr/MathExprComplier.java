@@ -41,7 +41,7 @@ public class MathExprComplier extends AstCompiler{
     }
 
     @Override
-    public void compileRootPost(AstNode node, ProgramBuilder programBuilder) {
+    public void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
         switch(node.getToken().getName()){
                 case "+":
                     programBuilder.addInstruction(VMCommands.Add);

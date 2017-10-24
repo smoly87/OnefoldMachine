@@ -38,7 +38,7 @@ public class FunctionCallCompiler extends AstCompiler{
         typesInfo = TypesInfo.getInstance();
     }
     
-    protected void createFrameStack(ProgramBuilder programBuilder){
+    protected void createFrameStack(ProgramBuilder programBuilder) throws CompilerException{
         programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.StackHeadPos), VarType.Integer);
         programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.FrameStackPos.ordinal(), VarType.Integer);
         
