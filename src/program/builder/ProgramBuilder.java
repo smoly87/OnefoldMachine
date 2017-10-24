@@ -155,7 +155,7 @@ public class ProgramBuilder  {
         this.progData.addAll(data);
     }
     
-    public void addInstruction(VMCommands command){
+    public void addInstruction(VMCommands command) throws CompilerException{
         this.addInstruction(command, "0", VarType.Integer );
     }
     
@@ -176,7 +176,8 @@ public class ProgramBuilder  {
         addInstruction(command, Integer.toString(value), type, true);
     }        
     
-    public void addInstruction(VMCommands command, String value, VarType type){
+    public void addInstruction(VMCommands command, String value, VarType type) throws CompilerException{
+        if(type == null) throw new CompilerException(String.format("Undefined variable type:%s. Seems as problem in parsing/compiler logic", value));
         addInstruction(command, value, type, true );
     }
     
