@@ -7,6 +7,7 @@
 package main;
 
 import common.FullPipeline;
+import common.TokenInfo;
 import common.VarType;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,6 +19,8 @@ import java.util.Scanner;
 import lexer.LexerResult;
 import syntax.analyser.AstNode;
 import compiler.TreeWalkerASTCompiler;
+import grammar.GrammarInfo;
+import grammar.GrammarInfoStorage;
 import java.util.ArrayList;
 import utils.TreeWalkerDST;
 import utils.TreeWalkerDSTPrint;
@@ -35,13 +38,19 @@ import virtual.machine.VmExeHeader;
  */
 public class Main {
 
+    public static void testTypesList(){
+        GrammarInfo gs = GrammarInfoStorage.getInstance();
+        ArrayList<TokenInfo> res = gs.getFullInfo().get("Var").getFullInfo().get("Type");
+        System.out.println(res.size());
+    }
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception{
         // TODO code application logic here
+        
         FullPipeline fullPipe = new  FullPipeline();
-       
+     
        // try{
             String path = Main.class.getResource("/assets/class_expr.txt").getPath();
             Scanner scanner = new Scanner( new File(path), "UTF-8" );

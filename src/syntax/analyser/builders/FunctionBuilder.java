@@ -36,13 +36,7 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     }
     
     protected Parser getReturnStatementParser(){
-        ParserAlternative altParser = new ParserAlternative();
-        altParser.add(new ParserTag("Id"));
-        altParser.add(new ParserTag("Integer"));
-        altParser.add(new ParserTag("String"));
-        altParser.add(new ParserTag("Float"));
-        
-        return altParser;
+        return this.getParser("TypesListBuilder");
     }
     
     

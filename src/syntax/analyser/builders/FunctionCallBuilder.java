@@ -26,12 +26,8 @@ import syntax.analyser.parser.ParserTag;
 public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
     
     protected Parser getTypesListParser(){
-        ParserAlternative argTypesAltParser = new ParserAlternative();
-        argTypesAltParser.add(new ParserTag("Float"));
-        argTypesAltParser.add(new ParserTag("Integer"));
-        argTypesAltParser.add(new ParserTag("String"));
-        
-        return argTypesAltParser;
+      
+        return   this.getParser("TypesListBuilder");
     }
     
     protected Parser getArgBlockRepeatedParser(){

@@ -6,7 +6,11 @@
 
 package grammar;
 
+import common.TokenInfo;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import syntax.analyser.parser.ParserTag;
 
 /**
  *
@@ -24,6 +28,18 @@ public class GrammarInfo {
     
     public LinkedHashMap<String, GrammarPart> getFullInfo(){
         return info;
+    }
+    
+    public HashSet<String> getTypesList(){
+       ArrayList<TokenInfo> typesListTokens = this.getFullInfo().get("Var").getFullInfo().get("Type");
+       HashSet<String> typesSet = new HashSet<>();
+       
+       for(TokenInfo typeToken:typesListTokens){
+             String typeName = typeToken.getTagText();
+             typesSet.add(typeName);
+       }
+       
+       return typesSet;
     }
     
     
