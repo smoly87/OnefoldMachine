@@ -5,6 +5,8 @@
  */
 package syntax.analyser.parser;
 
+import syntax.analyser.Parser;
+
 /**
  *
  * @author Andrey

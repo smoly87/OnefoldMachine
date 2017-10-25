@@ -91,13 +91,34 @@ public class ProgramBuilder  {
        addVar(name, type, varsMap) ;   
     }
     
+    public void addVar(String name, String className ){
+        
+       addVar(name, VarType.Integer, className, varsMap) ;   
+    }
+    
     public void addLocalVar(String name, VarType type){
         addVar(name, type, localVarsMap) ;
         totalLocalVarSizes += typesInfo.getTypeSize(type);
     }
     
-    protected void addVar(String name, VarType type,LinkedHashMap<String, VarDescription> varContainer  ){
+    public void addLocalVar(String name, String className){
+        addVar(name, VarType.Integer,className, localVarsMap) ;
+        totalLocalVarSizes += typesInfo.getTypeSize(VarType.Integer);
+    }
+    protected void addVar(String name, VarType type, LinkedHashMap<String, VarDescription> varContainer  ){
         VarDescription descr = new VarDescription( type, (byte)varContainer.size());
+        if(!varContainer.containsKey(name)){
+            varContainer.put(name, descr);
+        } 
+    }
+    
+    protected void addVar(String name, VarType type, String className, LinkedHashMap<String, VarDescription> varContainer  ) {
+       
+        MetaClassesInfo metaInfo = MetaClassesInfo.getInstance();
+        int classId = metaInfo.getClassInfo(className).getCode();
+        VarDescription descr = new VarDescription( type, (byte)varContainer.size(), classId);
+        descr.setClassName(className);
+        
         if(!varContainer.containsKey(name)){
             varContainer.put(name, descr);
         } 
@@ -121,11 +142,19 @@ public class ProgramBuilder  {
     }
     
     public int  getVarCode(String name) throws CompilerException{
+        return getVarDescription(name).getCode();
+    }
+    
+    public VarDescription getVarDescription(String name) throws CompilerException{
         if(varsMap.containsKey(name)){
-            return varsMap.get(name).getCode();
+            return varsMap.get(name);
         } else{
             throw new CompilerException("Undeclared variable: " + name);
         }
+    }
+    
+    public int getVarClassId(String name) throws CompilerException{
+       return getVarDescription(name).getClassId();
     }
     
     public int getConstCode(ValueDescription descr){

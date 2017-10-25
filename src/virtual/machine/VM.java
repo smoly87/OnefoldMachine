@@ -37,9 +37,6 @@ public class VM {
     public static  int ADDR_SIZE = 4;
     public static  int INT_SIZE = 4;
     public static int COMMAND_SIZE =  1 + INT_SIZE; 
-    //... not realised yet
- 
-
     
     protected MemoryManager memoryManager;
     protected int pos;
@@ -109,7 +106,7 @@ public class VM {
         BinaryReader binReader = new BinaryReader(program.getData());
         binReader.setCurPos(secStart);
  
-        while( binReader.getCurPos() < secEnd){ 
+        while( binReader.getCurPos() < secEnd ){ 
             int classInd = binReader.readIntAndNext();
             int metaInfoSize = binReader.readInt();
             int metaTablePtr =  memHeap.memAlloc(metaInfoSize);
@@ -119,14 +116,15 @@ public class VM {
             binReader.prevBytes(VM.INT_SIZE);
             Byte[] metaData =  binReader.readAndNextBytes(metaInfoSize + VM.INT_SIZE);
             memHeap.putValue(metaTablePtr, metaData);
-            
+            printClassMetaInfo(classInd);
         }
-        printClassMetaInfo(0);
+        
     }
     
     protected int getClassId(int objPtr){ 
         //First field is size, second is classID, third is linkCount
-        return getMemHeap().getIntValue(objPtr + VM.INT_SIZE);
+        int classId = getMemHeap().getIntValue(objPtr + VM.INT_SIZE);
+        return classId;
     }
     
     protected int getClassMetaDataPointer(int classId){ 
@@ -161,7 +159,7 @@ public class VM {
             k++;
         }
         
-       throw new VmExecutionExeption(String.format("Field"));
+       return -1;
     }
     
     protected int readClassMetaDataHeader(int classMetaDataPtr, VmMetaClassHeader header){
@@ -171,14 +169,30 @@ public class VM {
     protected int getFieldOffsetObj(int objPtr, int fieldNum) throws VmExecutionExeption{
          int classId = getClassId(objPtr);
          int metaDataPtr = this.getClassMetaDataPointer(classId);
-         return getFieldOffset(metaDataPtr, fieldNum);
+         int fieldOffset = getFieldOffset(metaDataPtr, fieldNum);
+         
+         if(fieldOffset > -1){
+             return fieldOffset;
+         }else {    
+            int parentClassId = readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.PARENT_ID); 
+            while(parentClassId > -1){
+                metaDataPtr = this.getClassMetaDataPointer(parentClassId);
+                fieldOffset = getFieldOffset(metaDataPtr, fieldNum);
+                if(fieldOffset > -1) return fieldOffset;
+                parentClassId = readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.PARENT_ID); 
+            }
+            throw new VmExecutionExeption(String.format("Field with number %s not found", fieldNum));
+         }
+         
+         
     }
     protected void printClassMetaInfo(int classId) throws VmExecutionExeption{
         int metaDataPtr = this.getClassMetaDataPointer(classId);
         int fieldsCount = readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.FIELDS_COUNT);
         int methodsCount = readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.METHODS_COUNT);
+        int parentId = readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.PARENT_ID);
         
-        System.out.println(String.format("Fields: %s, methods: %s", fieldsCount, methodsCount));
+        System.out.println(String.format("Fields: %s, methods: %s.Parent_Id: %s", fieldsCount, methodsCount, parentId));
         
         int fieldOffset = getFieldOffset(metaDataPtr, 1);
          System.out.println(String.format("Offset of field %s is %s", 1, fieldOffset));
@@ -328,7 +342,11 @@ public class VM {
         Byte[] fieldValue = memStack.pop();
         int ptrAddr = stackPopInt();
         
-        int fieldOffset = getFieldOffsetObj(ptrAddr, fieldNum);
+        int fieldOffset = fieldNum * INT_SIZE;
+        if(fieldNum > 1){
+             fieldOffset = getFieldOffsetObj(ptrAddr, fieldNum);
+        }
+        
         memHeap.putValue(ptrAddr + VM.INT_SIZE + fieldOffset, fieldValue);
         
        // memHeap.putValue(ptrAddr, fieldValue);

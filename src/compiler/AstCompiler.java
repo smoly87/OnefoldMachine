@@ -32,8 +32,9 @@ public abstract class AstCompiler {
     }
     
     protected void callSubscribers(AstNode node, ProgramBuilder programBuilder){
+       
         for (CompilerSubscriber subscriber : subscribers) {
-            subscriber.nodeProcessEvent(node, programBuilder);
+           subscriber.nodeProcessEvent(node, programBuilder);
         }
     }
     

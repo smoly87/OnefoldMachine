@@ -9,6 +9,7 @@ import common.Token;
 import common.VarType;
 import compiler.AstCompiler;
 import compiler.exception.CompilerException;
+import program.builder.ClassInfo;
 import program.builder.MetaClassesInfo;
 import syntax.analyser.AstNode;
 import program.builder.ProgramBuilder;
@@ -22,6 +23,10 @@ import virtual.machine.VMSysFunction;
 public class LetCompiler extends AstCompiler{
     
     protected boolean objLeftPart;
+    protected String leftObjName;
+    protected String className;
+    
+    protected AstNode rightPartNode;
     
     public void addRightPartCommands(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         String tokName = node.getToken().getTagName();
@@ -38,6 +43,7 @@ public class LetCompiler extends AstCompiler{
              case "Integer":            
                  programBuilder.addInstruction(VMCommands.Push, node.getToken().getValue(), VarType.Integer);
                  break;
+            
              
          
          }
@@ -54,10 +60,17 @@ public class LetCompiler extends AstCompiler{
     
     protected void addCommandsLeftPartObjField(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
        
-       
+        String fieldName = node.getToken().getValue();
     
         MetaClassesInfo metaInfo = MetaClassesInfo.getInstance();
-        Integer fieldNum = metaInfo.getFieldCode(node.getToken().getValue());
+        String objClass = programBuilder.getVarDescription(this.leftObjName).getClassName();
+        ClassInfo classInfo =  metaInfo.getClassInfo(objClass);
+        
+        if(!classInfo.isFieldExists(fieldName)){
+            throw new CompilerException(String.format("Object of type %s doesn't have a field %s", objClass, fieldName));
+        }
+        
+        Integer fieldNum = metaInfo.getFieldCode(fieldName);
         
       
         //programBuilder.addInstruction(VMCommands.Push, fieldValueToken.getValue(), fieldValueToken.getVarType());// fieldValue
@@ -85,15 +98,29 @@ public class LetCompiler extends AstCompiler{
                 break;
             case "LeftObjName":
                 objLeftPart = true;
+                leftObjName = node.getToken().getValue();
                 addCommandsLeftPartObj(node, programBuilder);
+                if(rightPartNode!=null)addRightPartCommands(rightPartNode, programBuilder);
                 break;
             case "RightPartExpr":
-                addRightPartCommands(node, programBuilder);
+                //addRightPartCommands(node, programBuilder);
+                rightPartNode = node;
                 break;
             case "LeftVarName":
+                if(!this.className.equals("")){
+                    String varName = node.getToken().getValue();
+                    String varClass = programBuilder.getVarDescription(varName).getClassName();
+                    if(!varClass.equals(this.className)){
+                       throw new CompilerException(String.format("Variable %s is decalred as %s. But there is an attempt to assign it to instance of %s",
+                               varName, varClass, this.className));
+                    } 
+                }
+                
+                
                 if(objLeftPart){
                     addCommandsLeftPartObjField(node, programBuilder);
                 } else{
+                    if(rightPartNode!=null)addRightPartCommands(rightPartNode, programBuilder);
                     addCommandsLeftPartVar(node, programBuilder);
                 }
                 break;
@@ -102,7 +129,19 @@ public class LetCompiler extends AstCompiler{
                 System.err.println("Unknown part in Let compiler:" + node.getToken().getValue());*/
         }
     }
-
+    public  void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+        
+        AstNode rightExprNode = node.findChild("RightPartExpr");
+        this.className = "";
+        if(rightExprNode != null){
+          AstNode classNameNode =  rightExprNode.findChild("ClassName");
+          if(classNameNode != null) {
+              this.className = classNameNode.getToken().getValue();
+          }
+        }
+        
+        
+    }
    
     
 }

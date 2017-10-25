@@ -36,7 +36,7 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     }
     
     protected Parser getReturnStatementParser(){
-        return this.getParser("TypesListBuilder");
+        return this.getParser("TypesList");
     }
     
     

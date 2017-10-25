@@ -26,11 +26,9 @@ public class VarBuilder extends ParserChain implements ParserBuilder{
     public Parser build() {
         //Указать нужен ли результат парсера
         
-       ParserAlternative typesParserAlt = new ParserAlternative();
+       Parser typesParserAlt =  this.getParser("TypesList");
       
-       typesParserAlt.add(new ParserKeyword("Integer"));
-       typesParserAlt.add(new ParserKeyword("Boolean"));
-       
+     
        return this
             .addKeyword("Var")
             .addTag("Id")
@@ -39,6 +37,7 @@ public class VarBuilder extends ParserChain implements ParserBuilder{
             .addKeyword(";");
             
     }
+    
     @Override
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations

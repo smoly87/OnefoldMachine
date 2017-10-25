@@ -27,7 +27,7 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
     
     protected Parser getTypesListParser(){
       
-        return   this.getParser("TypesListBuilder");
+        return   this.getParser("TypesList");
     }
     
     protected Parser getArgBlockRepeatedParser(){

@@ -72,17 +72,6 @@ public class NewObjOperatorCompiler extends AstCompiler{
         }
     }
 
-    @Override
-    public void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
-       /* callFromLineNum = programBuilder.getLineCount();
-        programBuilder.addInstruction(VMCommands.Jmp, callFromLineNum.toString());*/
-    }
-
-    @Override
-    public void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
-      // programBuilder.addInstruction(VMCommands.Jmp, programBuilder.getLineCount().toString(), VarType.Integer);
-    }
-    
 
    
 }

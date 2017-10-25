@@ -16,6 +16,9 @@ import common.VarType;
 import compiler.AstCompiler;
 import compiler.AstCompiler;
 import compiler.exception.CompilerException;
+import grammar.GrammarInfo;
+import grammar.GrammarInfoStorage;
+import program.builder.MetaClassesInfo;
 import program.builder.ProgramBuilder;
 import syntax.analyser.AstNode;
 import types.TypesInfo;
@@ -43,20 +46,43 @@ public class VarCompiler extends AstCompiler{
       
     }
 
+    
+    
     @Override
     public void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
         AstNode idNode = node.getChildNodes().get(0);
-        AstNode typeNode = node.getChildNodes().get(1);
-        String typeName = typeNode.getToken().getValue();
+        AstNode typeNode = node.getChildNodes().get(1);  
+        String varName = idNode.getToken().getValue();
         
-        VarType type = VarType.valueOf(typeName);
-       
+        String typeName = typeNode.getToken().getValue();
+        GrammarInfo grInfo = GrammarInfoStorage.getInstance();
+        
+        VarType type;
+        boolean classFlag = false;
+        
+        if(grInfo.getTypesList().contains(typeName)){
+            type = VarType.valueOf(typeName); 
+        } else {
+             MetaClassesInfo metaInfo = MetaClassesInfo.getInstance();
+             if(!metaInfo.isClassExists(typeName)){
+               throw new CompilerException(String.format("Variable %s declared with type class %s. But such class have not been declared before.", varName, typeName));
+             }
+             type = VarType.Integer;
+             classFlag = true;
+        }
+        
+
         idNode.getToken().setVarType(type);
        
         if(programBuilder.isIsLocalContext()){
             Token token = idNode.getToken();
-            String varName = idNode.getToken().getValue();
-            programBuilder.addLocalVar(varName, type);
+            
+            if(classFlag){
+                programBuilder.addLocalVar(varName, typeName);
+            } else {
+                programBuilder.addLocalVar(varName, type);
+            }
+            
             int varInd =  programBuilder.getLocalVarCode(varName);
             String typeSize = Integer.toString(typesInfo.getTypeSize(token.getVarType()));
             programBuilder.addInstruction(VMCommands.Push, typeSize, VarType.Integer);
@@ -64,7 +90,12 @@ public class VarCompiler extends AstCompiler{
            
             localVarsCount++;
         } else {
-             programBuilder.addVar(idNode.getToken().getValue(), type);
+            if(classFlag){
+                programBuilder.addVar(varName, typeName);
+            } else {
+                programBuilder.addVar(varName, type);
+            }
+             
         }
     }
     

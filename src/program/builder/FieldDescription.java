@@ -13,7 +13,17 @@ import common.VarType;
  */
 public class FieldDescription extends ClassMemeberDescription{
     protected VarType fieldType;
+    protected String fieldName;
 
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+    }
+
+    
     public VarType getFieldType() {
         return fieldType;
     }
@@ -21,4 +31,6 @@ public class FieldDescription extends ClassMemeberDescription{
     public void setFieldType(VarType fieldType) {
         this.fieldType = fieldType;
     }
+    
+    
 }

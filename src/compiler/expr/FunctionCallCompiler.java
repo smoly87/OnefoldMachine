@@ -95,6 +95,8 @@ public class FunctionCallCompiler extends AstCompiler{
               funcDescr = MetaClassesInfo.getInstance().getFuncDescr(token.getValue());
               createFrameStack(programBuilder);
               break;
+            case "ObjName":
+                break;
             case "EndCall":
                 if(varNum < funcDescr.getArgsCount()) {
                     throw new CompilerException(String.format(

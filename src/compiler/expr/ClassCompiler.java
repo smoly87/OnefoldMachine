@@ -44,9 +44,13 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
             case "StartClass":   
                 classInfo = new ClassInfo(node.getToken().getValue());
                 break;
+            case "ExtendsClass":
+                classInfo.setParentClass(node.getToken().getValue());
+                break;
             case "EndClass":
                 this.commitCurMethod(programBuilder);
                 MetaClassesInfo.getInstance().addClassInfo(classInfo);
+                classInfo = new ClassInfo(node.getToken().getValue());
                 break;
             
         }

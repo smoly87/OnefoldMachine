@@ -71,14 +71,12 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
 
         AstNode rootNode = result.get("LetStart");
         
-        
+        rootNode.addChildNode(result.get("RightPartExpr"), "RightPartExpr");
         if(result.get("LeftObjName") != null){
-            rootNode.addChildNode(result.get("LeftObjName"), "LeftObjName"); 
-            rootNode.addChildNode(result.get("RightPartExpr"), "RightPartExpr");          
-        } else{
-            rootNode.addChildNode(result.get("RightPartExpr"), "RightPartExpr");
-        }
+            rootNode.addChildNode(result.get("LeftObjName"), "LeftObjName");        
+        } 
         
+           
         rootNode.addChildNode(result.get("LeftVarName"), "LeftVarName");
         
         rootNode.setCompiler(new LetCompiler());

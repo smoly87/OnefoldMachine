@@ -14,6 +14,19 @@ import common.VarType;
 public class VarDescription {
     protected int code;
     protected int classId;
+    protected String className;
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public int getClassId() {
+        return classId;
+    }
 
     
     protected VarType type;
@@ -22,7 +35,10 @@ public class VarDescription {
         this.code = code;
         this.type = type;
     }
-
+     public VarDescription( VarType type, int code, int classId) {
+         this(type, code);
+         this.classId = classId;
+     }
     
     
     public int getCode() {

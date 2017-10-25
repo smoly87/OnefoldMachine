@@ -1,4 +1,7 @@
-Class foo {
+Class baz {
+Public bazar:Integer
+}
+Class foo : Extends baz{
 Public bar:Integer
 Public rebar:Integer
 Public rerebar:Integer
@@ -8,7 +11,9 @@ Let a = 30;
 Return 60
 }
 }
-Var a:Integer;
+Var a:foo;
 Let a = New foo();
-Let a.rebar = 4;
-Sys PrintObjField(a, 3);
+Let a.bazar = 450;
+Let a.bar = 850;
+Sys PrintObjField(a, 2)
+Sys PrintObjField(a, 3)

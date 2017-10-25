@@ -17,6 +17,7 @@ import syntax.analyser.Parser;
 import syntax.analyser.parser.ParserAlternative;
 import syntax.analyser.parser.ParserChain;
 import syntax.analyser.parser.ParserMathExpr;
+import syntax.analyser.parser.ParserOptional;
 import syntax.analyser.parser.ParserRepeated;
 import syntax.analyser.parser.ParserStatement;
 import syntax.analyser.parser.ParserTag;
@@ -38,24 +39,36 @@ public class ClassBuilder extends  ParserChain implements ParserBuilder{
         return new ParserRepeated(classEntriesAlts);
     }
     
+    protected Parser getExtendsOptBlock(){
+        ParserChain parser = new ParserChain();
+        parser.addKeyword(":")
+              .addKeyword("Extends")
+              .addTag("Id", "ExtendsClass");
+        
+        return new ParserOptional(parser);
+    }
          
     public Parser build() {
 
        return this
             .addKeyword("Class") 
             .addTag("Id")
+            .add(getExtendsOptBlock(), "ExtendsBlock")
             .addKeyword("{") // Body of function
             .add(getClassFieldsOrMethodsParser(), "ClassFieldsOrMethods") 
-            .addKeyword("}", "EndClass");            
+            .addKeyword("}", "EndClass");           
     }
     
     @Override
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
         AstNode rootNode = result.get("Class");
-        rootNode.setCompiler(new ClassCompiler());
+        rootNode.setCompiler(this.getCompiler("Class"));
         System.out.println("Class parser has been reached");
         rootNode.addChildNode(result.get("Id"), "StartClass");
+        if(result.get("ExtendsBlock") != null) {
+            rootNode.addChildNode(result.get("ExtendsBlock"), "ExtendsBlock");
+        }
         rootNode.addChildNode(result.get("ClassFieldsOrMethods"), "ClassFieldsOrMethods");
         rootNode.addChildNode(result.get("EndClass"), "EndClass");
 

@@ -54,6 +54,10 @@ public class MetaClassesInfo {
         return funcsMap.containsKey(funcName);
     }
     
+    public Boolean isClassExists(String className){
+       return  classesMap.containsKey(className);
+    }
+    
     public int getEntryPoint(){
         //TODO: improve for class support
         int maxLineNum = 0;

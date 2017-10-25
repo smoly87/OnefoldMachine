@@ -59,6 +59,9 @@ public class Main {
             
             programSrc = programSrc.replace(System.getProperty("line.separator"), "");
             programSrc = programSrc.replace(" ", "");
+            
+            programSrc = programSrc.replaceAll("/\\*.*?\\*/", "");
+            
             System.out.println(programSrc);
             LexerResult lexRes = fullPipe.tokenise(programSrc);
             AstNode ast = fullPipe.buildAst(lexRes);

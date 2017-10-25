@@ -10,5 +10,5 @@ package virtual.machine;
  * @author Andrey
  */
 public enum VmMetaClassHeader {
-    CLASS_CODE, TOTAL_SIZE, METHODS_COUNT,  FIELDS_COUNT
+    CLASS_CODE, TOTAL_SIZE, METHODS_COUNT,  FIELDS_COUNT, PARENT_ID
 }
