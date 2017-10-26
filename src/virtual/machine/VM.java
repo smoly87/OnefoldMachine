@@ -364,7 +364,6 @@ public class VM {
     }
     
     protected void sysPrint() throws  VmExecutionExeption, UnsupportedEncodingException{
-    //    stackPopInt();
         int ptrAddr = stackPopInt();
         MemoryStack memStack = this.memoryManager.getMemStack();
         Byte[] val =  getMemHeap().getPtrByteValue(ptrAddr);
@@ -481,12 +480,12 @@ public class VM {
                     case Push_Addr_Value:
                         value = memoryManager.getPtrByteValue(addr);
                         memStack.push(value);
-                       System.err.println("Stack push: " + binConvertorService.bytesToInt(value, 0));
+                       System.err.println("Stack push value: " + binConvertorService.bytesToInt(value, 0));
                         break;
                     case Push_Addr:
                        // value = memoryManager.getPtrByteValue(addr);
                         memStack.push(binConvertorService.integerToByte(addr));
-                       //System.err.println("Stack push: " + binConvertorService.bytesToInt(value, 0));
+                       System.err.println("Stack push addr: " + addr);
                         break;    
                     case Pop:
                         memStack.pop();

@@ -51,7 +51,7 @@ public class SysFunctionCallCompiler extends AstCompiler{
               } else{
                    programBuilder.addInstruction(VMCommands.Push, token.getValue(), VarType.valueOf(token.getTagName()));
               }  
-                
+                System.err.println(String.format("-> %s, %s", token.getValue(), token.getTagName()));
               break; 
             case  "FunctionId":
               try{   

@@ -50,6 +50,7 @@ public class LetCompiler extends AstCompiler{
              
          
          }
+        rightPartNode = null;
     }
     protected void addCommandsLeftPartObj(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         String varName = node.getToken().getValue();

@@ -13,6 +13,7 @@ import syntax.analyser.AstNode;
 import syntax.analyser.Parser;
 import syntax.analyser.parser.ParserAlternative;
 import syntax.analyser.parser.ParserChain;
+import syntax.analyser.parser.ParserKeyword;
 import syntax.analyser.parser.ParserMathExpr;
 import syntax.analyser.parser.ParserOptional;
 import syntax.analyser.parser.ParserRepeated;
@@ -35,7 +36,7 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
         
         ParserChain chainParser = new ParserChain();
         chainParser.add(getTypesListParser(), "Arg")
-                   .addKeyword(","); 
+                    .add(new ParserOptional(new ParserKeyword(",")), "comma"); 
         
         return new ParserOptional(new ParserRepeated(chainParser));
     }
@@ -64,9 +65,8 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
             .addKeyword("(")
             .add(getArgBlockRepeatedParser(), "ArgsBlock")
             .add(getLastArgParser(), "LastArg")
-            .addKeyword(")", "EndCall");
-            
-            //.addKeyword(";");
+            .addKeyword(")", "EndCall")
+            .addKeyword(";");
             
     }
     @Override

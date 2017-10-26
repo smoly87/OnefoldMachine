@@ -14,6 +14,7 @@ import syntax.analyser.AstNode;
 import syntax.analyser.Parser;
 import syntax.analyser.parser.ParserAlternative;
 import syntax.analyser.parser.ParserChain;
+import syntax.analyser.parser.ParserKeyword;
 import syntax.analyser.parser.ParserMathExpr;
 import syntax.analyser.parser.ParserOptional;
 import syntax.analyser.parser.ParserRepeated;
@@ -35,7 +36,7 @@ public class SysFunctionCallBuilder extends  ParserChain implements ParserBuilde
         
         ParserChain chainParser = new ParserChain();
         chainParser.add(getTypesListParser(), "Arg")
-                   .addKeyword(","); 
+                   .add(new ParserOptional(new ParserKeyword(",")), "comma"); 
         
         return new ParserOptional(new ParserRepeated(chainParser));
     }
@@ -62,7 +63,7 @@ public class SysFunctionCallBuilder extends  ParserChain implements ParserBuilde
             .addTag("Id")
             .addKeyword("(")
             .add(getArgBlockRepeatedParser(), "ArgsBlock")
-            .add(getLastArgParser(), "LastArg")
+            //.add(getLastArgParser(), "LastArg")
             .addKeyword(")", "EndCall");
             
             //.addKeyword(";");
@@ -71,14 +72,20 @@ public class SysFunctionCallBuilder extends  ParserChain implements ParserBuilde
     @Override
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
-        AstNode rootNode = result.get("Sys");
-        rootNode.setCompiler(this.getCompiler("SysFunctionCall"));
+        AstNode rootNode = new AstNode();
+        rootNode.setCompiler(this.getCompiler("SysFunctionCall") );
 
         AstNode argNode = result.get("ArgsBlock");
-        if(result.get("LastArg") != null){
-            if(argNode == null) argNode = new AstNode();
-            argNode.addChildNode(result.get("LastArg"), "Arg");
-        }
+        /*if(result.get("LastArg") != null){
+            if(argNode == null) {
+                argNode = new AstNode();
+                AstNode innerNode = new AstNode();
+                argNode.addChildNode(innerNode);
+            } else{
+                 argNode.addChildNode(result.get("LastArg"), "Arg");
+            }
+           
+        }*/
         if(argNode != null){
             rootNode.addChildNode(argNode, "ArgsBlock");
         }
