@@ -40,6 +40,7 @@ public class MetaClassesInfo {
     }
     public void addFunction(String funcName, FunctionDescription funcDescr){
         //funcAddressesMap
+        
         funcsMap.put(funcName, funcDescr);
     }
     
@@ -88,11 +89,11 @@ public class MetaClassesInfo {
     
     protected int getOrAddCode(HashMap<String, Integer> collection, String value){
         int code = 0;
-        if(!methodCodes.containsKey(value)){
-            code = methodCodes.size();
-            methodCodes.put(value, code);
+        if(!collection.containsKey(value)){
+            code = collection.size();
+            collection.put(value, code);
         } else {
-            code = methodCodes.get(value);
+            code = collection.get(value);
         }
         return code;
     }        

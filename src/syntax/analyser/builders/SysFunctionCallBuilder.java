@@ -64,9 +64,9 @@ public class SysFunctionCallBuilder extends  ParserChain implements ParserBuilde
             .addKeyword("(")
             .add(getArgBlockRepeatedParser(), "ArgsBlock")
             //.add(getLastArgParser(), "LastArg")
-            .addKeyword(")", "EndCall");
+            .addKeyword(")", "EndCall")
             
-            //.addKeyword(";");
+            .addKeyword(";");
             
     }
     @Override
@@ -76,16 +76,7 @@ public class SysFunctionCallBuilder extends  ParserChain implements ParserBuilde
         rootNode.setCompiler(this.getCompiler("SysFunctionCall") );
 
         AstNode argNode = result.get("ArgsBlock");
-        /*if(result.get("LastArg") != null){
-            if(argNode == null) {
-                argNode = new AstNode();
-                AstNode innerNode = new AstNode();
-                argNode.addChildNode(innerNode);
-            } else{
-                 argNode.addChildNode(result.get("LastArg"), "Arg");
-            }
-           
-        }*/
+        
         if(argNode != null){
             rootNode.addChildNode(argNode, "ArgsBlock");
         }

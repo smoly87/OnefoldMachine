@@ -17,6 +17,7 @@ public enum VMSysFunction {
     MemAllocPtr,
     SetPtrField,
     GetPtrField,
+    GetVirtualFuncAddr,
     Print,
     PrintObjField
 }

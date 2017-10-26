@@ -98,7 +98,7 @@ public class LetCompiler extends AstCompiler{
         
         switch(nodeName){
             case "LetStart":
-                objLeftPart = false;
+                
                 break;
             case "LeftObjName":
                 objLeftPart = true;
@@ -108,6 +108,7 @@ public class LetCompiler extends AstCompiler{
                 break;
             case "RightPartExpr":
                 //addRightPartCommands(node, programBuilder);
+                objLeftPart = false;
                 rightPartNode = node;
                 break;
             case "LeftVarName":

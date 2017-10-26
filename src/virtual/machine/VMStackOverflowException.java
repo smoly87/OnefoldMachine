@@ -10,5 +10,7 @@ package virtual.machine;
  * @author Andrey
  */
 public class VMStackOverflowException extends VmExecutionExeption{
-    
+    public VMStackOverflowException(String message){
+        super(message);
+    }
 }

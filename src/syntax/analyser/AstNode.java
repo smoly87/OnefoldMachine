@@ -18,7 +18,7 @@ public class AstNode {
     protected ArrayList<AstNode> childNodes;
     protected Token token;
     protected AstCompiler compiler;
-    protected String name;
+    protected String name ="";
 
     public String getName() {
         return name;

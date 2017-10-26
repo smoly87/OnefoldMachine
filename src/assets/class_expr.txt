@@ -1,22 +1,24 @@
 Class baz {
 Public bazar:Integer
+Function Float test(Var a:Integer;Var b:Integer;){
+Let a = 30;
+Return 60
+}
 }
 Class foo : Extends baz{
 Public bar:Integer
 Public rebar:Integer
 Public rerebar:Integer
 Public barbar:Integer
-Function Float test(Var a:Integer;Var b:Integer;){
-Let a = 30;
-Return 60
-}
 }
 Var a:foo;
+Var b:Integer;
 Var s:String;
 Let s ="Hello";
 Let a = New foo();
+Let b = Call a.test(120, 130);
 Let a.bazar = 450;
 Let a.bar = 850;
-Sys PrintObjField(a, 2)
-Sys PrintObjField(a, 3)
-Sys Print(s)
+Sys PrintObjField(a, 2);
+Sys PrintObjField(a, 3);
+Sys Print(s);

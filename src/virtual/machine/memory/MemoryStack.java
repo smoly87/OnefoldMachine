@@ -57,12 +57,16 @@ public class MemoryStack extends Memory{
         return getValue(ptrValueStart , realLen);
     }
     
+    
+    
     public int push(Byte[] value) throws VMStackOverflowException{
        int headAddr = this.getSysRegister(VmSysRegister.StackHeadPos);
        //First 4 bytes is length of pointer
        // Next 4 bytes is previous element
        int freeSize = stackSize - (headAddr  - segmentOffset);
-       if(freeSize < value.length) throw new VMStackOverflowException();
+       if(freeSize < value.length) {
+           throw new VMStackOverflowException(String.format("VM Stack overflow. FreeSize: %s. Need to allocate: %s", freeSize, value.length));
+       }
        
        //No elemenents in stack
        int newHeadAddr;
@@ -82,4 +86,9 @@ public class MemoryStack extends Memory{
        this.setSysRegister(VmSysRegister.StackHeadPos, newHeadAddr);
        return newHeadAddr;
     }
+    
+    public int push(int value) throws VMStackOverflowException{
+        return push(binConvertorService.integerToByte(value));
+    }
 }
+

@@ -30,6 +30,8 @@ public class FunctionCallCompiler extends AstCompiler{
     protected Integer callFromLineNum;
     protected TypesInfo typesInfo;
     protected int varNum ;
+    protected boolean objMethod = false;
+    protected String objName;
     /*At the begin of frame table is
     Link to caller(this)|Stack Position out of Frame|Return address
     */
@@ -92,10 +94,14 @@ public class FunctionCallCompiler extends AstCompiler{
             case  "FunctionId":
              //ToDO: check in global context
               varNum = 0;
+              objMethod = false;
+              objName = null;
               funcDescr = MetaClassesInfo.getInstance().getFuncDescr(token.getValue());
               createFrameStack(programBuilder);
               break;
             case "ObjName":
+                objMethod = true;
+                objName = token.getValue();
                 break;
             case "EndCall":
                 if(varNum < funcDescr.getArgsCount()) {
@@ -111,8 +117,20 @@ public class FunctionCallCompiler extends AstCompiler{
                 programBuilder.addInstruction(VMCommands.Push, VmSysRegister.F1.ordinal(), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
                 
+                if(objMethod){
+                    //String varClass = programBuilder.getVarDescription(objName).getClassName();
+                    Integer methodCode = MetaClassesInfo.getInstance().getMethodCode(funcDescr.getFuncName());
+                    
+                    programBuilder.addInstruction(VMCommands.Push, methodCode.toString() , VarType.Integer);
+                    this.addVarLoadCommand(objName, programBuilder);
+              
+                    programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetVirtualFuncAddr), VarType.Integer);
+                    
+                    programBuilder.addInstruction(VMCommands.Jmp, "0" , VarType.Integer, false);
+                } else{
+                    programBuilder.addInstruction(VMCommands.Jmp, Integer.toString(funcDescr.getLineNumber()) , VarType.Integer, false);
+                }
                 
-                programBuilder.addInstruction(VMCommands.Jmp, Integer.toString(funcDescr.getLineNumber()) , VarType.Integer, false);
                 programBuilder.changeCommandArg(commandRet, programBuilder.getLineCount(), VarType.Integer); 
                 break;
             case "Arg":

@@ -70,7 +70,7 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
     @Override
     public  AstNode processChainResult(HashMap<String, AstNode> result){
 
-        AstNode rootNode = result.get("LetStart");
+        AstNode rootNode = new AstNode();
         
         rootNode.addChildNode(result.get("RightPartExpr"), "RightPartExpr");
         if(result.get("LeftObjName") != null){

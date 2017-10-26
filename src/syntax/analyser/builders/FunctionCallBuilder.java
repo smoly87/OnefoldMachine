@@ -64,28 +64,26 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
             .addTag("Id")
             .addKeyword("(")
             .add(getArgBlockRepeatedParser(), "ArgsBlock")
-            .add(getLastArgParser(), "LastArg")
-            .addKeyword(")", "EndCall")
-            .addKeyword(";");
+            .addKeyword(")", "EndCall");
+            //.addKeyword(";");
             
     }
+    
     @Override
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
         AstNode rootNode = result.get("Call");
         rootNode.setCompiler(new FunctionCallCompiler());
 
+        
+        
+        rootNode.addChildNode(result.get("Id"), "FunctionId");
         if(result.get("ObjName") != null){
            rootNode.addChildNode(result.get("ObjName"), "ObjName");
         }
-        
-        rootNode.addChildNode(result.get("Id"), "FunctionId");
 
         AstNode argNode = result.get("ArgsBlock");
-        if(result.get("LastArg") != null){
-            if(argNode == null) argNode = new AstNode();
-            argNode.addChildNode(result.get("LastArg"), "Arg");
-        }
+  
         if(argNode != null){
             rootNode.addChildNode(argNode, "ArgsBlock");
         }

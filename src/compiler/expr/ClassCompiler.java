@@ -27,7 +27,7 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
     protected String curFuncName;
     protected StringBuilder argsSignatureBuilder;
     protected ClassInfo classInfo;
-    
+    protected int funcStartLine = -1;
     
     public ClassCompiler(){
          this.getCompiler("Function").addSubscriber(this);
@@ -43,6 +43,7 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
        switch(node.getName()){
             case "StartClass":   
                 classInfo = new ClassInfo(node.getToken().getValue());
+                
                 break;
             case "ExtendsClass":
                 classInfo.setParentClass(node.getToken().getValue());
@@ -66,7 +67,7 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
     protected void commitCurMethod(ProgramBuilder programBuilder){ 
         if (this.curFuncName != null) {
             ///String funcName = this.curFuncName + ":" + argsSignatureBuilder.toString();
-            classInfo.addMethod(curFuncName,argsSignatureBuilder.toString(), programBuilder.getLineCount());
+            classInfo.addMethod(curFuncName,argsSignatureBuilder.toString(), funcStartLine);
         }
     }
    
@@ -79,6 +80,7 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
         if(node.getName() != null) nodeName = node.getName();
         switch(nodeName){
             case "FunctionId":
+                funcStartLine = programBuilder.getLineCount();
                 commitCurMethod(programBuilder);
                 argsSignatureBuilder = new StringBuilder();
                 this.curFuncName = token.getValue();

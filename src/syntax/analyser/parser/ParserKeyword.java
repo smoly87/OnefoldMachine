@@ -24,9 +24,10 @@ public class ParserKeyword extends Parser{
    
     @Override
     public boolean parseLexerResult(LexerResult lexerResults) {
+
         Token token = lexerResults.getCurToken();
         String name = lexerResults.getCurToken().getName();
-        System.out.println(name);
+        
         if( name.equals(this.keyword) ) {
             AstNode resNode = new AstNode();
             

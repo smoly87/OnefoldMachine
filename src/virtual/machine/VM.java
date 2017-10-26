@@ -48,6 +48,7 @@ public class VM {
     protected int[] varAddr;
     protected TypesInfo typesInfo;
     protected VMAddrTables addrTables;
+    protected boolean firstF1 = false;
     
     public VM(){
         this.binConvertorService =  DataBinConvertor.getInstance();
@@ -178,13 +179,7 @@ public class VM {
          if(fieldOffset > -1){
              return fieldOffset;
          }else {    
-            int parentClassId = readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.PARENT_ID); 
-            while(parentClassId > -1){
-                metaDataPtr = this.getClassMetaDataPointer(parentClassId);
-                fieldOffset = getFieldOffset(metaDataPtr, fieldNum);
-                if(fieldOffset > -1) return fieldOffset;
-                parentClassId = readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.PARENT_ID); 
-            }
+          
             throw new VmExecutionExeption(String.format("Field with number %s not found", fieldNum));
          }
          
@@ -263,7 +258,7 @@ public class VM {
    
                     
                     break;
-                case Push_Addr:
+                case Push_Addr:case Mov:
                     constAdrPtr = addrTables.getAddrByIndex(VmExeHeader.ConstTableSize, addr); 
                     
                     memHeap.putValue(i + 1, constAdrPtr);
@@ -380,6 +375,62 @@ public class VM {
         System.err.println(String.format("PRINT_OBJ_FIELD: Value: %s FieldNum: %s  ", value, fieldNum) );
     }
     
+    protected int findMethodAddr(int code, int cnt, BinaryReader binReader, int start){
+        int k = 0;
+        int offset = 0;
+        binReader.setCurPos(start);
+        while(k < cnt){
+            int entryCode = binReader.readIntAndNext();
+            
+            if(entryCode == code){
+                return binReader.readIntAndNext();
+            }
+            binReader.readIntAndNext();
+            k++;
+        }
+        
+       return -1;
+    }
+    
+    protected int getMethodAddress(int classMetaDataPtr, int methodCode) throws VmExecutionExeption{
+        BinaryReader binReader = new BinaryReader(this.getMemHeap().getData());
+        
+        int methodsCount = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.METHODS_COUNT);
+        int headersSize = BinBuilderClassesMetaInfo.HEADERS_SIZE * VM.INT_SIZE;
+       
+        
+      
+        int methodAddr = findMethodAddr(methodCode, methodsCount, binReader, classMetaDataPtr + headersSize);
+        if(methodAddr == -1){
+            int parentClassId = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.PARENT_ID);
+             
+            while(parentClassId > -1){
+                classMetaDataPtr = this.getClassMetaDataPointer(parentClassId);
+                methodAddr = findMethodAddr(methodCode, methodsCount, binReader, classMetaDataPtr + headersSize);
+                if(methodAddr > -1) return methodAddr;
+                parentClassId = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.PARENT_ID); 
+
+            }
+            throw new VmExecutionExeption(String.format("Method with code: %s not found in class hierachy. SysFunc: getVirtaulFunction", methodCode));
+
+        } else{
+            return methodAddr;
+        }
+    }
+    
+    protected void sysGetVirtualFuncAddr() throws  VmExecutionExeption{
+         int objPtr = stackPopInt();
+         int methodCode = stackPopInt();
+        
+         int classId = getClassId(objPtr);
+         int metaDataPtr = this.getClassMetaDataPointer(classId);
+         
+         int methodAddr = getMethodAddress(metaDataPtr, methodCode);
+         
+         memoryManager.getMemStack().push(methodAddr);
+         
+    }
+    
     protected void callSysFunc(int funcTypeAddrPtr) throws VmExecutionExeption, UnsupportedEncodingException{   
         MemoryStack memStack = this.memoryManager.getMemStack();
         int funcType  = memStack.getIntPtrValue(funcTypeAddrPtr);
@@ -406,8 +457,10 @@ public class VM {
                 int regValue = memoryManager.getSysRegister(register);
                 
                 //This registres is used to store addresses, so it's need to be transformed to absolute address
-                if(register == VmSysRegister.F1){
-                    regValue += memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
+                if(register == VmSysRegister.F1 && firstF1){
+                   
+                   regValue += memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
+                   firstF1 = false;
                 }
                 
                 
@@ -416,11 +469,18 @@ public class VM {
             case SetRegister:
                 arg = stackPopInt();
                 regValue = stackPopInt();  
-                memoryManager.setSysRegister(VmSysRegister.values()[arg], regValue);
+                register =  VmSysRegister.values()[arg];
+                /*if(register == VmSysRegister.F1){
+                    regValue -= memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
+                }*/
+                memoryManager.setSysRegister(register, regValue);
                 break;
             case SetPtrField:
                 sysSetPtrField();
                 break;
+            case GetVirtualFuncAddr:
+                sysGetVirtualFuncAddr();
+                break;    
             case Print:
                 sysPrint();
                 break;
@@ -450,7 +510,7 @@ public class VM {
         this.allocateClassesMetaInfo();
         this.translateAdresses();
         
-      
+        int progStart = memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
         System.out.println("Entry Point is " + startAddr);
         showFullCode();
         
@@ -511,7 +571,7 @@ public class VM {
                         break;
                     case Jmp:
                         if(addr == 0){
-                            addr = stackPopInt();
+                            addr = stackPopInt() + progStart;
                             System.out.println("Jump addr from stack");
                         }
                         System.out.println("Jump to addr:" + addr);
@@ -550,8 +610,9 @@ public class VM {
                         
                         break;
                     case Mov:
-                        int regInd = addr;
-                        int val = memoryManager.getSysRegister(VmSysRegister.values()[stackPopInt()]);
+                        int regInd = memoryManager.getIntPtrValue(addr);
+                        int srcReg = stackPopInt();
+                        int val = memoryManager.getSysRegister(VmSysRegister.values()[srcReg]);
                         memoryManager.setSysRegister(VmSysRegister.values()[regInd], val);
                         break;
                     case NOP:

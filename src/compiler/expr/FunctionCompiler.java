@@ -106,6 +106,11 @@ public class FunctionCompiler extends AstCompiler{
                 //Return to call address
                 programBuilder.addInstruction(VMCommands.Push, VmSysRegister.F1.ordinal(), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
+                
+                /*programBuilder.addInstruction(VMCommands.Push, VmSysRegister.ProgOffsetAddr.ordinal(), VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);             
+                programBuilder.addInstruction(VMCommands.Add, 0, VarType.Integer);*/
+                
                 //If address is null it will be got from stack
                 programBuilder.addInstruction(VMCommands.Jmp, 0, VarType.Integer);
                 

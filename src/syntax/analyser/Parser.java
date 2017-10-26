@@ -66,6 +66,7 @@ public abstract class Parser {
         //Если результат неуспешен нужно откатить состояние
         //Для составных тоже не проблема
         int pos = lexerResults.getCurPos();
+        parseResult = null;
         boolean res = this.parseLexerResult(lexerResults);
         if(!res){
             lexerResults.setCurPos(pos);
