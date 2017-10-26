@@ -259,11 +259,11 @@ public class VM {
                     constAdrPtr = addrTables.getAddrByIndex(VmExeHeader.ConstTableSize, addr); 
                     
                     memHeap.putValue(i + 1, constAdrPtr);
-                    memHeap.putValue(i, (byte)VMCommands.Push_Addr.ordinal());
+                    memHeap.putValue(i, (byte)VMCommands.Push_Addr_Value.ordinal());
    
                     
                     break;
-                case Push_Addr_NO_UNBOX:
+                case Push_Addr:
                     constAdrPtr = addrTables.getAddrByIndex(VmExeHeader.ConstTableSize, addr); 
                     
                     memHeap.putValue(i + 1, constAdrPtr);
@@ -275,7 +275,7 @@ public class VM {
                     break;
                 case Var_Load: 
                     varAdrPtr = addrTables.getAddrByIndex(VmExeHeader.VarTableSize, addr); 
-                    memHeap.putValue(i, (byte)VMCommands.Push_Addr.ordinal());
+                    memHeap.putValue(i, (byte)VMCommands.Push_Addr_Value.ordinal());
                     memHeap.putValue(i + 1, varAdrPtr);
                     
                     break;
@@ -478,12 +478,12 @@ public class VM {
                  System.out.println(String.format("Command %s at line %s Addr: %s", command.toString(),memProg.getAddr(), addr ));
                 
                 switch (command) {
-                    case Push_Addr:
+                    case Push_Addr_Value:
                         value = memoryManager.getPtrByteValue(addr);
                         memStack.push(value);
                        System.err.println("Stack push: " + binConvertorService.bytesToInt(value, 0));
                         break;
-                    case Push_Addr_NO_UNBOX:
+                    case Push_Addr:
                        // value = memoryManager.getPtrByteValue(addr);
                         memStack.push(binConvertorService.integerToByte(addr));
                        //System.err.println("Stack push: " + binConvertorService.bytesToInt(value, 0));
