@@ -43,6 +43,9 @@ public class LetCompiler extends AstCompiler{
              case "Integer":            
                  programBuilder.addInstruction(VMCommands.Push, node.getToken().getValue(), VarType.Integer);
                  break;
+             case "String":
+                  programBuilder.addInstruction(VMCommands.Push_Addr_NO_UNBOX, node.getToken().getValue(), VarType.String);
+                 break;
             
              
          

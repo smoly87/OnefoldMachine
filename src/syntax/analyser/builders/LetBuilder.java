@@ -47,6 +47,7 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
     protected Parser getRightPartParser(){
         ParserAlternative altParser = new ParserAlternative();
         altParser.add(new ParserMathExpr())
+                 .add(new ParserTag("String"))
                  .add(this.getParser("FunctionCall"))
                  .add(this.getParser("NewObjOperator"))
                  .add(this.getRightPartObjField());

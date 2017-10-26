@@ -11,7 +11,7 @@ package virtual.machine;
  */
 public enum VMCommands {
     NOP, Halt,
-    Push, Push_Addr, Pop, Jmp, 
+    Push, Push_Addr,Push_Addr_NO_UNBOX, Pop, Jmp, 
     Var_Put, Var_Load, Var_Declare_Local,
     Add, Mul,
     Var_Put_Local, Var_Load_Local,

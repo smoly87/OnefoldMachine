@@ -63,7 +63,7 @@ public class NewObjOperatorCompiler extends AstCompiler{
                 
                 //Set LinksCount
                 addCommandSetFieldValue(programBuilder, 1, 0);
-                programBuilder.addInstruction(VMCommands.Dup, 0, VarType.Integer); //Dup for save Ptr
+               // programBuilder.addInstruction(VMCommands.Dup, 0, VarType.Integer); //Dup for save Ptr
 
 
                 

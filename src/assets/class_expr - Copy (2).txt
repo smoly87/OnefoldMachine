@@ -12,12 +12,8 @@ Return 60
 }
 }
 Var a:foo;
-/*Let a = New foo();
+Let a = New foo();
 Let a.bazar = 450;
 Let a.bar = 850;
 Sys PrintObjField(a, 2)
-Sys PrintObjField(a, 3)*/
-Var s:String;
-Let s = "Hello";
-Sys Print(s)
-Sys Print(s)
+Sys PrintObjField(a, 3)

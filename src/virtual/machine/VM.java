@@ -8,6 +8,7 @@ package virtual.machine;
 
 import types.TypesInfo;
 import common.VarType;
+import java.io.UnsupportedEncodingException;
 import virtual.machine.memory.Memory;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.logging.Logger;
 import program.builder.BinBuilderClassesMetaInfo;
 import program.builder.BinObjBuilder;
 import program.builder.BinaryReader;
+import types.TypeString;
 import virtual.machine.memory.MemoryHeap;
 import virtual.machine.memory.MemoryManager;
 import virtual.machine.memory.MemoryProgram;
@@ -68,6 +70,7 @@ public class VM {
              int varInd = binReader.readIntAndNext();
              int varSize = binReader.readIntAndNext();        
              int ptrAddr = memHeap.memAlloc(varSize);
+             memHeap.putValue(ptrAddr, varSize);
              addrTables.setAddrForIndex(VmExeHeader.VarTableSize, varInd, ptrAddr);
         }
     }
@@ -87,7 +90,8 @@ public class VM {
             int varInd =  binReader.readIntAndNext();
             int varSize =  binReader.readIntAndNext();           
 
-            int ptrAddr = memHeap.memAlloc(varSize);
+            int ptrAddr = memHeap.memAlloc(varSize+ INT_SIZE);
+            memHeap.putValue(ptrAddr, varSize);
             memHeap.putValue(ptrAddr+ INT_SIZE, progData, binReader.getCurPos() , binReader.getCurPos() +   varSize);
             addrTables.setAddrForIndex(VmExeHeader.ConstTableSize, varInd, ptrAddr);
             
@@ -259,6 +263,11 @@ public class VM {
    
                     
                     break;
+                case Push_Addr_NO_UNBOX:
+                    constAdrPtr = addrTables.getAddrByIndex(VmExeHeader.ConstTableSize, addr); 
+                    
+                    memHeap.putValue(i + 1, constAdrPtr);
+                    break;
                 case Invoke_Sys_Function: case Var_Declare_Local: //case Var_Load_Local: case Var_Put_Local:
                     constAdrPtr = addrTables.getAddrByIndex(VmExeHeader.ConstTableSize, addr); 
                     memHeap.putValue(i + 1, constAdrPtr);
@@ -354,6 +363,16 @@ public class VM {
         
     }
     
+    protected void sysPrint() throws  VmExecutionExeption, UnsupportedEncodingException{
+    //    stackPopInt();
+        int ptrAddr = stackPopInt();
+        MemoryStack memStack = this.memoryManager.getMemStack();
+        Byte[] val =  getMemHeap().getPtrByteValue(ptrAddr);
+        TypeString stringBinConv = (TypeString)TypesInfo.getInstance().getConvertor(VarType.String);
+        
+        System.err.println("SYS_PRINT: " + stringBinConv.getValue(val));
+    }
+    
     protected void sysPrintObjField() throws  VmExecutionExeption{
         int fieldNum = stackPopInt();
         int ptrAddr = stackPopInt();
@@ -362,7 +381,7 @@ public class VM {
         System.err.println(String.format("PRINT_OBJ_FIELD: Value: %s FieldNum: %s  ", value, fieldNum) );
     }
     
-    protected void callSysFunc(int funcTypeAddrPtr) throws VmExecutionExeption{   
+    protected void callSysFunc(int funcTypeAddrPtr) throws VmExecutionExeption, UnsupportedEncodingException{   
         MemoryStack memStack = this.memoryManager.getMemStack();
         int funcType  = memStack.getIntPtrValue(funcTypeAddrPtr);
         int arg;
@@ -402,6 +421,9 @@ public class VM {
                 break;
             case SetPtrField:
                 sysSetPtrField();
+                break;
+            case Print:
+                sysPrint();
                 break;
             case PrintObjField:
                 sysPrintObjField();
@@ -461,6 +483,11 @@ public class VM {
                         memStack.push(value);
                        System.err.println("Stack push: " + binConvertorService.bytesToInt(value, 0));
                         break;
+                    case Push_Addr_NO_UNBOX:
+                       // value = memoryManager.getPtrByteValue(addr);
+                        memStack.push(binConvertorService.integerToByte(addr));
+                       //System.err.println("Stack push: " + binConvertorService.bytesToInt(value, 0));
+                        break;    
                     case Pop:
                         memStack.pop();
                         break;

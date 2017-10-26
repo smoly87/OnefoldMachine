@@ -27,12 +27,7 @@ import syntax.analyser.parser.ParserTag;
 public class SysFunctionCallBuilder extends  ParserChain implements ParserBuilder{
     
     protected Parser getTypesListParser(){
-        ParserAlternative argTypesAltParser = new ParserAlternative();
-        argTypesAltParser.add(new ParserTag("Float"));
-        argTypesAltParser.add(new ParserTag("Integer"));
-        argTypesAltParser.add(new ParserTag("String"));
-        argTypesAltParser.add(new ParserTag("Id"));
-        return argTypesAltParser;
+        return this.getParser("TypesList");
     }
     
     protected Parser getArgBlockRepeatedParser(){
@@ -77,7 +72,7 @@ public class SysFunctionCallBuilder extends  ParserChain implements ParserBuilde
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
         AstNode rootNode = result.get("Sys");
-        rootNode.setCompiler(new SysFunctionCallCompiler());
+        rootNode.setCompiler(this.getCompiler("SysFunctionCall"));
 
         AstNode argNode = result.get("ArgsBlock");
         if(result.get("LastArg") != null){
