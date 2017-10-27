@@ -72,7 +72,7 @@ public class CommandInterpreter {
 
                 this.compileStage();
                 break;
-            case "compile_and_run":
+            case "compile_run":
                 prog = this.compileStage();
                 this.runProgram(prog);
                 break;

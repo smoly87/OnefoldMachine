@@ -49,18 +49,17 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception{
+        boolean fullDebug = true;
         CommandInterpreter commadInter = null;
         try {
             
-            InputStreamReader inputStreamReader = new InputStreamReader(System.in);            
-            BufferedReader reader = new BufferedReader(inputStreamReader);            
-            commadInter = new CommandInterpreter();
-            
-            
-            
+           InputStreamReader inputStreamReader = new InputStreamReader(System.in);
+           BufferedReader reader = new BufferedReader(inputStreamReader);
+           commadInter = new CommandInterpreter();
+
            while(true){
               System.out.println("Type a command:");
-              String inpStr = reader.readLine(); //"compile --path_src class_expr.txt --path_dst class.bin";//
+              String inpStr = !fullDebug ? reader.readLine() : "compile_run --path_src class_expr.txt"; //;//
               if(inpStr.equals("exit") ) return;
               if(!commadInter.executeCommand(inpStr)){
                 System.err.println(commadInter.getError());
