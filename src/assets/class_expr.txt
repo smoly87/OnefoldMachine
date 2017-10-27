@@ -13,12 +13,15 @@ Public barbar:Integer
 }
 Var a:foo;
 Var b:Integer;
+Var c:foo;
 Var s:String;
 Let s ="Hello";
 Let a = New foo();
 Let b = Call a.test(120, 130);
 Let a.bazar = 450;
 Let a.bar = 850;
+Let c = a;
+Let c.bazar = 4500;
 Sys PrintObjField(a, 2);
 Sys PrintObjField(a, 3);
 Sys Print(s);

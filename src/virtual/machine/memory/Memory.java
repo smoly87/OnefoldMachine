@@ -131,7 +131,7 @@ public class Memory {
     
     public void putPtrValue(int addr, Byte[] byteVal){
        binConvertorService.integerToByte(byteVal.length);
-       
+      // putValue(int addr, byteVal.length + VM.);
     }
     
     protected int getRegisterAddr(VmSysRegister register){

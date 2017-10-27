@@ -358,13 +358,17 @@ public class VM {
         
     }
     
-    protected void sysPrint() throws  VmExecutionExeption, UnsupportedEncodingException{
+    protected void sysPrint() throws  VmExecutionExeption{
         int ptrAddr = stackPopInt();
         MemoryStack memStack = this.memoryManager.getMemStack();
         Byte[] val =  getMemHeap().getPtrByteValue(ptrAddr);
         TypeString stringBinConv = (TypeString)TypesInfo.getInstance().getConvertor(VarType.String);
+        try{
+            System.err.println("SYS_PRINT: " + stringBinConv.getValue(val));
+        } catch(UnsupportedEncodingException ex){
+            throw new VmExecutionExeption(ex.getClass().getName() + ":" + ex.getMessage());
+        }
         
-        System.err.println("SYS_PRINT: " + stringBinConv.getValue(val));
     }
     
     protected void sysPrintObjField() throws  VmExecutionExeption{
@@ -431,7 +435,7 @@ public class VM {
          
     }
     
-    protected void callSysFunc(int funcTypeAddrPtr) throws VmExecutionExeption, UnsupportedEncodingException{   
+    protected void callSysFunc(int funcTypeAddrPtr) throws VmExecutionExeption{   
         MemoryStack memStack = this.memoryManager.getMemStack();
         int funcType  = memStack.getIntPtrValue(funcTypeAddrPtr);
         int arg;
@@ -492,7 +496,7 @@ public class VM {
         }
     }
     
-    public void run(Program program) throws Exception{
+    public void run(Program program) throws VmExecutionExeption{
      // try{  
         this.program = program;
         

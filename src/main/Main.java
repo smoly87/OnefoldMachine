@@ -19,18 +19,24 @@ import java.util.Scanner;
 import lexer.LexerResult;
 import syntax.analyser.AstNode;
 import compiler.TreeWalkerASTCompiler;
+import compiler.exception.CompilerException;
 import grammar.GrammarInfo;
 import grammar.GrammarInfoStorage;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import utils.TreeWalkerDST;
 import utils.TreeWalkerDSTPrint;
 import virtual.machine.Instructions;
 import program.builder.ProgramBuilder;
+import program.builder.ProgramFileSys;
+import syntax.analyser.parser.ParserException;
 import virtual.machine.DataBinConvertor;
 import virtual.machine.Program;
 import virtual.machine.VM;
 import virtual.machine.VMCommands;
 import virtual.machine.VmExeHeader;
+import virtual.machine.VmExecutionExeption;
 
 /**
  *
@@ -38,62 +44,38 @@ import virtual.machine.VmExeHeader;
  */
 public class Main {
 
-    public static void testTypesList(){
-        GrammarInfo gs = GrammarInfoStorage.getInstance();
-        ArrayList<TokenInfo> res = gs.getFullInfo().get("Var").getFullInfo().get("Type");
-        System.out.println(res.size());
-    }
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception{
-        // TODO code application logic here
-        
-        FullPipeline fullPipe = new  FullPipeline();
-     
-       // try{
-            String path = Main.class.getResource("/assets/class_expr.txt").getPath();
-            Scanner scanner = new Scanner( new File(path), "UTF-8" );
-            String programSrc = scanner.useDelimiter("\\A").next();
-            scanner.close();
+        CommandInterpreter commadInter = null;
+        try {
             
-            programSrc = programSrc.replace(System.getProperty("line.separator"), "");
-            programSrc = programSrc.replace(" ", "");
+            InputStreamReader inputStreamReader = new InputStreamReader(System.in);            
+            BufferedReader reader = new BufferedReader(inputStreamReader);            
+            commadInter = new CommandInterpreter();
             
-            programSrc = programSrc.replaceAll("/\\*.*?\\*/", "");
             
-            System.out.println(programSrc);
-            LexerResult lexRes = fullPipe.tokenise(programSrc);
-            AstNode ast = fullPipe.buildAst(lexRes);
             
-            TreeWalkerASTCompiler tw = new TreeWalkerASTCompiler();
-            ProgramBuilder progBuilder = tw.walkTree(ast);
-            System.out.println(progBuilder.getAsmText());
-            TreeWalkerDST walker = new TreeWalkerDSTPrint();
-            walker.walkTree(ast);
-            
-            progBuilder.addInstruction(VMCommands.Halt);
-            Program prog = progBuilder.getResult();
-            System.out.println(progBuilder.getAsmText());
-            System.out.println("Compile success");
-            
-           /* DataBinConvertor dBin = DataBinConvertor.getInstance();
-            
-            Byte[] val = dBin.integerToByte(5);
-            System.out.println("Conv from bytes: " + dBin.bytesToInt(val, 0)); ;*/
-            
-            System.out.println("Headers info");
-            System.out.println(prog.readHeader(VmExeHeader.ConstStart));
-            System.out.println(prog.readHeader(VmExeHeader.VarTableSize));
-            
-            VM virtMachine = new VM();
-            virtMachine.run(prog);
-           
-           
-            
-      /*  } catch(Exception e){
-            System.err.println("Error: cant't read program source: " + e.getMessage());
-        }*/
+           // while(true){
+              System.out.println("Type a command:");
+              String inpStr = "compile --path_src class_expr.txt --path_dst class.bin";//reader.readLine(); 
+              if(inpStr.equals("exit") ) return;
+              if(!commadInter.executeCommand(inpStr)){
+                System.err.println(commadInter.getError());
+              } else {
+                return;
+              }
+            //}  
+        } catch (ConfigLoadException ex) {
+            System.err.println(ex.getMessage());
+        } catch(CompilerException|ParserException ex){
+            System.err.println(ex.getMessage());
+        } catch(VmExecutionExeption ex){
+            System.err.println(ex.getMessage());
+        }
+       
         
     }
     

@@ -40,10 +40,13 @@ public class LetCompiler extends AstCompiler{
                 } else {
                     programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, varName, programBuilder.isIsLocalContext());
                 }
-             case "Integer":            
+                break;
+            case "Null":
+                break;
+            case "Integer":            
                  programBuilder.addInstruction(VMCommands.Push, node.getToken().getValue(), VarType.Integer);
                  break;
-             case "String":
+            case "String":
                   programBuilder.addInstruction(VMCommands.Push_Addr, node.getToken().getValue(), VarType.String);
                  break;
             

@@ -33,7 +33,7 @@ public class GrammarInfoStorage {
     
     protected static GrammarInfo readConfig(){
          //InputStream inputStream = ConfigReader.class.getResourceAsStream("/assets.csv");
-         String path = Main.class.getResource("/assets/grammars.conf").getPath();
+         String path = Main.class.getResource("/assets/config/grammars.conf").getPath();
          GrammarInfo grammarInfo = new GrammarInfo();
          try {
             FileReader fr = new FileReader(path);
