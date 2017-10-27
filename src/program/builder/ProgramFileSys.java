@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import main.ByteUtils;
 import main.Main;
 import main.ShellIOUtils;
@@ -23,8 +24,10 @@ import virtual.machine.Program;
  */
 public class ProgramFileSys {
     public static Program load(String fileName) throws IOException {
-        byte[] bytes = Files.readAllBytes(Paths.get(Main.class.getResource("/assets/" + fileName).getPath()));
-        Program prog = new Program(Arrays.asList(ByteUtils.convert(bytes)));
+        byte[] bytes = Files.readAllBytes(ShellIOUtils.getPath(fileName));
+        List<Byte> dataList = Arrays.asList(ByteUtils.convert(bytes));
+        ArrayList<Byte> progList= new ArrayList<>(dataList);
+        Program prog = new Program(progList);
         return prog;
     }
     

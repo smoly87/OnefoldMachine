@@ -58,16 +58,16 @@ public class Main {
             
             
             
-           // while(true){
+           while(true){
               System.out.println("Type a command:");
-              String inpStr = "compile --path_src class_expr.txt --path_dst class.bin";//reader.readLine(); 
+              String inpStr = reader.readLine(); //"compile --path_src class_expr.txt --path_dst class.bin";//
               if(inpStr.equals("exit") ) return;
               if(!commadInter.executeCommand(inpStr)){
                 System.err.println(commadInter.getError());
               } else {
                 return;
               }
-            //}  
+            }  
         } catch (ConfigLoadException ex) {
             System.err.println(ex.getMessage());
         } catch(CompilerException|ParserException ex){
