@@ -9,7 +9,6 @@ package syntax.analyser.parser;
 import common.Token;
 import compiler.expr.MathExprComplier;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Stack;
 import javax.xml.bind.annotation.XmlElement;
@@ -21,16 +20,15 @@ import syntax.analyser.Parser;
  *
  * @author Andrey
  */
-public class ParserMathExpr extends ParserExprReversePolish{
+public class ParserLogExpr extends ParserExprReversePolish{
 
-
-    
-    public ParserMathExpr(){
+    public ParserLogExpr() {
        super();
        allowedOperadsTags.add("Id");
-       allowedOperadsTags.add("Integer");
-        
+       allowedOperadsTags.add("Boolean");
     }
+
+
     
     protected void setPriorsTable(){
         priors.put("*", 1);
@@ -38,5 +36,8 @@ public class ParserMathExpr extends ParserExprReversePolish{
         
         priors.put("+", 2);
         priors.put("-", 2);
-    }    
+    }
+    
+   
+    
 }

@@ -14,22 +14,20 @@ import syntax.analyser.UnexpectedSymbolException;
  *
  * @author Andrey
  */
-public class ParserOptional extends Parser{
+public class ParserLazy extends Parser{
 
-    protected Parser parser;
-    
-    public ParserOptional(Parser parser){
-        this.parser = parser;
+    protected String wrappedParserName;
+    public ParserLazy(String wrappedParserName){
+        this.wrappedParserName = wrappedParserName;
     }
     
     @Override
     public boolean parseLexerResult(LexerResult lexerResults) throws UnexpectedSymbolException, ParserException {
-        parser.parse(lexerResults);
-        return true;
+        return this.getParser(wrappedParserName).parseLexerResult(lexerResults);
     }
     
+    @Override
     public AstNode getParseResult(){
-        return this.parser.getParseResult();
+        return this.getParser(wrappedParserName).getParseResult();
     }
-    
 }

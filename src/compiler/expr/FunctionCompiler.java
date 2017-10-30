@@ -86,7 +86,7 @@ public class FunctionCompiler extends AstCompiler{
                 and it relieves from recount numeration of first Line*/
                 programBuilder.addInstruction(VMCommands.NOP, 0, VarType.Integer);
                 
-                funcDescr = new FunctionDescription(this.funcName, programBuilder.getLineCount());
+                funcDescr = new FunctionDescription(this.funcName, programBuilder.commandsSize());
                
 
                 
@@ -115,7 +115,7 @@ public class FunctionCompiler extends AstCompiler{
                 programBuilder.addInstruction(VMCommands.Jmp, 0, VarType.Integer);
                 
                 programBuilder.addInstruction(VMCommands.NOP, 0, VarType.Integer);
-                funcDescr.setEndLineNumber(programBuilder.getLineCount() );
+                funcDescr.setEndLineNumber(programBuilder.commandsSize() );
                 
                 break;
         }

@@ -112,7 +112,7 @@ public class FunctionCallCompiler extends AstCompiler{
                 }
                 //Add number of line to return after function
                 programBuilder.addInstruction(VMCommands.Push, 0, VarType.Integer); 
-                int commandRet = programBuilder.getLineCount() - VM.COMMAND_SIZE;
+                int commandRet = programBuilder.commandsSize() - VM.COMMAND_SIZE;
                 
                 programBuilder.addInstruction(VMCommands.Push, VmSysRegister.F1.ordinal(), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
@@ -131,7 +131,7 @@ public class FunctionCallCompiler extends AstCompiler{
                     programBuilder.addInstruction(VMCommands.Jmp, Integer.toString(funcDescr.getLineNumber()) , VarType.Integer, false);
                 }
                 
-                programBuilder.changeCommandArg(commandRet, programBuilder.getLineCount(), VarType.Integer); 
+                programBuilder.changeCommandArg(commandRet, programBuilder.commandsSize(), VarType.Integer); 
                 break;
             case "Arg":
               declareAndSetHeadVar(node, programBuilder);

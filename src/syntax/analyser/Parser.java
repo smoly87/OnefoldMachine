@@ -75,7 +75,7 @@ public abstract class Parser {
         return res;
     }
 
-    protected abstract boolean parseLexerResult(LexerResult lexerResults) throws UnexpectedSymbolException,  ParserException;
+    public abstract boolean parseLexerResult(LexerResult lexerResults) throws UnexpectedSymbolException,  ParserException;
     
     
     protected void setParseResult(AstNode res){

@@ -80,7 +80,7 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
         if(node.getName() != null) nodeName = node.getName();
         switch(nodeName){
             case "FunctionId":
-                funcStartLine = programBuilder.getLineCount();
+                funcStartLine = programBuilder.commandsSize();
                 commitCurMethod(programBuilder);
                 argsSignatureBuilder = new StringBuilder();
                 this.curFuncName = token.getValue();

@@ -75,7 +75,7 @@ public class DataBinConvertorTest {
         int value = 0;
         DataBinConvertor instance = null;
         Byte[] expResult = null;
-        Byte[] result = instance.integerToByte(value);
+        Byte[] result = instance.toBin(value);
         assertArrayEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

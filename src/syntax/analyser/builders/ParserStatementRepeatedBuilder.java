@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package syntax.analyser.parser;
+package syntax.analyser.builders;
 
 import com.sun.xml.internal.ws.util.StringUtils;
 import common.Token;
@@ -14,26 +14,23 @@ import lexer.LexerResult;
 import syntax.analyser.AstNode;
 import syntax.analyser.Parser;
 import syntax.analyser.UnexpectedSymbolException;
+import syntax.analyser.parser.ParserAlternative;
+import syntax.analyser.parser.ParserChain;
+import syntax.analyser.parser.ParserException;
+import syntax.analyser.parser.ParserLazy;
+import syntax.analyser.parser.ParserRepeated;
 
 /**
  *
  * @author Andrey
  */
-public class ParserStatement extends ParserRepeated{
-     
-    protected ParserAlternative possibleAlts; 
-    protected void addPossibleStatements(){
-         
-         possibleAlts.add(this.getParser("Let"));
-         possibleAlts.add(this.getParser("Var"));
-    } 
-    
-    public ParserStatement(){
-
-        possibleAlts = new ParserAlternative();
-        this.addPossibleStatements();
-        this.setParser(possibleAlts);
+public class ParserStatementRepeatedBuilder extends ParserChain  implements ParserBuilder{    
+    @Override
+    public Parser build() { 
+        return new ParserRepeated(new ParserLazy("ParserStatement"));
     }
+     
+   
    
      
 }

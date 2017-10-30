@@ -16,5 +16,7 @@ public enum VMCommands {
     Add, Mul,
     Var_Put_Local, Var_Load_Local,
     Invoke_Sys_Function,
-    Mov, Dup
+    Mov, Dup,
+    Cmp, CmpMore, CmpLess,
+    JmpIf,JmpIfNot
 }

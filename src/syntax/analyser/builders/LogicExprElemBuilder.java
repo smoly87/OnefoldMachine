@@ -22,22 +22,24 @@ import syntax.analyser.parser.ParserTag;
  *
  * @author Andrey
  */
-public class ObjNameBlockBuilder extends  ParserChain implements ParserBuilder{    
+public class LogicExprElemBuilder extends  ParserChain implements ParserBuilder{    
     public Parser build() {
-        //Указать нужен ли результат парсера
-        ParserChain chainParser = new ParserChain();
         
-        chainParser.addTag("Id", "ObjName")
-                   .addKeyword(".");
+        this.add(new ParserMathExpr(), "Arg1")//new ParserMathExpr()
+            .addTag("LogicOperator", "LogicOperator")
+            .add(new ParserMathExpr(), "Arg2");
         
-        return new ParserOptional(chainParser);
+        return this;
             
     }
     @Override
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
-        AstNode rootNode = result.get("ObjName");
-        
+        AstNode rootNode = result.get("LogicOperator");
+        rootNode.addChildNode(result.get("Arg1"));
+        rootNode.addChildNode(result.get("Arg2"));
+        rootNode.setCompiler(this.getCompiler("LogicExprElem"));
+        System.out.println("LogExpr parser has been reached");
         return rootNode;
        
     }

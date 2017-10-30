@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import types.IType;
+import types.TypeBoolean;
 import types.TypeInteger;
 import types.TypesInfo;
 
@@ -36,17 +37,29 @@ public class DataBinConvertor  {
          return convertor;
     }
     
+    protected TypeBoolean getBoolConvertor(){
+        TypeBoolean convertor = (TypeBoolean) typesInfoService.getConvertor(VarType.Boolean);
+        return convertor;
+    }
+    
     public Integer bytesToInt(Byte[] arr, int start) {
         ArrayList<Byte> lst = new ArrayList<Byte>(Arrays.asList(arr));
         return bytesToInt(lst, start);
     }
     
     
-    public Byte[] integerToByte(int value) {
+    public Byte[] toBin(int value) {
         
         return  getIntegerConventor().toBinary(value);
     }
-  
+   public Boolean bytesToBool(Byte[] arr) {
+       return getBoolConvertor().getValue(arr);
+    }
+
+    public Byte[] toBin(Boolean value) {
+        
+        return  getBoolConvertor().toBinary(value);
+    }
     
     public int getIntegerValue(Byte[] byteValue)  {
       

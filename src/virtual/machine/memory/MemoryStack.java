@@ -88,7 +88,7 @@ public class MemoryStack extends Memory{
     }
     
     public int push(int value) throws VMStackOverflowException{
-        return push(binConvertorService.integerToByte(value));
+        return push(binConvertorService.toBin(value));
     }
 }
 

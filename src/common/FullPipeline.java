@@ -14,7 +14,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import lexer.Lexer;
-import syntax.analyser.parser.ParserStatement;
+import syntax.analyser.builders.ParserStatementBuilder;
 import lexer.LexerResult;
 import main.Main;
 import program.builder.ProgramBuilder;
@@ -23,7 +23,7 @@ import syntax.analyser.Parser;
 import syntax.analyser.UnexpectedSymbolException;
 import syntax.analyser.parser.ParserException;
 import syntax.analyser.parser.ParserMathExpr;
-import syntax.analyser.parser.ParserProgramBody;
+import syntax.analyser.builders.ParserProgramBody;
 import utils.TreeWalkerDST;
 import utils.TreeWalkerDSTPrint;
 import virtual.machine.Program;
@@ -47,7 +47,7 @@ public class FullPipeline {
     }
     
     public AstNode buildAst(LexerResult lexerResult) throws ParserException{   
-        Parser rootParser = new ParserProgramBody();
+        Parser rootParser = new ParserProgramBody().build();
         rootParser.parse(lexerResult);
         return rootParser.getParseResult();
     }

@@ -29,7 +29,7 @@ public class ParserRepeated extends Parser{
     }
     
     @Override
-    protected boolean parseLexerResult(LexerResult lexerResults) throws UnexpectedSymbolException, ParserException {
+    public boolean parseLexerResult(LexerResult lexerResults) throws UnexpectedSymbolException, ParserException {
         AstNode rootNode = new AstNode();
         //How should it been marked ?
         boolean flag = false;

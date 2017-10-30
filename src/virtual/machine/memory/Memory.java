@@ -95,7 +95,7 @@ public class Memory {
     }
     
     protected Byte[] intToByte(int val){
-        return binConvertorService.integerToByte(val);
+        return binConvertorService.toBin(val);
     }
     
      public void putValue(int addr, byte val){
@@ -130,7 +130,7 @@ public class Memory {
     }
     
     public void putPtrValue(int addr, Byte[] byteVal){
-       binConvertorService.integerToByte(byteVal.length);
+       binConvertorService.toBin(byteVal.length);
       // putValue(int addr, byteVal.length + VM.);
     }
     

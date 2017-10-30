@@ -42,6 +42,8 @@ public class ProgramBuilder  {
     
     protected int totalLocalVarSizes;
 
+    protected int commandsCount;
+    
     public int getTotalLocalVarSizes() {
         return totalLocalVarSizes;
     }
@@ -54,7 +56,7 @@ public class ProgramBuilder  {
 
     protected TypesInfo typesInfo;
     
-    public Integer getLineCount() {
+    public Integer commandsSize() {
         return progData.size();
     }
     
@@ -83,7 +85,7 @@ public class ProgramBuilder  {
         
         totalLocalVarSizes = 0;
         typesInfo = TypesInfo.getInstance();
-        
+        commandsCount = 0;
         addInstruction(VMCommands.NOP, 0, VarType.Integer);
     }
     
@@ -157,10 +159,7 @@ public class ProgramBuilder  {
        return getVarDescription(name).getClassId();
     }
     
-    public int getConstCode(ValueDescription descr){
-        return 0;
-    }
-  
+
     public Program getResult() throws CompilerException{
         BinBuilder binBuilder = new BinBuilder();
         
@@ -184,44 +183,55 @@ public class ProgramBuilder  {
         this.progData.addAll(data);
     }
     
-    public void addInstruction(VMCommands command) throws CompilerException{
-        this.addInstruction(command, "0", VarType.Integer );
+    public int addInstruction(VMCommands command) throws CompilerException{
+        return this.addInstruction(command, "0", VarType.Integer );
+    }
+    
+    protected int getConstInd(String value, VarType type){
+        ValueDescription valDescr = new ValueDescription(type, value);
+        int constInd = 0;
+        if (!valuesMap.containsKey(valDescr)) {
+            constInd = valuesMap.size();
+            valuesMap.put(valDescr, constInd);
+        } else {
+            constInd = valuesMap.get(valDescr);
+        }
+        return constInd;
+            
     }
     
     public void changeCommandArg(int commandNumStart, int value, VarType type){
-         ValueDescription valDescr = new ValueDescription(type, Integer.toString(value));
-        int constInd = 0;
-         if(!valuesMap.containsKey(valDescr)){
-            constInd = valuesMap.size();
-            valuesMap.put(valDescr, constInd);
-        } else{
-            constInd = valuesMap.get(valDescr);
-        }
+        int constInd = getConstInd(Integer.toString(value), type);
         // System.err.println(String.format("Changeat pos: %s value: %s ", commandNumStart, value));
         binConvertorService.setIntegerToByteList(progData, constInd, commandNumStart + 1  );
     }
     
-    public void addInstruction(VMCommands command, int value, VarType type){
-        addInstruction(command, Integer.toString(value), type, true);
-    }        
-    
-    public void addInstruction(VMCommands command, String value, VarType type) throws CompilerException{
-        if(type == null) throw new CompilerException(String.format("Undefined variable type:%s. Seems as problem in parsing/compiler logic", value));
-        addInstruction(command, value, type, true );
+    public void changeCommandArgByNum(int commandNum, int value, VarType type, boolean transFormConst){
+        int valueForPut = -1;
+        if(transFormConst){
+            valueForPut = getConstInd(Integer.toString(value), type);
+        } else{
+            valueForPut = value;
+        }
+     
+        int startPos = commandNum * VM.COMMAND_SIZE + 1;
+        binConvertorService.setIntegerToByteList(progData, valueForPut, startPos );
     }
     
-    public void addInstruction(VMCommands command, String value, VarType type, Boolean constantTransform){
+    public int addInstruction(VMCommands command, int value, VarType type){
+        return addInstruction(command, Integer.toString(value), type, true);
+    }        
+    
+    public int addInstruction(VMCommands command, String value, VarType type) throws CompilerException{
+       if(type == null) throw new CompilerException(String.format("Undefined variable type:%s. Seems as problem in parsing/compiler logic", value));
+       return addInstruction(command, value, type, true );
+    }
+    
+    public int addInstruction(VMCommands command, String value, VarType type, Boolean constantTransform){
         this.addData((byte)command.ordinal());
         ArrayList<Byte> binVal = null;
         if (constantTransform) {
-            ValueDescription valDescr = new ValueDescription(type, value);
-            int constInd = 0;
-            if (!valuesMap.containsKey(valDescr)) {
-                constInd = valuesMap.size();
-                valuesMap.put(valDescr, constInd);
-            } else {
-                constInd = valuesMap.get(valDescr);
-            }
+            int constInd = getConstInd(value, type);
 
             binVal = binConvertorService.integerToByteList(constInd);
             asmText.add(command.toString() + " " + value + "("+ constInd +")");
@@ -230,11 +240,11 @@ public class ProgramBuilder  {
             asmText.add(command.toString() + " " + value + "("+ value +")");
         }
         this.addData(binVal);
-        
+        return commandsCount++;
     }
     
 
-    public void addInstructionVarArg(VMCommands command, String varName, Boolean isLocal) throws CompilerException{
+    public int addInstructionVarArg(VMCommands command, String varName, Boolean isLocal) throws CompilerException{
         int varCode ;
         if(isLocal){
             varCode = this.getLocalVarCode(varName) ;
@@ -246,8 +256,9 @@ public class ProgramBuilder  {
         this.addData((byte)command.ordinal());
         this.addData(binConvertorService.integerToByteList(varCode));
         
-       
+        
         asmText.add(String.format("%s %s (%s)", command.toString(), varName, varCode ));
+        return commandsCount++;
     }
      
    

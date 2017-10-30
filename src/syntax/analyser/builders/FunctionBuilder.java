@@ -18,7 +18,6 @@ import syntax.analyser.parser.ParserChain;
 import syntax.analyser.parser.ParserMathExpr;
 import syntax.analyser.parser.ParserOptional;
 import syntax.analyser.parser.ParserRepeated;
-import syntax.analyser.parser.ParserStatement;
 import syntax.analyser.parser.ParserTag;
 
 /**
@@ -32,7 +31,7 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     }
     
     protected Parser getFunctionBodyParser(){
-        return new ParserRepeated(new ParserStatement());
+        return new ParserRepeated(new ParserStatementBuilder());
     }
     
     protected Parser getReturnStatementParser(){

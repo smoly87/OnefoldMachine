@@ -22,7 +22,6 @@ import syntax.analyser.parser.ParserAlternative;
 import syntax.analyser.parser.ParserChain;
 import syntax.analyser.parser.ParserMathExpr;
 import syntax.analyser.parser.ParserRepeated;
-import syntax.analyser.parser.ParserStatement;
 import syntax.analyser.parser.ParserTag;
 
 /**

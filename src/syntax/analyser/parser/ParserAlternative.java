@@ -31,7 +31,7 @@ public class ParserAlternative extends Parser{
     }
     
     @Override
-    protected boolean parseLexerResult(LexerResult lexerResults) throws UnexpectedSymbolException, ParserException {
+    public boolean parseLexerResult(LexerResult lexerResults) throws UnexpectedSymbolException, ParserException {
         for (Map.Entry<String, Parser> entry : parsersMap.entrySet()) {
             Parser parser = entry.getValue();
             if(parser.parse(lexerResults)){

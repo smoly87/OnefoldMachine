@@ -239,13 +239,13 @@ public class VM {
             int addr = getMemHeap().getIntValue(i + 1);
             int varAdrPtr;
             switch(command){
-                case Jmp:
+                case Jmp: case JmpIf: case JmpIfNot:
                    
                     //Convert relative adress to absolute
                     
                     if(addr !=0 ){
-                        int absAddr =  addr + progStart; 
-                    memoryManager.putValue(i + 1, absAddr);
+                        int absAddr = addr + progStart;
+                        memoryManager.putValue(i + 1, absAddr);
                     }
                     
                     break;
@@ -304,7 +304,7 @@ public class VM {
          
          Byte[] data = new Byte[dataSize];
          int ptrStart = memStack.push(data);
-         memStack.push(binConvertorService.integerToByte(ptrStart)); 
+         memStack.push(binConvertorService.toBin(ptrStart)); 
          
          System.out.println(String.format("Allocate on stack: %s in addr# %s", dataSize, ptrStart));
          return ptrStart;
@@ -317,7 +317,7 @@ public class VM {
         int dataSize = stackPopInt();
         int ptrStart = memHeap.memAlloc(dataSize);
         
-        memStack.push(binConvertorService.integerToByte(ptrStart)); 
+        memStack.push(binConvertorService.toBin(ptrStart)); 
         return ptrStart;
     }
     
@@ -330,7 +330,7 @@ public class VM {
         memHeap.putValue(ptrStart, dataSize);
         
         
-        memStack.push(binConvertorService.integerToByte(ptrStart)); 
+        memStack.push(binConvertorService.toBin(ptrStart)); 
         return ptrStart;
     }
     
@@ -468,7 +468,7 @@ public class VM {
                 }
                 
                 
-                memStack.push(binConvertorService.integerToByte(regValue));
+                memStack.push(binConvertorService.toBin(regValue));
                 break;
             case SetRegister:
                 arg = stackPopInt();
@@ -548,7 +548,7 @@ public class VM {
                         break;
                     case Push_Addr:
                        // value = memoryManager.getPtrByteValue(addr);
-                        memStack.push(binConvertorService.integerToByte(addr));
+                        memStack.push(binConvertorService.toBin(addr));
                        System.err.println("Stack push addr: " + addr);
                         break;    
                     case Pop:
@@ -558,13 +558,13 @@ public class VM {
                         arg1 = stackPopInt();
                         arg2 = stackPopInt();
                         operRes = arg1 + arg2;
-                        memStack.push(binConvertorService.integerToByte(operRes));
+                        memStack.push(binConvertorService.toBin(operRes));
                         break;
                     case Mul:
                         arg1 = stackPopInt();
                         arg2 = stackPopInt();
                         operRes = arg1 * arg2;
-                        memStack.push(binConvertorService.integerToByte(operRes));
+                        memStack.push(binConvertorService.toBin(operRes));
                         break;
                     case Var_Put:        
                         memStack.pop(addr);
@@ -581,7 +581,30 @@ public class VM {
                         System.out.println("Jump to addr:" + addr);
                         memProg.jump(addr);
                         continue;
-                        
+                    case JmpIf:
+                        value = memStack.pop();
+                        if (binConvertorService.bytesToBool(value)) {
+                            if (addr == 0) {
+                                addr = stackPopInt() + progStart;
+                                System.out.println("Jump IfNot addr from stack");
+                            }
+                            System.out.println("Jump to addr:" + addr);
+                            memProg.jump(addr);
+                            continue;
+                        }
+                        break;
+                    case JmpIfNot:
+                        value = memStack.pop();
+                        if (!binConvertorService.bytesToBool(value)) {
+                            if (addr == 0) {
+                                addr = stackPopInt() + progStart;
+                                System.out.println("Jump IfNot addr from stack");
+                            }
+                            System.out.println("Jump to addr:" + addr);
+                            memProg.jump(addr);
+                            continue;
+                        }
+                        break;             
                     case Invoke_Sys_Function:
                         callSysFunc(addr);
                         break;
@@ -626,6 +649,18 @@ public class VM {
                         memStack.push(value);
                         memStack.push(value);
                         break;
+                    case CmpMore:
+                        arg2 = stackPopInt();
+                        arg1 = stackPopInt();
+                        boolean operResBool = arg1 > arg2;
+                        memStack.push(binConvertorService.toBin(operResBool));
+                        break;
+                     case CmpLess:
+                        arg2 = stackPopInt();
+                        arg1 = stackPopInt();
+                        operResBool = arg1 < arg2;
+                        memStack.push(binConvertorService.toBin(operResBool));
+                        break;    
                     default:
                         System.err.println("Unprocessed command: " + command.toString());
                
