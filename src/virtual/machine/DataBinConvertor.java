@@ -83,9 +83,13 @@ public class DataBinConvertor  {
         }
        
     }
-        
+
+    public Byte[] integerToByte(int value){
+        return getIntegerConventor().toBinary(value);
+    }    
+    
     public ArrayList<Byte> integerToByteList(int value){
-        return new ArrayList<>(Arrays.asList(getIntegerConventor().toBinary(value))); 
+        return new ArrayList<>(Arrays.asList(integerToByte(value))); 
     }
     
   

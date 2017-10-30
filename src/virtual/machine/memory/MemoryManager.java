@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import virtual.machine.DataBinConvertor;
 import virtual.machine.VM;
+import virtual.machine.VmExecutionExeption;
 
 /**
  *
@@ -43,7 +44,7 @@ public class MemoryManager extends Memory{
         return memStack;
     }
     
-    public MemoryManager( DataBinConvertor binConvertorService){
+    public MemoryManager( DataBinConvertor binConvertorService) throws VmExecutionExeption{
         super(0, binConvertorService);
         int initSize = SYS_SIZE + STACK_SIZE;
         this.data = new ArrayList<>(initSize);
@@ -59,7 +60,7 @@ public class MemoryManager extends Memory{
    
     
     
-    public void allocateProgramInstructions(ArrayList<Byte> programData, int startInstrInd){
+    public void allocateProgramInstructions(ArrayList<Byte> programData, int startInstrInd) throws VmExecutionExeption{
         
         int progInstrSize = programData.size() - startInstrInd;
         increaseDataSize(progInstrSize); 
@@ -80,7 +81,7 @@ public class MemoryManager extends Memory{
         return super.getSysRegister(register);
     } 
     @Override
-    public void setSysRegister(VmSysRegister register, int value){
+    public void setSysRegister(VmSysRegister register, int value) throws VmExecutionExeption{
        super.setSysRegister(register, value);
     }
     

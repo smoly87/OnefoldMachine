@@ -36,7 +36,7 @@ public class VMAddrTables {
         return varAdrPtr;
     }
     
-    public void setAddrForIndex(VmExeHeader tableType, int varInd, int addr){
+    public void setAddrForIndex(VmExeHeader tableType, int varInd, int addr) throws VmExecutionExeption{
         varInd++;
       int tableOffset = tablesOffset.get(tableType);  
       int cellAddr = varInd  * VM.ADDR_SIZE + tableOffset;
@@ -44,7 +44,7 @@ public class VMAddrTables {
       memHeap.putValue(cellAddr, addr);
     }
     
-    public void add(VmExeHeader tableType) throws VMOutOfMemoryException{
+    public void add(VmExeHeader tableType) throws VMOutOfMemoryException, VmExecutionExeption{
          tablesOffset.put(tableType, curOffset);
          int size = program.readHeader(tableType);
          memHeap.memAlloc((size + 1) * VM.INT_SIZE);

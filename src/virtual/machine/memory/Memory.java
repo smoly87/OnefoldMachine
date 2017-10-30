@@ -11,6 +11,7 @@ import java.util.Collections;
 import virtual.machine.DataBinConvertor;
 import virtual.machine.VMOutOfMemoryException;
 import virtual.machine.VM;
+import virtual.machine.VmExecutionExeption;
 
 /**
  *
@@ -18,6 +19,8 @@ import virtual.machine.VM;
  */
 public class Memory {
     protected ArrayList<Byte> data;
+    public static final int NULL_FLAG_SIZE = 1;
+    public static final int PTR_HEADERS_SIZE = NULL_FLAG_SIZE + VM.INT_SIZE  ;
 
     public ArrayList<Byte> getData() {
         return data;
@@ -67,7 +70,7 @@ public class Memory {
     
      public int  getIntPtrValue(int addr){
        // Addr check  
-       return  binConvertorService.bytesToInt(data, addr + VM.INT_SIZE);
+       return  binConvertorService.bytesToInt(data, addr + PTR_HEADERS_SIZE);
     }
     /**
      * This method uses to get a single cell as integer
@@ -86,59 +89,89 @@ public class Memory {
      * @param addr
      * @return 
      */
-    public Byte[] getPtrByteValue(int addr){
+    public Byte[] getPtrByteValue(int addr, int offset){
         //First 4 bytes is lenght of pointer
-        int ptrSize = binConvertorService.bytesToInt(data, addr);
+        int ptrSize = binConvertorService.bytesToInt(data, addr + NULL_FLAG_SIZE);
         //We move forward on 4 bytes. because first 4 bytes is lenght of pointer
         // See comment above in head of description
-        return getValue(addr + VM.INT_SIZE, ptrSize);
+        return getValue(addr + PTR_HEADERS_SIZE + offset, ptrSize - offset);
     }
-    
+    public Byte[] getPtrByteValue(int addr){
+        return getPtrByteValue(addr, 0);
+    }
     protected Byte[] intToByte(int val){
         return binConvertorService.toBin(val);
     }
     
-     public void putValue(int addr, byte val){
+     public void putValue(int addr, byte val) throws VmExecutionExeption{
          data.set(addr, val);
      }
     
-    public void putValue(int addr, int val){
+    public void putValue(int addr, int val) throws VmExecutionExeption{
        Byte[] byteVal =  intToByte(val);
        putValue(addr, byteVal);
     }
     
-    public void  putValue(int addr, Byte[] byteVal, int start, int end){
+    public void  putValue(int addr, Byte[] byteVal, int start, int end) throws VmExecutionExeption{
          int k = 0;
         for(int i = start; i < end; i++, k++){
             data.set(addr + k, byteVal[i]);
         }
     }
     
-    public void  putValue(int addr, Byte[] byteVal){
+    public void  putValue(int addr, Byte[] byteVal) throws VmExecutionExeption{
          putValue(addr, byteVal, 0, byteVal.length);
     }
     
-    public void  putValue(int addr, ArrayList<Byte> byteVal){
+    public void  putValue(int addr, ArrayList<Byte> byteVal) throws VmExecutionExeption{
          putValue(addr, byteVal, 0,  byteVal.size());
     }
     
-    public void  putValue(int addr, ArrayList<Byte> byteVal, int start, int end){
+    public void  putValue(int addr, ArrayList<Byte> byteVal, int start, int end) throws VmExecutionExeption{
         int k = 0; 
         for(int i = start; i < end; i++, k++){
             data.set(addr + k, byteVal.get(i));
         }
     }
     
-    public void putPtrValue(int addr, Byte[] byteVal){
-       binConvertorService.toBin(byteVal.length);
-      // putValue(int addr, byteVal.length + VM.);
+   
+    public void putPtrValue(int addr, Byte[] byteVal) throws VmExecutionExeption{
+       putValue(addr, new Byte[]{0});
+       putValue(addr + NULL_FLAG_SIZE, byteVal.length);
+       putValue(addr + PTR_HEADERS_SIZE, byteVal);
+    }
+    
+    public void putPtrValue(int addr, int ptrSize) throws VmExecutionExeption{
+      
+       putValue(addr + NULL_FLAG_SIZE, ptrSize);
+    }
+    
+    public void  putPtrValue(int addr, ArrayList<Byte> byteVal, int start, int end) throws VmExecutionExeption{
+        int k = 0; 
+        putValue(addr, new Byte[]{0});
+        putValue(addr + NULL_FLAG_SIZE, end - start);
+       
+        for(int i = start; i < end; i++, k++){
+            data.set(addr + PTR_HEADERS_SIZE + k, byteVal.get(i));
+        }
+    }
+    
+    public void fillPtrWithNull(int addr){
+        int ptrSize = getIntValue(addr + NULL_FLAG_SIZE);
+        int fullSize = ptrSize + PTR_HEADERS_SIZE;
+        int endPtr = addr + fullSize;
+        
+        for(int i = addr; i < endPtr; i++){
+             data.set(i, null);
+        }
+       
     }
     
     protected int getRegisterAddr(VmSysRegister register){
         int addr = register.ordinal() * VM.INT_SIZE;
         return addr;
     }    
-    protected void setSysRegister(VmSysRegister register, int value){
+    protected void setSysRegister(VmSysRegister register, int value) throws VmExecutionExeption{
        //System registers are allocated from 0 byte and size is integer - 4 byte 
        Byte[] byteVal =  intToByte(value);
        putValue(getRegisterAddr(register), byteVal,0,byteVal.length);
@@ -157,16 +190,7 @@ public class Memory {
         return binConvertorService.bytesToInt(deferencePtr(ptrAddr), 0);
     }
     
-    /**
-     * 
-     * @param addr
-     * @param fieldNum Index starts from null
-     */
-    /*public getField(int addr, int fieldNum){
-    }*/
-   
-    
-   
+
     
     protected int getBlockEndAddr(int blockStartAddr){
         //INT_SIZE is size of dield with block size 

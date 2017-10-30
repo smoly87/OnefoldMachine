@@ -50,7 +50,7 @@ public class VM {
     protected VMAddrTables addrTables;
     protected boolean firstF1 = false;
     
-    public VM(){
+    public VM() throws VmExecutionExeption{
         this.binConvertorService =  DataBinConvertor.getInstance();
         this.instructionsService = Instructions.getInstance();
         this.memoryManager = new MemoryManager(binConvertorService);
@@ -59,7 +59,7 @@ public class VM {
     
 
     
-    protected void allocateVariables() throws VMOutOfMemoryException{
+    protected void allocateVariables() throws VMOutOfMemoryException, VmExecutionExeption{
         MemoryHeap memHeap = getMemHeap();
         int secStart = program.readHeader(VmExeHeader.VarTableStart);
         int secEnd = program.readHeader(VmExeHeader.ClassesMetaInfoStart);
@@ -70,13 +70,13 @@ public class VM {
         while( binReader.getCurPos() < secEnd){
              int varInd = binReader.readIntAndNext();
              int varSize = binReader.readIntAndNext();        
-             int ptrAddr = memHeap.memAlloc(varSize);
-             memHeap.putValue(ptrAddr, varSize);
+             int ptrAddr = memHeap.memAllocPtr(varSize);
+             memHeap.putPtrValue(ptrAddr, varSize);
              addrTables.setAddrForIndex(VmExeHeader.VarTableSize, varInd, ptrAddr);
         }
     }
     
-    protected void allocateData() throws VMOutOfMemoryException{
+    protected void allocateData() throws VMOutOfMemoryException, VmExecutionExeption{
         int secStart = program.readHeader(VmExeHeader.ConstStart);
         int secEnd = program.readHeader(VmExeHeader.VarTableStart);
         
@@ -91,9 +91,9 @@ public class VM {
             int varInd =  binReader.readIntAndNext();
             int varSize =  binReader.readIntAndNext();           
 
-            int ptrAddr = memHeap.memAlloc(varSize+ INT_SIZE);
-            memHeap.putValue(ptrAddr, varSize);
-            memHeap.putValue(ptrAddr+ INT_SIZE, progData, binReader.getCurPos() , binReader.getCurPos() +   varSize);
+            int ptrAddr = memHeap.memAllocPtr(varSize);
+            
+            memHeap.putPtrValue(ptrAddr, progData, binReader.getCurPos() , binReader.getCurPos() +   varSize);
             addrTables.setAddrForIndex(VmExeHeader.ConstTableSize, varInd, ptrAddr);
             
             //System.out.println(String.format("VarInd: %s with value %s", varInd, memHeap.getIntValue(ptrAddr+ INT_SIZE)));
@@ -205,7 +205,7 @@ public class VM {
      * @param tableType 
      */
    
-    protected void createDescrTables() throws VMOutOfMemoryException {
+    protected void createDescrTables() throws VMOutOfMemoryException, VmExecutionExeption {
        this.addrTables.add(VmExeHeader.ConstTableSize);
        this.addrTables.add(VmExeHeader.VarTableSize);
        this.addrTables.add(VmExeHeader.ClassesTableSize);
@@ -226,7 +226,7 @@ public class VM {
     
 
     
-    protected void translateAdresses(){
+    protected void translateAdresses() throws VmExecutionExeption{
         int progStart = memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
         int progEnd = memoryManager.getSysRegister(VmSysRegister.ProgEndAddr);
         
@@ -287,7 +287,7 @@ public class VM {
     
     
     
-    protected int stackPopInt() throws VmStackEmptyPop{
+    protected int stackPopInt() throws VmStackEmptyPop, VmExecutionExeption{
         return binConvertorService.bytesToInt(memoryManager.getMemStack().pop(), 0);
     }
     
@@ -298,7 +298,7 @@ public class VM {
             System.err.println("Command Deg "  + commandD.toString());
     }
     
-    protected int sysMemAllocStack() throws VmStackEmptyPop, VMStackOverflowException {
+    protected int sysMemAllocStack() throws VmStackEmptyPop, VMStackOverflowException, VmExecutionExeption {
          MemoryStack memStack = this.memoryManager.getMemStack();
          int dataSize = stackPopInt();
          
@@ -310,7 +310,7 @@ public class VM {
          return ptrStart;
     }
     
-    protected int sysMemAlloc() throws VmStackEmptyPop, VMOutOfMemoryException, VMStackOverflowException{
+    protected int sysMemAlloc() throws VmStackEmptyPop, VMOutOfMemoryException, VMStackOverflowException,  VmExecutionExeption{
         MemoryHeap memHeap = this.memoryManager.getMemHeap();
         MemoryStack memStack = this.memoryManager.getMemStack();
         
@@ -321,13 +321,13 @@ public class VM {
         return ptrStart;
     }
     
-    protected int sysMemAllocPtr() throws VmStackEmptyPop, VMOutOfMemoryException, VMStackOverflowException{
+    protected int sysMemAllocPtr() throws VmStackEmptyPop, VMOutOfMemoryException, VMStackOverflowException,  VmExecutionExeption{
         MemoryHeap memHeap = this.memoryManager.getMemHeap();
         MemoryStack memStack = this.memoryManager.getMemStack();
         
         int dataSize = stackPopInt();
-        int ptrStart = memHeap.memAlloc(dataSize + VM.INT_SIZE);
-        memHeap.putValue(ptrStart, dataSize);
+        int ptrStart = memHeap.memAllocPtr(dataSize);
+        memHeap.putPtrValue(ptrStart, dataSize);
         
         
         memStack.push(binConvertorService.toBin(ptrStart)); 
@@ -512,6 +512,9 @@ public class VM {
         this.allocateData();
         this.allocateVariables();
         this.allocateClassesMetaInfo();
+        /*Start of program data segment on heap, where user objects/pointers stored and where
+         garbage collection is carried out*/
+        memoryManager.setSysRegister(VmSysRegister.ProgDataMemHeapOffset, getMemHeap().dataSize());
         this.translateAdresses();
         
         int progStart = memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
@@ -544,7 +547,10 @@ public class VM {
                     case Push_Addr_Value:
                         value = memoryManager.getPtrByteValue(addr);
                         memStack.push(value);
+                       // memStack.push(868);
                        System.err.println("Stack push value: " + binConvertorService.bytesToInt(value, 0));
+                      /* System.err.println("Stack extr value: " + stackPopInt());
+                        System.err.println("Stack ext2r value: " + stackPopInt());*/
                         break;
                     case Push_Addr:
                        // value = memoryManager.getPtrByteValue(addr);
@@ -678,7 +684,7 @@ public class VM {
      for(int i = 0; i < N; i++){
           int varAddrPtr =  addrTables.getAddrByIndex(VmExeHeader.VarTableSize, i);
          int varAddr = getMemHeap().getIntValue(varAddrPtr) ;
-         System.out.println("Value of " + i +" var is " +getMemHeap().getIntValue(varAddrPtr + VM.INT_SIZE) );
+         System.out.println("Value of " + i +" var is " +getMemHeap().getIntPtrValue(varAddrPtr) );
      }
         System.out.println("Stack pos " + this.memoryManager.getSysRegister(VmSysRegister.StackHeadPos));
     }
@@ -708,7 +714,7 @@ public class VM {
                  case Halt:
                      break;
                  default:
-                     argVal = String.format("%s(%s)", addr,  Integer.toString(memoryManager.getIntPtrValue(addr))) ;
+                     argVal = String.format("%s(%s)", addr,  Integer.toString(memoryManager.getIntValue(addr))) ;
                      
              }
              
