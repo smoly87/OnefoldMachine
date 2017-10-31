@@ -82,7 +82,7 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
            
         rootNode.addChildNode(result.get("LeftVarName"), "LeftVarName");
         
-        rootNode.setCompiler(new LetCompiler());
+        rootNode.setCompiler(this.getCompiler("Let"));
         return rootNode;
         
     }
