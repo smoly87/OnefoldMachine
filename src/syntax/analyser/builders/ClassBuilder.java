@@ -70,6 +70,8 @@ public class ClassBuilder extends  ParserChain implements ParserBuilder{
         }
         rootNode.addChildNode(result.get("ClassFieldsOrMethods"), "ClassFieldsOrMethods");
         rootNode.addChildNode(result.get("EndClass"), "EndClass");
+        
+        
 
         return rootNode;
     }

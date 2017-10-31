@@ -40,6 +40,8 @@ public class ParserRepeated extends Parser{
         
         if(flag){
             this.setParseResult(rootNode);
+        } else{
+            parserStopPos = lexerResults.getCurPos();
         }
         
         return flag;

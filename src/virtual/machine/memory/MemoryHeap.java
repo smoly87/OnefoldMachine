@@ -30,7 +30,9 @@ public class MemoryHeap extends Memory{
         this.maxSize = maxSize;
     }
     public int  memAllocPtr(int size) throws VmExecutionExeption{
-        return memAlloc(size + PTR_HEADERS_SIZE);
+        int freeAddr = memAlloc(size + PTR_HEADERS_SIZE);
+        putValue(freeAddr, size);
+        return freeAddr;
     }
     
     public int  memAlloc(int size) throws  VmExecutionExeption{
@@ -42,15 +44,15 @@ public class MemoryHeap extends Memory{
         
         
         int freeAddr = getSysRegister(VmSysRegister.LastHeapPos);
-        int delta = (freeAddr - this.segmentOffset + size + VM.INT_SIZE) - this.size;
+        int delta = (freeAddr - this.segmentOffset + size ) - this.size;
         if(delta > 0){
             this.increaseDataSize(delta);
             this.size += delta;
         }
-        putValue(freeAddr, size);
+        
         //Pointer - size of block
         //Length of field with size + size of block +satart address
-        int newFreeAddr = freeAddr +  size + VM.INT_SIZE;
+        int newFreeAddr = freeAddr +  size ;
         
         setSysRegister(VmSysRegister.LastHeapPos, newFreeAddr);
         
@@ -93,39 +95,47 @@ public class MemoryHeap extends Memory{
         return -1;   
     }
     
-    public void garbageCollect(){
-        int pos = getSysRegister(VmSysRegister.ProgDataMemHeapOffset);
-        int prevBlockStart = findNextBlock(pos);
-        if(prevBlockStart < 0) return;
-        
-        int prevBlockEnd = pos = getBlockEndAddr(prevBlockStart);
-        
+    protected boolean isNullLinks(int blockStart){
+        Byte[] flagValue = getValue(blockStart, 1);
+        if (flagValue[0] == GC_FLAG_OBJ) {
+            //TODO: If NO links to Object, it should been removed
+            int lnkCount = getIntValue(blockStart + PTR_HEADERS_SIZE + VM.INT_SIZE);
+            return lnkCount == 0;
+        }
+        return false;
+    }
+    
+    public int garbageCollect() throws VmExecutionExeption{
+        int blockPos = getSysRegister(VmSysRegister.ProgDataMemHeapOffset) ;
         int endAddr = this.segmentOffset + this.size;
-        while(pos < endAddr){
-            int curBlockStart = findNextBlock(pos);
-            
-            //TODO: Check if not null pointer
-            //Rollback to prev
-            Byte[] flagValue = getValue(curBlockStart, 1);
-            if(flagValue[0] == 1){
+        int clearedSize = 0; 
+        
+        while(blockPos < endAddr){
+            int curBlockSize = getPtrSizeWithHeaders(blockPos);
+            if(isNullLinks(blockPos)){
+                 int newBlockPos = getBlockEndAddr(blockPos);
+                 int newBlockSize = 0;
+                 if(newBlockPos < endAddr){
+                    newBlockSize = getPtrSizeWithHeaders(blockPos);
+                    System.arraycopy(data, newBlockPos, data, blockPos, newBlockSize); 
+                 } else{
+                    clearedSize += curBlockSize;
+                    break;
+                 }
+                 
+                 clearedSize += curBlockSize;
+                 blockPos = newBlockPos + newBlockSize;
+             } else { 
+                blockPos += curBlockSize;
             }
-            //No bloks anymore
-            if(curBlockStart == -1) {
-                return;
-            } 
-            int curBlockSize = getIntValue(curBlockStart);
-            //Think about +/- 1 position
-            if(curBlockStart != prevBlockEnd){
-                pos = getBlockEndAddr(curBlockStart);
-                System.arraycopy(data, curBlockStart, data, prevBlockEnd, curBlockSize);    
-                prevBlockEnd = prevBlockEnd + curBlockSize  + VM.INT_SIZE;;
-            } else{
-                prevBlockEnd =  getBlockEndAddr(curBlockStart);
-            }      
         }
         
+        int memHeapHead = getSysRegister(VmSysRegister.LastHeapPos);
         
-        
+        setSysRegister(VmSysRegister.LastHeapPos, memHeapHead - clearedSize);
+        return clearedSize;
+         
     }
+   
     
 }

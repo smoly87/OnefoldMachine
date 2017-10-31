@@ -28,11 +28,7 @@ public class NewObjOperatorCompiler extends AstCompiler{
 
    
    
-    protected void addCommandSetFieldValue(ProgramBuilder programBuilder, Integer fieldNum, Integer value) throws CompilerException{
-        programBuilder.addInstruction(VMCommands.Push, value, VarType.Integer);// fieldValue
-        programBuilder.addInstruction(VMCommands.Push, fieldNum, VarType.Integer); // fieldNum
-        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetPtrField), VarType.Integer);
-    }
+   
     
     @Override
     public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
@@ -62,7 +58,7 @@ public class NewObjOperatorCompiler extends AstCompiler{
                 programBuilder.addInstruction(VMCommands.Dup, 0, VarType.Integer); //Dup for save Ptr
                 
                 //Set LinksCount
-                addCommandSetFieldValue(programBuilder, 1, 0);
+                addCommandSetFieldValue(programBuilder, 1, 1);
                // programBuilder.addInstruction(VMCommands.Dup, 0, VarType.Integer); //Dup for save Ptr
 
 

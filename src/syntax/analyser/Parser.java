@@ -29,6 +29,11 @@ public abstract class Parser {
     protected GrammarInfo grammarInfo;
     protected String parserName;
     protected CompilersFactory compilersFactory;
+    protected int parserStopPos;
+
+    public int getParserStopPos() {
+        return parserStopPos;
+    }
     
     protected AstCompiler getCompiler(String compilerName){
         return compilersFactory.getElement(compilerName);
@@ -69,6 +74,7 @@ public abstract class Parser {
         parseResult = null;
         boolean res = this.parseLexerResult(lexerResults);
         if(!res){
+            parserStopPos = lexerResults.getCurPos();
             lexerResults.setCurPos(pos);
         }
         

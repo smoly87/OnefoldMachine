@@ -43,7 +43,7 @@ public class MemoryStack extends Memory{
         int headAddr = this.getSysRegister(VmSysRegister.StackHeadPos);
         if(headAddr == 0) throw new VmStackEmptyPop();
         
-        int fullSize = this.getIntValue(headAddr + NULL_FLAG_SIZE)+ PTR_HEADERS_SIZE;
+        int fullSize = this.getIntValue(headAddr + GC_FLAG_SIZE)+ PTR_HEADERS_SIZE;
         int prevElemAddr = this.getIntValue(headAddr + PTR_HEADERS_SIZE);
         this.setSysRegister(VmSysRegister.StackHeadPos, prevElemAddr);
                 
@@ -72,7 +72,7 @@ public class MemoryStack extends Memory{
        if(headAddr == segmentOffset){
            newHeadAddr = segmentOffset + firstElementOffset;
        } else {
-           int prevElemSize = this.getIntValue(headAddr + NULL_FLAG_SIZE) + PTR_HEADERS_SIZE; 
+           int prevElemSize = this.getIntValue(headAddr + GC_FLAG_SIZE) + PTR_HEADERS_SIZE; 
            newHeadAddr = headAddr + prevElemSize;
        }
  

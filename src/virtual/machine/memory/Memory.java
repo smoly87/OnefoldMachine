@@ -19,8 +19,10 @@ import virtual.machine.VmExecutionExeption;
  */
 public class Memory {
     protected ArrayList<Byte> data;
-    public static final int NULL_FLAG_SIZE = 1;
-    public static final int PTR_HEADERS_SIZE = NULL_FLAG_SIZE + VM.INT_SIZE  ;
+    public static final int GC_FLAG_SIZE = 1;
+    public static final int GC_FLAG_OBJ = 2;
+    
+    public static final int PTR_HEADERS_SIZE = GC_FLAG_SIZE + VM.INT_SIZE  ;
 
     public ArrayList<Byte> getData() {
         return data;
@@ -90,12 +92,31 @@ public class Memory {
      * @return 
      */
     public Byte[] getPtrByteValue(int addr, int offset){
-        //First 4 bytes is lenght of pointer
-        int ptrSize = binConvertorService.bytesToInt(data, addr + NULL_FLAG_SIZE);
+        
+        int ptrSize = getPtrSize(addr);
         //We move forward on 4 bytes. because first 4 bytes is lenght of pointer
         // See comment above in head of description
         return getValue(addr + PTR_HEADERS_SIZE + offset, ptrSize - offset);
     }
+    
+    public int  getPtrSize(int addr){
+       //First 4 bytes is lenght of pointer
+       return binConvertorService.bytesToInt(data, addr + GC_FLAG_SIZE); 
+    }
+    
+    public int  getPtrSizeWithHeaders(int addr){
+        return getPtrSize(addr) + PTR_HEADERS_SIZE;
+    }
+    
+    public Byte[] getPtrField(int addr, int fieldOffset, int fieldSize){
+        return getValue(addr + PTR_HEADERS_SIZE + fieldOffset, fieldSize);
+    }
+    
+    public int getPtrIntField(int addr, int fieldOffset){
+        Byte[] val =  getValue(addr + PTR_HEADERS_SIZE + fieldOffset, VM.INT_SIZE);
+        return binConvertorService.getIntegerValue(val);
+    }
+    
     public Byte[] getPtrByteValue(int addr){
         return getPtrByteValue(addr, 0);
     }
@@ -137,19 +158,19 @@ public class Memory {
    
     public void putPtrValue(int addr, Byte[] byteVal) throws VmExecutionExeption{
        putValue(addr, new Byte[]{0});
-       putValue(addr + NULL_FLAG_SIZE, byteVal.length);
+       putValue(addr + GC_FLAG_SIZE, byteVal.length);
        putValue(addr + PTR_HEADERS_SIZE, byteVal);
     }
     
     public void putPtrValue(int addr, int ptrSize) throws VmExecutionExeption{
       
-       putValue(addr + NULL_FLAG_SIZE, ptrSize);
+       putValue(addr + GC_FLAG_SIZE, ptrSize);
     }
     
     public void  putPtrValue(int addr, ArrayList<Byte> byteVal, int start, int end) throws VmExecutionExeption{
         int k = 0; 
         putValue(addr, new Byte[]{0});
-        putValue(addr + NULL_FLAG_SIZE, end - start);
+        putValue(addr + GC_FLAG_SIZE, end - start);
        
         for(int i = start; i < end; i++, k++){
             data.set(addr + PTR_HEADERS_SIZE + k, byteVal.get(i));
@@ -157,7 +178,7 @@ public class Memory {
     }
     
     public void fillPtrWithNull(int addr){
-        int ptrSize = getIntValue(addr + NULL_FLAG_SIZE);
+        int ptrSize = getIntValue(addr + GC_FLAG_SIZE);
         int fullSize = ptrSize + PTR_HEADERS_SIZE;
         int endPtr = addr + fullSize;
         
@@ -194,7 +215,7 @@ public class Memory {
     
     protected int getBlockEndAddr(int blockStartAddr){
         //INT_SIZE is size of dield with block size 
-        return blockStartAddr + getIntValue(blockStartAddr) + VM.INT_SIZE;
+        return blockStartAddr + getIntValue(blockStartAddr + GC_FLAG_SIZE) + PTR_HEADERS_SIZE;
     }
     
     

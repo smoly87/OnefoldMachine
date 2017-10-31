@@ -19,5 +19,6 @@ public enum VMSysFunction {
     GetPtrField,
     GetVirtualFuncAddr,
     Print,
-    PrintObjField
+    PrintObjField,
+    GarbageCollect
 }

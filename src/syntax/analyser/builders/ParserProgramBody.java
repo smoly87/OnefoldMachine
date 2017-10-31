@@ -20,15 +20,14 @@ public class ParserProgramBody extends ParserStatementBuilder{
     
     @Override
     public Parser build() {
-        ParserAlternative possibleAlts = (ParserAlternative)super.build();
-        possibleAlts.add(this.getParser("Function"));
-        possibleAlts.add(this.getParser("FunctionCall"));
-        possibleAlts.add(this.getParser("SysFunctionCall"));
-        possibleAlts.add(this.getParser("Class"));
+        super.build();
+        this.add(this.getParser("Function"));
+
+        this.add(this.getParser("Class"));
         
-        possibleAlts.add(this.getParser("ParserStatementRepeated"));
+        //possibleAlts.add(this.getParser("ParserStatement"));
         
-        return new ParserRepeated(possibleAlts) ;
+        return new ParserRepeated(this) ;
     }
     
 }

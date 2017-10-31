@@ -81,6 +81,27 @@ public abstract class AstCompiler {
         throw new CompilerException("Undeclared variable: " + varName);
     }
     
-     
+    protected void addCommandSetFieldValue(ProgramBuilder programBuilder, Integer fieldNum, Integer value) throws CompilerException{
+        programBuilder.addInstruction(VMCommands.Push, value, VarType.Integer);// fieldValue
+        programBuilder.addInstruction(VMCommands.Push, fieldNum, VarType.Integer); // fieldNum
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetPtrField), VarType.Integer);
+    }
+    
+     protected void addCommandChangeFieldValue(ProgramBuilder programBuilder, String varName,Integer fieldNum, Integer step) throws CompilerException{
+        
+        addVarLoadCommand(varName, programBuilder);
+        
+        programBuilder.addInstruction(VMCommands.Dup);
+        programBuilder.addInstruction(VMCommands.Push, fieldNum, VarType.Integer); 
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetPtrField), VarType.Integer);
+        
+        //Increment pass ptr field value as argument of addition operation
+        programBuilder.addInstruction(VMCommands.Push, step, VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Add, 0, VarType.Integer);
+        
+        programBuilder.addInstruction(VMCommands.Push, fieldNum, VarType.Integer); 
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetPtrField), VarType.Integer);
+    }
+ 
  
 }

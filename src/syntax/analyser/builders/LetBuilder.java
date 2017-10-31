@@ -49,6 +49,7 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
         altParser.add(new ParserMathExpr())
                  .add(new ParserTag("String"))
                  .add(new ParserTag("Id"))
+                 .add(new ParserTag("Null"))
                  .add(this.getParser("FunctionCall"))
                  .add(this.getParser("NewObjOperator"))
                  .add(this.getRightPartObjField());

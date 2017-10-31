@@ -25,8 +25,9 @@ public class LetCompiler extends AstCompiler{
     protected boolean objLeftPart;
     protected String leftObjName;
     protected String className;
-    
+    protected String varName;
     protected AstNode rightPartNode;
+    protected boolean RightPartIsNull;
     
     public void addRightPartCommands(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         String tokName = node.getToken().getTagName();
@@ -40,8 +41,25 @@ public class LetCompiler extends AstCompiler{
                 } else {
                     programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, varName, programBuilder.isIsLocalContext());
                 }
+                
+                //if(objLeftPart){
+                String varClass = programBuilder.getVarDescription(varName).getClassName();
+                if(varClass != null && varClass != ""){
+                       this.addVarLoadCommand(varName, programBuilder); 
+                     this.addCommandChangeFieldValue(programBuilder, varName, 1, 1 );
+                }
+                  
+                //}
+                
                 break;
             case "Null":
+                
+                //Decrease links count to object
+                this.addVarLoadCommand(this.varName, programBuilder); 
+                this.addCommandChangeFieldValue(programBuilder, this.varName, 1, -1 );
+                this.RightPartIsNull = true;
+               
+                
                 break;
             case "Integer":            
                  programBuilder.addInstruction(VMCommands.Push, node.getToken().getValue(), VarType.Integer);
@@ -113,10 +131,12 @@ public class LetCompiler extends AstCompiler{
                 //addRightPartCommands(node, programBuilder);
                 objLeftPart = false;
                 rightPartNode = node;
+                RightPartIsNull = false;
                 break;
             case "LeftVarName":
+                varName = node.getToken().getValue();
                 if(!this.className.equals("")){
-                    String varName = node.getToken().getValue();
+                    
                     String varClass = programBuilder.getVarDescription(varName).getClassName();
                     if(!varClass.equals(this.className)){
                        throw new CompilerException(String.format("Variable %s is decalred as %s. But there is an attempt to assign it to instance of %s",
@@ -129,6 +149,11 @@ public class LetCompiler extends AstCompiler{
                     addCommandsLeftPartObjField(node, programBuilder);
                 } else{
                     if(rightPartNode!=null)addRightPartCommands(rightPartNode, programBuilder);
+                    addCommandsLeftPartVar(node, programBuilder);
+                }
+                
+                if(RightPartIsNull){
+                    programBuilder.addInstruction(VMCommands.Push, -1, VarType.Integer);
                     addCommandsLeftPartVar(node, programBuilder);
                 }
                 break;

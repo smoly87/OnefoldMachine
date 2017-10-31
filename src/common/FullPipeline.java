@@ -13,6 +13,7 @@ import grammar.GrammarInfo;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.util.StringJoiner;
 import lexer.Lexer;
 import syntax.analyser.builders.ParserStatementBuilder;
 import lexer.LexerResult;
@@ -46,9 +47,26 @@ public class FullPipeline {
         return lex.parse(programSrc);
     }
     
+    protected String getLexerPosDescription(LexerResult lexerResult, int errPos){
+        StringJoiner sJoiner = new StringJoiner(" ");
+        if(errPos > 0){
+            lexerResult.setCurPos(errPos - 1);
+            for(int i = 0; i < 3; i++){
+                Token token = lexerResult.getCurToken();
+                sJoiner.add(token.getValue());
+            }
+        }
+        
+        return sJoiner.toString();
+        
+    }
+    
     public AstNode buildAst(LexerResult lexerResult) throws ParserException{   
         Parser rootParser = new ParserProgramBody().build();
-        rootParser.parse(lexerResult);
+        if(!rootParser.parse(lexerResult)){
+            String nearTokens = getLexerPosDescription(lexerResult, rootParser.getParserStopPos());
+            throw new ParserException(String.format("Error at token %s", nearTokens));
+        }
         return rootParser.getParseResult();
     }
     

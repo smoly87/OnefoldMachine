@@ -41,6 +41,7 @@ public class ParserAlternative extends Parser{
                 return true;
             }
         }
+        parserStopPos = lexerResults.getCurPos();
         return false;
     }
     

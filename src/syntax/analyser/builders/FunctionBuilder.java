@@ -31,7 +31,7 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     }
     
     protected Parser getFunctionBodyParser(){
-        return new ParserRepeated(new ParserStatementBuilder());
+        return new ParserRepeated(getParser("ParserStatement"));
     }
     
     protected Parser getReturnStatementParser(){

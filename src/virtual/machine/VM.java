@@ -20,6 +20,7 @@ import program.builder.BinBuilderClassesMetaInfo;
 import program.builder.BinObjBuilder;
 import program.builder.BinaryReader;
 import types.TypeString;
+import utils.Pair;
 import virtual.machine.memory.MemoryHeap;
 import virtual.machine.memory.MemoryManager;
 import virtual.machine.memory.MemoryProgram;
@@ -114,7 +115,7 @@ public class VM {
         while( binReader.getCurPos() < secEnd ){ 
             int classInd = binReader.readIntAndNext();
             int metaInfoSize = binReader.readInt();
-            int metaTablePtr =  memHeap.memAlloc(metaInfoSize);
+            int metaTablePtr =  memHeap.memAlloc(metaInfoSize + VM.INT_SIZE);
             System.out.println(String.format("Class_ID: %s MetaSize: %s", classInd, metaInfoSize)  );
             addrTables.setAddrForIndex(VmExeHeader.ClassesTableSize, classInd, metaTablePtr);
             
@@ -128,7 +129,7 @@ public class VM {
     
     protected int getClassId(int objPtr){ 
         //First field is size, second is classID, third is linkCount
-        int classId = getMemHeap().getIntValue(objPtr + VM.INT_SIZE);
+        int classId = getMemHeap().getIntValue(objPtr + Memory.PTR_HEADERS_SIZE);
         return classId;
     }
     
@@ -139,7 +140,7 @@ public class VM {
         return classMetaDataPtr;
     }
     
-    protected int getFieldOffset(int classMetaDataPtr, int fieldNum) throws VmExecutionExeption{
+    protected Pair<Integer, Integer> getFieldInfo(int classMetaDataPtr, int fieldNum) throws VmExecutionExeption{
         BinaryReader binReader = new BinaryReader(this.getMemHeap().getData());
         int fieldsCount = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.FIELDS_COUNT);
         int methodsCount = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.METHODS_COUNT);
@@ -156,7 +157,7 @@ public class VM {
             int fieldCode = binReader.readIntAndNext();
             
             if(fieldCode == fieldNum){
-                return offset;
+                return new Pair(offset, binReader.readIntAndNext());
             }
             
             int fieldSize = binReader.readIntAndNext();
@@ -164,27 +165,34 @@ public class VM {
             k++;
         }
         
-       return -1;
+       return null;
     }
     
     protected int readClassMetaDataHeader(int classMetaDataPtr, VmMetaClassHeader header){
         return getMemHeap().getIntValue(classMetaDataPtr + header.ordinal() * VM.INT_SIZE);
     }
     
-    protected int getFieldOffsetObj(int objPtr, int fieldNum) throws VmExecutionExeption{
+    
+     protected Pair<Integer, Integer> getFieldInfoObj(int objPtr, int fieldNum) throws VmExecutionExeption{
          int classId = getClassId(objPtr);
          int metaDataPtr = this.getClassMetaDataPointer(classId);
-         int fieldOffset = getFieldOffset(metaDataPtr, fieldNum);
+         Pair<Integer, Integer> fieldInfo = getFieldInfo(metaDataPtr, fieldNum);
          
-         if(fieldOffset > -1){
-             return fieldOffset;
+         if(fieldInfo != null){
+             return fieldInfo;
          }else {    
-          
             throw new VmExecutionExeption(String.format("Field with number %s not found", fieldNum));
          }
          
          
     }
+    
+    protected int getFieldOffsetObj(int objPtr, int fieldNum) throws VmExecutionExeption{      
+         Pair<Integer, Integer> fieldInfo = getFieldInfoObj(objPtr, fieldNum);
+         return fieldInfo.getObj1();
+         
+    }
+    
     protected void printClassMetaInfo(int classId) throws VmExecutionExeption{
         int metaDataPtr = this.getClassMetaDataPointer(classId);
         int fieldsCount = readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.FIELDS_COUNT);
@@ -193,8 +201,8 @@ public class VM {
         
         System.out.println(String.format("Fields: %s, methods: %s.Parent_Id: %s", fieldsCount, methodsCount, parentId));
         
-        int fieldOffset = getFieldOffset(metaDataPtr, 1);
-         System.out.println(String.format("Offset of field %s is %s", 1, fieldOffset));
+       /* int fieldOffset = getFieldOffsetObj(metaDataPtr, 1);
+         System.out.println(String.format("Offset of field %s is %s", 1, fieldOffset));*/
         
     }
     
@@ -327,6 +335,8 @@ public class VM {
         
         int dataSize = stackPopInt();
         int ptrStart = memHeap.memAllocPtr(dataSize);
+        System.err.println("Create ptr at:" + ptrStart);
+        memHeap.putValue(ptrStart, new Byte[]{Memory.GC_FLAG_OBJ});
         memHeap.putPtrValue(ptrStart, dataSize);
         
         
@@ -345,19 +355,46 @@ public class VM {
         int fieldNum = stackPopInt();
         Byte[] fieldValue = memStack.pop();
         int ptrAddr = stackPopInt();
-        
+        preventForNullPointer(ptrAddr);
         int fieldOffset = fieldNum * INT_SIZE;
         if(fieldNum > 1){
              fieldOffset = getFieldOffsetObj(ptrAddr, fieldNum);
         }
         
-        memHeap.putValue(ptrAddr + VM.INT_SIZE + fieldOffset, fieldValue);
+        memHeap.putValue(ptrAddr + Memory.PTR_HEADERS_SIZE + fieldOffset, fieldValue);
         
        // memHeap.putValue(ptrAddr, fieldValue);
        
         
     }
     
+    protected void preventForNullPointer(int ptrAddr) throws VmExecutionExeption{
+        if (ptrAddr == -1) {
+            throw new VmExecutionExeption("Null Pointer!");
+        }
+    }
+    
+    protected void sysGetPtrField() throws VmExecutionExeption{
+        //TODO: Absolutley need to count field address, not ptr
+        MemoryHeap memHeap = this.memoryManager.getMemHeap();
+        MemoryStack memStack = this.memoryManager.getMemStack();
+        
+        
+        int fieldNum = stackPopInt();
+        int ptrAddr = stackPopInt();
+        preventForNullPointer(ptrAddr);
+        
+        int fieldOffset = fieldNum * INT_SIZE;
+        if(fieldNum > 1){
+             fieldOffset = getFieldOffsetObj(ptrAddr, fieldNum);
+        }
+        
+        int val = memHeap.getPtrIntField(ptrAddr,  fieldOffset);
+        memStack.push(val);
+       // memHeap.putValue(ptrAddr, fieldValue);
+       
+        
+    }
     protected void sysPrint() throws  VmExecutionExeption{
         int ptrAddr = stackPopInt();
         MemoryStack memStack = this.memoryManager.getMemStack();
@@ -374,8 +411,9 @@ public class VM {
     protected void sysPrintObjField() throws  VmExecutionExeption{
         int fieldNum = stackPopInt();
         int ptrAddr = stackPopInt();
+        preventForNullPointer(ptrAddr);
         int fieldOffset = getFieldOffsetObj(ptrAddr, fieldNum);
-        int value = getMemHeap().getIntValue(ptrAddr + VM.INT_SIZE + fieldOffset);
+        int value = getMemHeap().getPtrIntField(ptrAddr,  fieldOffset);
         System.err.println(String.format("PRINT_OBJ_FIELD: Value: %s FieldNum: %s  ", value, fieldNum) );
     }
     
@@ -435,6 +473,11 @@ public class VM {
          
     }
     
+    protected void sysGarbageCollect() throws VmExecutionExeption{
+      int freedSpace =  getMemHeap().garbageCollect();
+      System.out.println("GC: Freed space after clean: " + freedSpace);
+    }
+    
     protected void callSysFunc(int funcTypeAddrPtr) throws VmExecutionExeption{   
         MemoryStack memStack = this.memoryManager.getMemStack();
         int funcType  = memStack.getIntPtrValue(funcTypeAddrPtr);
@@ -482,6 +525,9 @@ public class VM {
             case SetPtrField:
                 sysSetPtrField();
                 break;
+            case GetPtrField:
+                sysGetPtrField();
+                break;    
             case GetVirtualFuncAddr:
                 sysGetVirtualFuncAddr();
                 break;    
@@ -490,6 +536,9 @@ public class VM {
                 break;
             case PrintObjField:
                 sysPrintObjField();
+                break;
+            case GarbageCollect:
+                sysGarbageCollect();
                 break;
             default:
                 System.err.println("Callede unreliased function: " + sysFunc.toString());
@@ -514,7 +563,12 @@ public class VM {
         this.allocateClassesMetaInfo();
         /*Start of program data segment on heap, where user objects/pointers stored and where
          garbage collection is carried out*/
-        memoryManager.setSysRegister(VmSysRegister.ProgDataMemHeapOffset, getMemHeap().dataSize());
+        
+        int heapSize1 = getMemHeap().dataSize();
+        int heapSize =  memoryManager.getSysRegister(VmSysRegister.LastHeapPos);
+        System.out.println("Start user memheap: " + heapSize1 +" " + heapSize);
+        
+        memoryManager.setSysRegister(VmSysRegister.ProgDataMemHeapOffset, heapSize);
         this.translateAdresses();
         
         int progStart = memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
@@ -545,7 +599,10 @@ public class VM {
                 
                 switch (command) {
                     case Push_Addr_Value:
+                       
                         value = memoryManager.getPtrByteValue(addr);
+                        
+                   
                         memStack.push(value);
                        // memStack.push(868);
                        System.err.println("Stack push value: " + binConvertorService.bytesToInt(value, 0));
@@ -554,6 +611,7 @@ public class VM {
                         break;
                     case Push_Addr:
                        // value = memoryManager.getPtrByteValue(addr);
+                       
                         memStack.push(binConvertorService.toBin(addr));
                        System.err.println("Stack push addr: " + addr);
                         break;    
@@ -682,9 +740,9 @@ public class VM {
     protected void varValuesDebug(){
      int N =  program.readHeader(VmExeHeader.VarTableSize);
      for(int i = 0; i < N; i++){
-          int varAddrPtr =  addrTables.getAddrByIndex(VmExeHeader.VarTableSize, i);
+         int varAddrPtr =  addrTables.getAddrByIndex(VmExeHeader.VarTableSize, i);
          int varAddr = getMemHeap().getIntValue(varAddrPtr) ;
-         System.out.println("Value of " + i +" var is " +getMemHeap().getIntPtrValue(varAddrPtr) );
+         System.out.println(String.format("Value of %s by addr %s is %s",i,varAddrPtr, getMemHeap().getIntPtrValue(varAddrPtr)));
      }
         System.out.println("Stack pos " + this.memoryManager.getSysRegister(VmSysRegister.StackHeadPos));
     }

@@ -39,7 +39,7 @@ public class FieldBuilder extends ParserChain implements ParserBuilder{
             .add(AccessLevelParserAlt, "AccessLevel")
             .addTag("Id")
             .addKeyword(":")  
-            .add(this.getParser("TypesList"), "Type");
+            .add(this.getParser("TypesList"), "Type").addKeyword(";");
             
             
     }

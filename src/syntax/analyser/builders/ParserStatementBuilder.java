@@ -23,13 +23,15 @@ import syntax.analyser.parser.ParserRepeated;
  *
  * @author Andrey
  */
-public class ParserStatementBuilder extends ParserChain  implements ParserBuilder{    
+public class ParserStatementBuilder extends ParserAlternative implements ParserBuilder{    
     public Parser build() { 
-         ParserAlternative possibleAlts = new ParserAlternative();
-         possibleAlts.add(this.getParser("Let"));
-         possibleAlts.add(this.getParser("Var"));
-         possibleAlts.add(this.getParser("While"));
-         return possibleAlts;
+        
+         this.add(this.getParser("Let"));
+         this.add(this.getParser("Var"));
+         this.add(this.getParser("While"));
+         this.add(this.getParser("FunctionCall"));
+         this.add(this.getParser("SysFunctionCall"));
+         return this;
     }
      
    
