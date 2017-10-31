@@ -13,19 +13,20 @@ Public barbar:Integer;
 }
 Var a:foo;
 Var c:foo;
-/*Var b:Integer;
-Var s:String;*/
+Var b:Integer;
+/*Var s:String;*/
 Let a = New foo();
-Let a.bazar = 450;
+Let a.bar = 450;
+Let b = Call a.test(120, 130);
 /*Let a.bar = 850;*/
 Let c = a;
-Sys PrintObjField(a, 2);
+Sys PrintObjField(a, 3);
 Let a = Null;
 Let c = Null;
 Sys GarbageCollect();
 /*Let s = "Hello";
 Let a = New foo();
-Let b = Call a.test(120, 130);
+
 Let c = a;
 Let c.bazar = 4500;
 Sys PrintObjField(a, 2);

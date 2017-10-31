@@ -8,6 +8,7 @@ package compiler.expr;
 import common.Token;
 import common.VarType;
 import compiler.AstCompiler;
+import compiler.CompilerSubscriber;
 import compiler.exception.CompilerException;
 import compiler.expr.utils.LetCompilerParams;
 import program.builder.ClassInfo;
@@ -21,12 +22,16 @@ import virtual.machine.VMSysFunction;
  *
  * @author Andrey
  */
-public class LetCompiler extends AstCompiler{
+public class LetCompiler extends AstCompiler implements CompilerSubscriber{
     
  
     // TODO: It's need to figure out why it so buggy
     protected String className = "";
     protected LetCompilerParams paramsObj;
+    
+    public LetCompiler(){
+        this.getCompiler("Function").addSubscriber(this);
+    }
     
     public void addRightPartCommands(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         String tokName = node.getToken().getTagName();
@@ -118,7 +123,7 @@ public class LetCompiler extends AstCompiler{
         
         switch(nodeName){
             case "LetStart":
-                
+                 paramsObj = new LetCompilerParams();
                 break;
             case "LeftObjName":
                 paramsObj.setIsObjLeftPart(true);
@@ -131,24 +136,26 @@ public class LetCompiler extends AstCompiler{
             case "RightPartExpr":
                 //addRightPartCommands(node, programBuilder);
                 
-                paramsObj = new LetCompilerParams();
                 
+                //paramsObj = new LetCompilerParams();
+               
+               
                /* AstNode classNameNode = node.findChild("ClassName");
                 if (classNameNode != null) {
                     paramsObj.setClassName(classNameNode.getToken().getValue());
                 }*/
                 
-                paramsObj.setIsObjLeftPart(false);
+                
                 paramsObj.setRightPartNode(node); 
                 
                 break;
             case "LeftVarName":
                 String varName = node.getToken().getValue();
                 paramsObj.setVarName(varName);
-                if(!this.className.equals("")){
+                if(!paramsObj.isObjLeftPart() && !this.className.equals("")){
                     
                     String varClass = programBuilder.getVarDescription(varName).getClassName();
-                    if(!varClass.equals(this.className)){
+                    if(varClass != null && !varClass.equals(this.className)){
                        throw new CompilerException(String.format("Variable %s is decalred as %s. But there is an attempt to assign it to instance of %s",
                                varName, varClass, this.className));
                     } 
@@ -188,6 +195,16 @@ public class LetCompiler extends AstCompiler{
         
         
     }
-   
+    
+    @Override
+    public void nodeProcessEvent(AstNode node, ProgramBuilder programBuilder) {
+       switch(node.getName()){
+           case "FunctionId":
+              
+               break;
+           case "VarDescription":
+               break;
+       }
+    }
     
 }

@@ -14,7 +14,7 @@ import common.VarType;
 public class VarDescription {
     protected int code;
     protected int classId;
-    protected String className;
+    protected String className ;
 
     public String getClassName() {
         return className;

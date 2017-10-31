@@ -56,6 +56,13 @@ public class FunctionCallCompiler extends AstCompiler{
 
     }
     
+    protected void decalareThisVariable(String callerName, ProgramBuilder programBuilder) throws CompilerException{
+        programBuilder.addInstruction(VMCommands.Push, TypesInfo.getInstance().getTypeSize(VarType.Integer), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Var_Declare_Local, Integer.toString(varNum ), VarType.Integer);
+        varNum++;
+        this.addVarLoadCommand(callerName, programBuilder);
+    }
+    
     protected void declareAndSetHeadVar(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         Token token =  node.getToken();
         String tokName = token.getTagName();
@@ -102,6 +109,7 @@ public class FunctionCallCompiler extends AstCompiler{
             case "ObjName":
                 objMethod = true;
                 objName = token.getValue();
+                decalareThisVariable(objName, programBuilder);
                 break;
             case "EndCall":
                 if(varNum < funcDescr.getArgsCount()) {

@@ -50,7 +50,7 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
                  .add(new ParserTag("String"))
                  .add(new ParserTag("Id"))
                  .add(new ParserTag("Null"))
-                 .add(this.getParser("FunctionCall"))
+                 .add(this.getParser("FunctionCall"), "FunctionCall")
                  .add(this.getParser("NewObjOperator"))
                  .add(this.getRightPartObjField());
         
@@ -73,7 +73,7 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
     public  AstNode processChainResult(HashMap<String, AstNode> result){
 
         AstNode rootNode = new AstNode();
-        
+        rootNode.addChildNode(result.get("LetStart"), "LetStart");
         rootNode.addChildNode(result.get("RightPartExpr"), "RightPartExpr");
         if(result.get("LeftObjName") != null){
             rootNode.addChildNode(result.get("LeftObjName"), "LeftObjName");        
