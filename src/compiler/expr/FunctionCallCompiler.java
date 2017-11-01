@@ -57,10 +57,15 @@ public class FunctionCallCompiler extends AstCompiler{
     }
     
     protected void decalareThisVariable(String callerName, ProgramBuilder programBuilder) throws CompilerException{
-        programBuilder.addInstruction(VMCommands.Push, TypesInfo.getInstance().getTypeSize(VarType.Integer), VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Var_Declare_Local, Integer.toString(varNum ), VarType.Integer);
-        varNum++;
+        //programBuilder.addInstruction(VMCommands.Push, TypesInfo.getInstance().getTypeSize(VarType.Integer), VarType.Integer);
         this.addVarLoadCommand(callerName, programBuilder);
+        programBuilder.addInstruction(VMCommands.Push, varNum, VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Var_Declare_Local, Integer.toString(varNum ), VarType.Integer);
+        
+       // programBuilder.addInstruction(VMCommands.Push, 4, VarType.Integer);
+        //this.addVarLoadCommand(callerName, programBuilder);
+       //programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeferPtrValue), VarType.Integer);
+        varNum++;
     }
     
     protected void declareAndSetHeadVar(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
@@ -71,9 +76,8 @@ public class FunctionCallCompiler extends AstCompiler{
         int typeSize = typesInfo.getTypeSize(argType);
         String typeSizeStr = Integer.toString(typeSize);
 
-        programBuilder.addInstruction(VMCommands.Push, typeSizeStr, VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Var_Declare_Local, Integer.toString(varNum ), VarType.Integer);
-        varNum++;
+       // programBuilder.addInstruction(VMCommands.Push, typeSizeStr, VarType.Integer);
+       
         
         switch(tokName){
              //Do Nothing with mathExpr
@@ -88,7 +92,11 @@ public class FunctionCallCompiler extends AstCompiler{
                  //TODO: How to set value?
                  break;
         }
-      
+        programBuilder.addInstruction(VMCommands.Push, varNum, VarType.Integer);
+         programBuilder.addInstruction(VMCommands.Var_Declare_Local, Integer.toString(varNum ), VarType.Integer);
+        
+        
+      varNum++;
 
     }
     
@@ -105,6 +113,7 @@ public class FunctionCallCompiler extends AstCompiler{
               objName = null;
               funcDescr = MetaClassesInfo.getInstance().getFuncDescr(token.getValue());
               createFrameStack(programBuilder);
+             
               break;
             case "ObjName":
                 objMethod = true;

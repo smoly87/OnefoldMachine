@@ -54,10 +54,11 @@ public class FunctionCompiler extends AstCompiler{
     
     protected void addThisVar(ProgramBuilder programBuilder) throws CompilerException {
         
-        declaredVarsCount++;
-        funcDescr.addArgDecription("This", VarType.Integer);
+        
+        funcDescr.addArgDecription("this", VarType.Integer);
 
-        programBuilder.addLocalVar("This", VarType.Integer);
+        programBuilder.addLocalVar("this", VarType.Integer);
+        declaredVarsCount++;
     }
     
     protected void processReturnStatement(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
@@ -88,14 +89,14 @@ public class FunctionCompiler extends AstCompiler{
                 
                 programBuilder.setIsLocalContext(true);
                 programBuilder.clearLocalVars();
-                
+                declaredVarsCount = 0;
                 this.funcName = token.getValue();
                 /*/Start point is nop, this is protection from empty functions 
                 and it relieves from recount numeration of first Line*/
                 programBuilder.addInstruction(VMCommands.NOP, 0, VarType.Integer);
                 
                 funcDescr = new FunctionDescription(this.funcName, programBuilder.commandsSize());
-                addThisVar(programBuilder);
+                //addThisVar(programBuilder);
 
                 
                 break;

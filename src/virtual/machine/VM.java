@@ -282,6 +282,10 @@ public class VM {
                     memHeap.putValue(i + 1, varAdrPtr);
                     
                     break;
+                /*case Var_Load_Local:
+                    varAdrPtr = addrTables.getAddrByIndex(VmExeHeader.VarTableSize, addr); 
+                     memHeap.putValue(i + 1, varAdrPtr);
+                    break;*/
                 case Var_Put:
                     
                     varAdrPtr = addrTables.getAddrByIndex(VmExeHeader.VarTableSize, addr); 
@@ -312,7 +316,7 @@ public class VM {
          
          Byte[] data = new Byte[dataSize];
          int ptrStart = memStack.push(data);
-         memStack.push(binConvertorService.toBin(ptrStart)); 
+         memStack.push(data); 
          
          System.out.println(String.format("Allocate on stack: %s in addr# %s", dataSize, ptrStart));
          return ptrStart;
@@ -478,6 +482,13 @@ public class VM {
       System.out.println("GC: Freed space after clean: " + freedSpace);
     }
     
+    protected void sysDeferPtrValue() throws VmExecutionExeption{
+        int ptr = stackPopInt();
+        Byte[] value = getMemHeap().getPtrByteValue(ptr);
+        MemoryStack memStack = this.memoryManager.getMemStack();
+        memStack.push(value);
+    }
+    
     protected void callSysFunc(int funcTypeAddrPtr) throws VmExecutionExeption{   
         MemoryStack memStack = this.memoryManager.getMemStack();
         int funcType  = memStack.getIntPtrValue(funcTypeAddrPtr);
@@ -540,6 +551,9 @@ public class VM {
             case GarbageCollect:
                 sysGarbageCollect();
                 break;
+            case DeferPtrValue:
+                sysDeferPtrValue();
+                break;
             default:
                 System.err.println("Callede unreliased function: " + sysFunc.toString());
         }
@@ -591,7 +605,7 @@ public class VM {
         memProg.jump(startAddr);
         
         Byte[] value;
-        
+        int intVal = -1;
         while (!haltFlag) {
                 VMCommands command = memProg.getCommand();
                 addr = memProg.getCommandAddrArg();
@@ -633,10 +647,10 @@ public class VM {
                     case Var_Put:        
                         memStack.pop(addr);
                         break;
-                    case Var_Load:
+                   /* case Var_Load:
                         value = memoryManager.getPtrValue(addr);
                         memStack.push(value);
-                        break;
+                        break;*/
                     case Jmp:
                         if(addr == 0){
                             addr = stackPopInt() + progStart;
@@ -678,14 +692,19 @@ public class VM {
                         break;
                     //TODO: Possibly this command should be replaced to call syss func?    
                     case Var_Declare_Local:
-                        int varSize = stackPopInt();
-                        memStack.push(new Byte[varSize]);
+                        /*int varSize = stackPopInt();
+                        memStack.push(new Byte[varSize]);*/
+                        int varInd = binConvertorService.bytesToInt(memStack.pop(), 0) ;
                         int locVarAddr = memoryManager.getSysRegister(VmSysRegister.StackHeadPos);
-                        int varInd = memHeap.getIntPtrValue(addr);
                         
-                        System.out.println(String.format( "Local var declared: %s with size %s at addr #%s ", varInd ,varSize, locVarAddr));
+                        /*value = memStack.pop();
+                        intVal = binConvertorService.bytesToInt(value, 0);*/
+                        //System.out.println(String.format( "Local var declared: %s with size %s at addr #%s ", varInd ,varSize, locVarAddr));
                         int frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackPos)  ;
-                        memStack.putValue(frameStart + varInd * INT_SIZE, locVarAddr);
+                        
+                        int frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
+                        
+                        memStack.putValue( frameHeadersPosEnd + varInd * INT_SIZE, locVarAddr);
                         //int locVarPtrmemHeap.memAlloc(varSize);
                         break;
                     case Var_Put_Local:
@@ -693,13 +712,26 @@ public class VM {
                         Table Format: int|int|...
                         This table is table of pointers
                         */
+                        
                         varInd = addr;
                         frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackPos)  ;
-                        int varAddr = memStack.getIntValue(frameStart + varInd * INT_SIZE);
+                        frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
+                        int varAddr = memStack.getIntValue(frameHeadersPosEnd + varInd * INT_SIZE);
                          
-                        memStack.pop(varAddr);
-                        
+                        value = memStack.pop(varAddr);
+                        intVal = binConvertorService.bytesToInt(value, 0);
+                        System.out.println("Put LocalcVar: " + intVal);
                         break;
+                    case Var_Load_Local:
+                        varInd = addr ;
+                        frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackPos) + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
+                        varAddr = memStack.getIntValue(frameStart + varInd * INT_SIZE);
+                       
+                        value = memoryManager.getPtrByteValue(varAddr, INT_SIZE);
+                         intVal = binConvertorService.bytesToInt(value, 0);
+                        System.err.println("Locad LocalcVar: " + intVal );
+                        memStack.push(value);
+                        break;    
                     case Mov:
                         int regInd = memoryManager.getIntPtrValue(addr);
                         int srcReg = stackPopInt();
@@ -772,7 +804,7 @@ public class VM {
                  case Halt:
                      break;
                  default:
-                     argVal = String.format("%s(%s)", addr,  Integer.toString(memoryManager.getIntValue(addr))) ;
+                     argVal = String.format("%s(%s)", addr,  Integer.toString(memoryManager.getIntPtrValue(addr))) ;
                      
              }
              

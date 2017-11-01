@@ -57,7 +57,7 @@ public class TreeWalkerASTCompiler  {
                 
             }
         } catch (CompilerException ex) {
-           System.err.println("Compilation error: " + ex.getMessage()  );
+           System.err.println(">Compilation error: " + ex.getMessage()  );
         }
     }
 }

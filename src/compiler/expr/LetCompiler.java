@@ -84,6 +84,7 @@ public class LetCompiler extends AstCompiler implements CompilerSubscriber{
             programBuilder.addInstructionVarArg(VMCommands.Var_Load, varName, programBuilder.isIsLocalContext());
         } else {
             programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, varName, programBuilder.isIsLocalContext());
+           //  programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeferPtrValue), VarType.Integer);
         }
     }
     
@@ -92,11 +93,17 @@ public class LetCompiler extends AstCompiler implements CompilerSubscriber{
         String fieldName = node.getToken().getValue();
     
         MetaClassesInfo metaInfo = MetaClassesInfo.getInstance();
-        String objClass = programBuilder.getVarDescription(paramsObj.getLeftObjName()).getClassName();
-        ClassInfo classInfo =  metaInfo.getClassInfo(objClass);
+         
+        String objClass = "";
+        ClassInfo classInfo = null;
         
-        if(!classInfo.isFieldExists(fieldName)){
-            throw new CompilerException(String.format("Object of type %s doesn't have a field %s", objClass, fieldName));
+        if(!paramsObj.getLeftObjName().equals("this") ){
+            objClass = programBuilder.getVarDescription(paramsObj.getLeftObjName()).getClassName();
+            classInfo = metaInfo.getClassInfo(objClass);
+
+            if (!classInfo.isFieldExists(fieldName)) {
+                throw new CompilerException(String.format("Object of type %s doesn't have a field %s", objClass, fieldName));
+            }
         }
         
         Integer fieldNum = metaInfo.getFieldCode(fieldName);

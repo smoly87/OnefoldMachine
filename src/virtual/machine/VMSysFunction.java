@@ -20,5 +20,6 @@ public enum VMSysFunction {
     GetVirtualFuncAddr,
     Print,
     PrintObjField,
-    GarbageCollect
+    GarbageCollect,
+    DeferPtrValue,
 }

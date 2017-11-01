@@ -68,17 +68,18 @@ public abstract class AstCompiler {
     }
     
     protected void addVarLoadCommand(String varName,  ProgramBuilder programBuilder) throws CompilerException{
-        if (programBuilder.isVarExists(varName)) {
-            programBuilder.addInstructionVarArg(VMCommands.Var_Load, varName, programBuilder.isIsLocalContext());
-            return;
-        }
+        
         
         if (programBuilder.isLocalVariableExists(varName)) {
-            programBuilder.addInstructionVarArg(VMCommands.Var_Load, varName, programBuilder.isIsLocalContext());
+            programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, varName, true);
+            return;
+        }
+        if (programBuilder.isVarExists(varName)) {
+            programBuilder.addInstructionVarArg(VMCommands.Var_Load, varName, false);
             return;
         }
 
-        throw new CompilerException("Undeclared variable: " + varName);
+        throw new CompilerException(">>Undeclared variable: " + varName);
     }
     
     protected void addCommandSetFieldValue(ProgramBuilder programBuilder, Integer fieldNum, Integer value) throws CompilerException{

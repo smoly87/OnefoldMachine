@@ -35,7 +35,10 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     }
     
     protected Parser getReturnStatementParser(){
-        return this.getParser("TypesList");
+        ParserAlternative altParser = new ParserAlternative();
+        altParser.add(this.getParser("TypesList"))
+                 .add(new ParserTag("Id"));
+        return altParser;
     }
     
     
@@ -51,8 +54,7 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
             .addKeyword(")")
             .addKeyword("{") // Body of function
             .add(getFunctionBodyParser(), "FunctionBody") 
-            .addKeyword("Return") 
-            .add(getReturnStatementParser(), "ReturnStatement")
+            .addKeyword("Return").add(getReturnStatementParser(), "ReturnStatement").addKeyword(";")
             .addKeyword("}", "EndFunction");
             //.addKeyword(";");
             
@@ -66,6 +68,10 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
                           .setName("FunctionHeader")
                           .addChildNode(result.get("Id"), "FunctionId");
         
+        AstNode thisNode = new AstNode();
+        thisNode = processVarDescriptionNode(thisNode, "this", VarType.Integer);
+        rootNode.addChildNode(thisNode, "VarDescription");
+        
         transformVarsNode(result.get("VarsBlock"), rootNode);
         
         rootNode.addChildNode(result.get("FunctionBody"), "FunctionBody")
@@ -76,6 +82,19 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
         return rootNode;
     }
     
+  
+    
+    protected AstNode processVarDescriptionNode(AstNode idNode, String varName, VarType type){
+         Token token  = new Token();
+         token.setTag(new Tag("VarDescription"));
+         token.setValue(varName);
+         token.setVarType(type);
+         idNode.setToken(token);
+         idNode.setName("VarDescription");
+         
+         return idNode;
+    }
+    
     protected AstNode transformVarsNode(AstNode varsNode, AstNode rootNode){
       for(AstNode node : varsNode.getChildNodes()){
          AstNode idNode = node.getChildNodes().get(0);
@@ -84,13 +103,14 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
          String typeName = typeNode.getToken().getValue();
          VarType type = VarType.valueOf(typeName);
          
+         idNode = processVarDescriptionNode(idNode, idNode.getToken().getValue(), type);
          
-         Token token  = new Token();
+        /* Token token  = new Token();
          token.setTag(new Tag("VarDescription"));
          token.setValue(idNode.getToken().getValue());
          token.setVarType(type);
          idNode.setToken(token);
-         idNode.setName("VarDescription");
+         idNode.setName("VarDescription");*/
          
          rootNode.addChildNode(idNode, "VarDescription");
       }

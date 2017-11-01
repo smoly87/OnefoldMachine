@@ -148,10 +148,14 @@ public class ProgramBuilder  {
     }
     
     public VarDescription getVarDescription(String name) throws CompilerException{
-        if(varsMap.containsKey(name)){
+        if(isLocalVariableExists(name)){
+            return localVarsMap.get(name);
+        }
+        
+        if(isVarExists(name)){
             return varsMap.get(name);
         } else{
-            throw new CompilerException("Undeclared variable: " + name);
+            throw new CompilerException("<<Undeclared variable: " + name);
         }
     }
     
@@ -245,12 +249,20 @@ public class ProgramBuilder  {
     
 
     public int addInstructionVarArg(VMCommands command, String varName, Boolean isLocal) throws CompilerException{
-        int varCode ;
-        if(isLocal){
-            varCode = this.getLocalVarCode(varName) ;
+        int varCode = -1 ;
+        
+        if (this.isLocalVariableExists(varName)) {
+            varCode = this.getLocalVarCode(varName);
         } else {
-            varCode = this.getVarCode(varName);
+            if (this.isVarExists(varName)) {
+                varCode = this.getVarCode(varName);
+            } else {
+                throw new CompilerException(String.format(">>Undeclared local variable: %s", varName));
+            }
+
         }
+
+  
         
        
         this.addData((byte)command.ordinal());
