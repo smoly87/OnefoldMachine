@@ -20,7 +20,7 @@ import virtual.machine.VmExecutionExeption;
 public class Memory {
     protected ArrayList<Byte> data;
     public static final int GC_FLAG_SIZE = 1;
-    public static final int GC_FLAG_OBJ = 2;
+    public static final byte GC_FLAG_OBJ = 2;
     
     public static final int PTR_HEADERS_SIZE = GC_FLAG_SIZE + VM.INT_SIZE  ;
 
@@ -74,6 +74,7 @@ public class Memory {
        // Addr check  
        return  binConvertorService.bytesToInt(data, addr + PTR_HEADERS_SIZE);
     }
+     
     /**
      * This method uses to get a single cell as integer
      * In most cases it's a pointer to address

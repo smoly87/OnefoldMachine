@@ -13,11 +13,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import types.TypeBoolean;
 import virtual.machine.DataBinConvertor;
 import types.TypesInfo;
 import virtual.machine.VMCommands;
 import virtual.machine.VM;
 import virtual.machine.VmExeHeader;
+import virtual.machine.memory.Memory;
 
 /**
  *
@@ -65,12 +67,14 @@ public class BinBuilder {
      public BinBuilder addVarSection(LinkedHashMap<String, VarDescription> varsMap){
 
         
+        //TypeBoolean boolConv = TypesInfo.getInstance().getBoolConvertor();
         
         for(Map.Entry<String, VarDescription> entry :varsMap.entrySet()){
             VarDescription varDescr = entry.getValue();
             fullData.addAll(binConverter.integerToByteList(varDescr.getCode()));
             int typeSize = typesInfoService.getTypeSize(varDescr.getType());
             fullData.addAll(binConverter.integerToByteList(typeSize));
+            fullData.add((varDescr.className != "") ? Memory.GC_FLAG_OBJ : 0);
         }
         
         //Each varible stored in 2 bytes - code and type

@@ -60,6 +60,15 @@ public class TypesInfo {
        
     }
     
+    public TypeBoolean getBoolConvertor(){
+        TypeBoolean boolConv = (TypeBoolean)TypesInfo.getInstance().getConvertor(VarType.Boolean);
+        return boolConv;
+    }
+    
+    public TypeInteger getIntConvertor(){
+         TypeInteger intConv = (TypeInteger)TypesInfo.getInstance().getConvertor(VarType.Integer);
+         return intConv;
+    }
     
     public int getTypeSize(VarType type)  {
        IType  convertor =getConvertor(type);

@@ -86,7 +86,7 @@ public class VarCompiler extends AstCompiler{
             int varInd =  programBuilder.getLocalVarCode(varName);
             String typeSize = Integer.toString(typesInfo.getTypeSize(token.getVarType()));
             programBuilder.addInstruction(VMCommands.Push, typeSize, VarType.Integer);
-            programBuilder.addInstruction(VMCommands.Var_Declare_Local, Integer.toString(varInd), VarType.Integer);
+            programBuilder.addInstruction(VMCommands.Var_Declare_Local_Def_value, Integer.toString(varInd), VarType.Integer);
            
             localVarsCount++;
         } else {

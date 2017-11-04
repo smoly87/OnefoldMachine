@@ -10,7 +10,10 @@ import common.Token;
 import common.VarType;
 import compiler.expr.FunctionCompiler;
 import compiler.expr.LetCompiler;
+import grammar.GrammarInfo;
+import grammar.GrammarInfoStorage;
 import java.util.HashMap;
+import java.util.HashSet;
 import syntax.analyser.AstNode;
 import syntax.analyser.Parser;
 import syntax.analyser.parser.ParserAlternative;
@@ -96,12 +99,22 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     }
     
     protected AstNode transformVarsNode(AstNode varsNode, AstNode rootNode){
+      GrammarInfo gs = GrammarInfoStorage.getInstance();
+      HashSet<String> typesSet = gs.getTypesList();  
+        
       for(AstNode node : varsNode.getChildNodes()){
          AstNode idNode = node.getChildNodes().get(0);
          AstNode typeNode = node.getChildNodes().get(1);
          
          String typeName = typeNode.getToken().getValue();
-         VarType type = VarType.valueOf(typeName);
+        
+         VarType type = null;
+         if(typesSet.contains(typeName) ){
+             type = VarType.valueOf(typeName);
+         } else{
+             type = VarType.ClassPtr;
+         }
+         
          
          idNode = processVarDescriptionNode(idNode, idNode.getToken().getValue(), type);
          

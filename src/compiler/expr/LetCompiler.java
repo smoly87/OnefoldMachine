@@ -101,7 +101,7 @@ public class LetCompiler extends AstCompiler implements CompilerSubscriber{
             objClass = programBuilder.getVarDescription(paramsObj.getLeftObjName()).getClassName();
             classInfo = metaInfo.getClassInfo(objClass);
 
-            if (!classInfo.isFieldExists(fieldName)) {
+            if (classInfo != null && !classInfo.isFieldExists(fieldName)) {
                 throw new CompilerException(String.format("Object of type %s doesn't have a field %s", objClass, fieldName));
             }
         }

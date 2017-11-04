@@ -3,12 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package common;
+package types;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  *
  * @author Andrey
  */
-public enum VarType {
-    Integer, Boolean, String, ClassPtr
+public class TypeClassPtr extends TypeInteger{
+
+ 
+
+  
+    
 }

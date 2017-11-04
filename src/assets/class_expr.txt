@@ -1,9 +1,12 @@
 Class baz {
 Public bazar:Integer;
-Function Float test(Var al:Integer;Var bl:Integer;){
+Function Float test(Var al:Integer;Var bl:Integer;Var obj:foo;){
+Var d:Integer;
+Let d =8888;
 Let bl = 104;
-Let this.bazar = 4444;
-Return this;
+/*Let this.bazar = 4444;*/
+Let obj.bazar = 9999;
+Return 8888;
 }
 }
 Class foo : Extends baz{
@@ -19,9 +22,10 @@ Var b:Integer;
 Let a = New foo();
 Let a.bar = 450;
 Let a.bazar = 850;
-Let b = Call a.test(111, 222);
+Let b = Call a.test(111, 222, a);
 Sys PrintObjField(a, 2);
 Sys PrintObjField(a, 3);
+Sys PrintObjField(a, 1);
 /*Let c = a;
 
 Let a = Null;

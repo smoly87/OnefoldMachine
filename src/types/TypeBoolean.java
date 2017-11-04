@@ -5,12 +5,6 @@
  */
 package types;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import main.ByteUtils;
-import virtual.machine.VM;
 
 /**
  *

@@ -104,6 +104,9 @@ public class FunctionCompiler extends AstCompiler{
                 processVarDescription(node, programBuilder);
                 break;  
             case "ReturnStatement":
+                   //Remove frame
+                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeleteFrame), VarType.Integer);
+                
                 //Clear local variables table
                 programBuilder.addInstruction(VMCommands.Push, VmSysRegister.FrameStackPos.ordinal(), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.StackHeadPos.ordinal(), VarType.Integer);
@@ -112,10 +115,12 @@ public class FunctionCompiler extends AstCompiler{
                 processVariables(programBuilder);
                 MetaClassesInfo.getInstance().addFunction(funcName, funcDescr);
                 
+                
                 //Return to call address
                 programBuilder.addInstruction(VMCommands.Push, VmSysRegister.F1.ordinal(), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
                 
+             
                 /*programBuilder.addInstruction(VMCommands.Push, VmSysRegister.ProgOffsetAddr.ordinal(), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);             
                 programBuilder.addInstruction(VMCommands.Add, 0, VarType.Integer);*/

@@ -44,6 +44,8 @@ public class BinaryReader {
        return res;
     }
     
+    
+    
     public Byte[] readAndNextBytes(int bytesCount){
       
        Byte[] res = data.subList(curPos, curPos + bytesCount).toArray(new Byte[bytesCount]);

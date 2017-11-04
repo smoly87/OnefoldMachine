@@ -22,4 +22,5 @@ public enum VMSysFunction {
     PrintObjField,
     GarbageCollect,
     DeferPtrValue,
+    DeleteFrame
 }
