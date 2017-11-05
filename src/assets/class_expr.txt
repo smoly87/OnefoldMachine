@@ -25,7 +25,7 @@ Let a.bazar = 850;
 Let b = Call a.test(111, 222, a);
 Sys PrintObjField(a, 2);
 Sys PrintObjField(a, 3);
-Sys PrintObjField(a, 1);
+Sys PrintObjField(a, 3);
 /*Let c = a;
 
 Let a = Null;

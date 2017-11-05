@@ -7,6 +7,9 @@ package virtual.machine.memory;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import virtual.machine.DataBinConvertor;
 import virtual.machine.VMOutOfMemoryException;
 import virtual.machine.VM;
@@ -105,7 +108,96 @@ public class MemoryHeap extends Memory{
         return false;
     }
     
+    
+    protected void shiftPtrInVariables(){
+    }
+    
     public int garbageCollect() throws VmExecutionExeption{
+        int blockPos = getSysRegister(VmSysRegister.ProgDataMemHeapOffset) ;
+        int endAddr = this.segmentOffset + this.size;
+        int clearedSize = 0; 
+        LinkedList<GarbageCollectorBlock> blocksList = new LinkedList<>();
+        
+        //int curBlockSize = getPtrSizeWithHeaders(blockPos);
+        GarbageCollectorBlock gcBlock = new GarbageCollectorBlock();
+        gcBlock.setBlockStart(blockPos);
+        
+        int gcBlockSize = 0;
+        //Composite pointegers in blocks & find gaps
+        while(blockPos < endAddr){
+             int curBlockSize = getPtrSizeWithHeaders(blockPos);
+            if(isNullLinks(blockPos)){
+                
+                gcBlock.setSize(gcBlockSize); 
+                blocksList.add(gcBlock);
+                gcBlockSize = 0;
+                        
+                GarbageCollectorBlock gcGap = new GarbageCollectorBlock();
+                gcGap.setIsGap(true);
+                gcGap.setSize(curBlockSize);
+                blocksList.add(gcGap);
+                
+                gcBlock = new GarbageCollectorBlock(); 
+                 blockPos += curBlockSize;
+                gcBlock.setBlockStart(blockPos);
+                continue;
+             } else { 
+                gcBlock.addPtr(blockPos); 
+                gcBlockSize += curBlockSize;
+            }
+            blockPos += curBlockSize;
+        }
+        
+        if(gcBlock.getPtrAddressesLst().size() > 0){
+             gcBlock.setSize(gcBlockSize);
+             blocksList.add(gcBlock);
+        }
+        
+        //
+        boolean flag = true;
+        Iterator<GarbageCollectorBlock> iter = blocksList.iterator();
+        
+        int blocksCnt = blocksList.size();
+        int k = 0;
+        while(k < blocksCnt){
+            GarbageCollectorBlock block1 = iter.next();
+            //TODO: figure out with this condition
+            //Addition of shift!!!
+            //Recount block start & end
+            if(blocksCnt - k > 2){ 
+                
+                GarbageCollectorBlock gap = iter.next();
+                int gapSize = gap.getSize();
+                iter.remove();
+                
+                GarbageCollectorBlock block2 = iter.next();
+                List<Byte> block2Data = new ArrayList<Byte>(data.subList( block2.getBlockStart(),  block2.getBlockEnd()));
+                data.subList(block1.getBlockEnd(), block2.getBlockEnd()).clear();
+                data.addAll(block1.getBlockEnd(), block2Data);
+
+                //System.arraycopy(data, block2.getBlockStart(), data, block1.getBlockEnd(), block2.getSize()); 
+                
+                block1 = block1.merge(block2);
+                block1.shiftAddresses(gapSize);
+                
+                          
+                blocksCnt -= 2;
+                iter.remove();
+                //TODO: change block cnt
+            }
+           
+            k+=3;
+        }
+        
+        
+        int memHeapHead = getSysRegister(VmSysRegister.LastHeapPos);
+        
+        setSysRegister(VmSysRegister.LastHeapPos, memHeapHead - clearedSize);
+        return clearedSize;
+         
+    }
+    
+    public int garbageCollectLegacy() throws VmExecutionExeption{
         int blockPos = getSysRegister(VmSysRegister.ProgDataMemHeapOffset) ;
         int endAddr = this.segmentOffset + this.size;
         int clearedSize = 0; 

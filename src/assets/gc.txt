@@ -1,0 +1,31 @@
+Class baz {
+Public bazar:Integer;
+Function Float test(Var al:Integer;Var bl:Integer;Var obj:foo;){
+Var d:Integer;
+Let d =8888;
+Let bl = 104;
+/*Let this.bazar = 4444;*/
+Let obj.bazar = 9999;
+Return 8888;
+}
+}
+Class foo : Extends baz{
+Public bar:Integer;
+Public rebar:Integer;
+Public rerebar:Integer;
+Public barbar:Integer;
+}
+Var a:foo;
+Var b:foo;
+Var c:foo;
+Var d:foo;
+Var e:foo;
+
+Let a = New foo();
+Let b = New foo();
+Let c = New foo();
+Let d = New foo();
+Let e = New foo();
+Sys PrintObjField(c, 1);
+Let c = Null;
+Sys GarbageCollect();
