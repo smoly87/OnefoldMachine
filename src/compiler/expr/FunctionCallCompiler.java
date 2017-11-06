@@ -206,6 +206,7 @@ public class FunctionCallCompiler extends AstCompiler{
                 }
                 
                 int  commandsSize = programBuilder.addInstruction(VMCommands.NOP);
+                //programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeleteFrame), VarType.Integer);
                 //programBuilder.changeCommandArg(retLineNum, programBuilder.commandsSize(), VarType.Integer);
                 programBuilder.changeCommandArgByNum(retLineNum, commandsSize * VM.COMMAND_SIZE, VarType.Integer, true);
                 break;

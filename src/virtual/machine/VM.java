@@ -510,7 +510,7 @@ public class VM {
     protected void sysDeleteFrame() throws VmExecutionExeption{
         MemoryStack memStack = memoryManager.getMemStack();
         
-        
+        int frmStart = memoryManager.getSysRegister(VmSysRegister.FrameStackPos);
         int frameHeaders = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart);
         int varCount = memStack.getPtrSize(frameHeaders) / VM.INT_SIZE - 2; 
         int frameStart = frameHeaders + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
@@ -529,6 +529,8 @@ public class VM {
             }
         }
 
+        
+        memoryManager.setSysRegister(VmSysRegister.StackHeadPos, frmStart);
         
 
         //memStack.putValue(frameHeadersPosEnd + varInd * INT_SIZE, locVarAddr);
@@ -576,7 +578,9 @@ public class VM {
                 /*if(register == VmSysRegister.F1){
                     regValue -= memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
                 }*/
+                
                 memoryManager.setSysRegister(register, regValue);
+                System.out.println(String.format("Set Register %s is %s", register.toString(), regValue));
                 break;
             case SetPtrField:
                 sysSetPtrField();
