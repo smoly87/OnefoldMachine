@@ -105,27 +105,40 @@ public class FunctionCompiler extends AstCompiler{
                 break;  
             case "ReturnStatement":
                    //Remove frame
-                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeleteFrame), VarType.Integer);
-                
+                  
                 //Clear local variables table
-                programBuilder.addInstruction(VMCommands.Push, VmSysRegister.FrameStackPos.ordinal(), VarType.Integer);
-                programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.StackHeadPos.ordinal(), VarType.Integer);
+                //programBuilder.addInstruction(VMCommands.Push, VmSysRegister.FrameStackPos.ordinal(), VarType.Integer);
+                //programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.StackHeadPos.ordinal(), VarType.Integer);
 
+                //Load FrameStackRegister
+                programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, "__FrameStackRegister", true);
+                //programBuilder.addInstruction(VMCommands.Dup);
+                
+                programBuilder.addInstruction(VMCommands.Push, VmSysRegister.FrameStackPos.ordinal(), VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
+                
+                programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, "__FrameStackRegister",  true);
+                programBuilder.addInstruction(VMCommands.Push, VmSysRegister.StackHeadPos.ordinal(), VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
+               
+                
                 processReturnStatement(node, programBuilder);
                 processVariables(programBuilder);
                 MetaClassesInfo.getInstance().addFunction(funcName, funcDescr);
                 
                 
                 //Return to call address
-                programBuilder.addInstruction(VMCommands.Push, VmSysRegister.F1.ordinal(), VarType.Integer);
-                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
-                
+                //programBuilder.addInstruction(VMCommands.Push, VmSysRegister.F1.ordinal(), VarType.Integer);
+               // programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Var_Load_Local, "0", VarType.Integer, false);
              
                 /*programBuilder.addInstruction(VMCommands.Push, VmSysRegister.ProgOffsetAddr.ordinal(), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);             
                 programBuilder.addInstruction(VMCommands.Add, 0, VarType.Integer);*/
                 
-                //If address is null it will be got from stack
+                //If address is null it will be got from stack  
+                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeleteFrame), VarType.Integer);
+            
                 programBuilder.addInstruction(VMCommands.Jmp, 0, VarType.Integer);
                 
                 programBuilder.addInstruction(VMCommands.NOP, 0, VarType.Integer);

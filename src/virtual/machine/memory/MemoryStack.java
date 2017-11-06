@@ -39,6 +39,10 @@ public class MemoryStack extends Memory{
     }
     
     public Byte[] pop(int addr) throws VmStackEmptyPop, VmExecutionExeption{
+        return pop(addr, 0);
+    }
+    
+    public Byte[] pop(int addr, int offset) throws VmStackEmptyPop, VmExecutionExeption{
         //Control if no elements
         int headAddr = this.getSysRegister(VmSysRegister.StackHeadPos);
         if(headAddr == 0) throw new VmStackEmptyPop();
@@ -50,7 +54,7 @@ public class MemoryStack extends Memory{
         if(addr != 0){
             int startAddr = headAddr + (PTR_HEADERS_SIZE + VM.INT_SIZE);
             int endAddr = startAddr + fullSize - (PTR_HEADERS_SIZE + VM.INT_SIZE);
-            putValue(addr + PTR_HEADERS_SIZE , data, startAddr,  endAddr);
+            putValue(addr + PTR_HEADERS_SIZE +offset , data, startAddr,  endAddr);
         }
         
         return getPtrByteValue(headAddr, VM.INT_SIZE);
@@ -79,6 +83,8 @@ public class MemoryStack extends Memory{
        //Add Link to previous element      
        Byte[] byteHeadAddr = binConvertorService.integerToByte(headAddr);
        value = ByteUtils.concat(byteHeadAddr, value);
+       
+       //value = ByteUtils.concat(new Byte[]{0}, value);
        
        this.putPtrValue(newHeadAddr, value);
        

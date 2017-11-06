@@ -32,6 +32,8 @@ public class FunctionCallCompiler extends AstCompiler{
     protected int varNum ;
     protected boolean objMethod = false;
     protected String objName;
+    
+    protected int retLineNum;
     /*At the begin of frame table is
     Link to caller(this)|Stack Position out of Frame|Return address
     */
@@ -60,14 +62,19 @@ public class FunctionCallCompiler extends AstCompiler{
 
     }
     
+    protected void decalareReturnAddressVariable(String callerName, ProgramBuilder programBuilder) throws CompilerException{
+        programBuilder.addInstruction(VMCommands.Push, TypesInfo.getInstance().getTypeSize(VarType.Integer), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Var_Declare_Local_Def_value, Integer.toString(varNum ), VarType.Integer);
+
+        varNum++;
+    }
+    
     protected void decalareThisVariable(String callerName, ProgramBuilder programBuilder) throws CompilerException{
         //programBuilder.addInstruction(VMCommands.Push, TypesInfo.getInstance().getTypeSize(VarType.Integer), VarType.Integer);
         this.addVarLoadCommand(callerName, programBuilder);
         //programBuilder.addInstruction(VMCommands.Push, varNum, VarType.Integer);
         programBuilder.addInstruction(VMCommands.Push, 1, VarType.Integer);
         programBuilder.addInstruction(VMCommands.Var_Declare_Local, Integer.toString(varNum ), VarType.Integer);
-        
-        
         //this.addVarLoadCommand(callerName, programBuilder);
        //programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeferPtrValue), VarType.Integer);
         varNum++;
@@ -111,6 +118,40 @@ public class FunctionCallCompiler extends AstCompiler{
 
     }
     
+    protected void decalareReturnAddress(ProgramBuilder programBuilder) throws CompilerException{
+        //Line to Return
+        //retLineNum = programBuilder.addInstruction(VMCommands.Push, 0, VarType.Integer);
+        //Add object flag :0, hense not object
+        
+        programBuilder.addInstruction(VMCommands.Push, TypesInfo.getInstance().getTypeSize(VarType.Integer), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Var_Declare_Local_Def_value, Integer.toString(varNum ), VarType.Integer);
+        varNum++;
+    }
+    
+    protected void addCommandsSaveState(ProgramBuilder programBuilder) throws CompilerException{
+          
+              
+        programBuilder.addInstruction(VMCommands.Push, VmSysRegister.StackHeadPos.ordinal(), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Push, 0 , VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Var_Declare_Local, Integer.toString(varNum), VarType.Integer);
+         varNum++;
+        //programBuilder.addInstruction(VMCommands.Var_Put_Local, "__ReturnAddress", VarType.Integer);
+        //programBuilder.addInstruction(VMCommands.Push, getSy, VarType.Integer, false);
+    }
+    
+    protected void addRetPlaceHolder(ProgramBuilder programBuilder) throws CompilerException{
+        retLineNum = programBuilder.addInstruction(VMCommands.Push, "0", VarType.Integer, false);
+        
+        /*programBuilder.addInstruction(VMCommands.Push, VmSysRegister.ProgOffsetAddr.ordinal(), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Add);*/
+                
+        programBuilder.addInstructionVarArg(VMCommands.Var_Put_Local, "__ReturnAddress", true);    
+    }
+    
+    
+    
     @Override
     public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         Token token =  node.getToken();
@@ -123,8 +164,11 @@ public class FunctionCallCompiler extends AstCompiler{
               objMethod = false;
               objName = null;
               funcDescr = MetaClassesInfo.getInstance().getFuncDescr(token.getValue());
+              
               createFrameStack(programBuilder);
-             
+              decalareReturnAddress(programBuilder);
+              addCommandsSaveState(programBuilder);
+              
               break;
             case "ObjName":
                 objMethod = true;
@@ -140,10 +184,10 @@ public class FunctionCallCompiler extends AstCompiler{
                 }
                 //Add number of line to return after function
                 programBuilder.addInstruction(VMCommands.Push, 0, VarType.Integer); 
-                int commandRet = programBuilder.commandsSize() - VM.COMMAND_SIZE;
+               /* int commandRet = programBuilder.commandsSize() - VM.COMMAND_SIZE;
                 
                 programBuilder.addInstruction(VMCommands.Push, VmSysRegister.F1.ordinal(), VarType.Integer);
-                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);*/
                 
                 if(objMethod){
                     //String varClass = programBuilder.getVarDescription(objName).getClassName();
@@ -154,12 +198,16 @@ public class FunctionCallCompiler extends AstCompiler{
               
                     programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetVirtualFuncAddr), VarType.Integer);
                     
+                    addRetPlaceHolder(programBuilder);
                     programBuilder.addInstruction(VMCommands.Jmp, "0" , VarType.Integer, false);
                 } else{
+                    addRetPlaceHolder(programBuilder);
                     programBuilder.addInstruction(VMCommands.Jmp, Integer.toString(funcDescr.getLineNumber()) , VarType.Integer, false);
                 }
                 
-                programBuilder.changeCommandArg(commandRet, programBuilder.commandsSize(), VarType.Integer); 
+                int  commandsSize = programBuilder.addInstruction(VMCommands.NOP);
+                //programBuilder.changeCommandArg(retLineNum, programBuilder.commandsSize(), VarType.Integer);
+                programBuilder.changeCommandArgByNum(retLineNum, commandsSize * VM.COMMAND_SIZE, VarType.Integer, true);
                 break;
             case "Arg":
               declareAndSetHeadVar(node, programBuilder);

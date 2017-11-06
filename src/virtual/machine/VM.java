@@ -249,7 +249,7 @@ public class VM {
             int addr = getMemHeap().getIntValue(i + 1);
             int varAdrPtr;
             switch(command){
-                case Jmp: case JmpIf: case JmpIfNot:
+                /*case Jmp: case JmpIf: case JmpIfNot:
                    
                     //Convert relative adress to absolute
                     
@@ -258,7 +258,7 @@ public class VM {
                         memoryManager.putValue(i + 1, absAddr);
                     }
                     
-                    break;
+                    break;*/
                 case Push:
                   
                     constAdrPtr = addrTables.getAddrByIndex(VmExeHeader.ConstTableSize, addr); 
@@ -365,6 +365,9 @@ public class VM {
         preventForNullPointer(ptrAddr);
         int fieldOffset = fieldNum * INT_SIZE;
         if(fieldNum > 1){
+             /*if(ptrAddr < 2000){
+                 ptrAddr = memHeap.getPtrIntField(ptrAddr,0);
+             }*/
              fieldOffset = getFieldOffsetObj(ptrAddr, fieldNum);
         }
         
@@ -557,13 +560,13 @@ public class VM {
                 int regValue = memoryManager.getSysRegister(register);
                 
                 //This registres is used to store addresses, so it's need to be transformed to absolute address
-                if(register == VmSysRegister.F1 && firstF1){
+               /* if(register == VmSysRegister.F1 && firstF1){
                    
                    regValue += memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
                    firstF1 = false;
-                }
+                }*/
                 
-                
+                System.out.println(String.format("Get Register %s is %s", register.toString(), regValue));
                 memStack.push(binConvertorService.toBin(regValue));
                 break;
             case SetRegister:
@@ -698,21 +701,21 @@ public class VM {
                         break;*/
                     case Jmp:
                         if(addr == 0){
-                            addr = stackPopInt() + progStart;
+                            addr = stackPopInt() ;
                             System.out.println("Jump addr from stack");
                         }
                         System.out.println("Jump to addr:" + addr);
-                        memProg.jump(addr);
+                        memProg.jump(addr + progStart);
                         continue;
                     case JmpIf:
                         value = memStack.pop();
                         if (binConvertorService.bytesToBool(value)) {
                             if (addr == 0) {
-                                addr = stackPopInt() + progStart;
+                                addr = stackPopInt();
                                 System.out.println("Jump IfNot addr from stack");
                             }
                             System.out.println("Jump to addr:" + addr);
-                            memProg.jump(addr);
+                            memProg.jump(addr+ progStart);
                             continue;
                         }
                         break;
@@ -755,11 +758,16 @@ public class VM {
                         
                         memStack.putValue( frameHeadersPosEnd + varInd * INT_SIZE, locVarAddr);  
                         
+                        int valDbg = stackPopInt();
+                        memStack.push(valDbg);
+                        
                         if(intVal == 1){
                             int objAddr = memStack.getPtrIntField(locVarAddr, INT_SIZE);
                             changeIntFieldValue(objAddr, 1, 1);
                             memStack.putValue(locVarAddr, (byte)Memory.GC_FLAG_OBJ); 
                         }
+                        intVal = memStack.getPtrIntField(locVarAddr, INT_SIZE);
+                        System.out.println(String.format("Decalre ind: %s with value: %s, dbg> %s",varInd, intVal, valDbg) ); ;
                         //int locVarPtrmemHeap.memAlloc(varSize);
                         break;
                      case Var_Declare_Local_Def_value: 
@@ -789,19 +797,21 @@ public class VM {
                         frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
                         int varAddr = memStack.getIntValue(frameHeadersPosEnd + varInd * INT_SIZE);
                          
-                        value = memStack.pop(varAddr);
+                        value = memStack.pop(varAddr, INT_SIZE);
                         intVal = binConvertorService.bytesToInt(value, 0);
                         System.out.println("Put LocalcVar: " + intVal);
                         break;
                     case Var_Load_Local:
                         varInd = addr ;
-                        frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart) + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
-                        varAddr = memStack.getIntValue(frameStart + varInd * INT_SIZE);
+                        frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart) ;
+                        frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
+                        varAddr = memStack.getIntValue(frameHeadersPosEnd + varInd * INT_SIZE);
                        
-                        value = memoryManager.getPtrByteValue(varAddr, INT_SIZE);
-                         intVal = binConvertorService.bytesToInt(value, 0);
-                        System.err.println("Locad LocalcVar: " + intVal );
-                        memStack.push(value);
+                        value = memoryManager.getPtrByteValue(varAddr,INT_SIZE);
+                        // intVal = binConvertorService.bytesToInt(value, 0);
+                       intVal = memStack.getPtrIntField(varAddr, INT_SIZE);
+                        System.err.println(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
+                        memStack.push(binConvertorService.integerToByte(intVal));
                         break;    
                     case Mov:
                         int regInd = memoryManager.getIntPtrValue(addr);
@@ -863,29 +873,35 @@ public class VM {
         //Continue in jmp
         
         memProg.jump(startAddr);
-       Boolean haltFlag = false;  
+       Boolean haltFlag = false; 
+       Boolean customProcessFlag;
        while (!haltFlag) {
+             
              VMCommands command = memProg.getCommand();
              
              String argVal ="";
              Integer addr = memProg.getCommandAddrArg();
-             
+             customProcessFlag = true;
              switch(command){
-               
+                 case Invoke_Sys_Function:
+                    System.out.println(String.format("%s %s (%s)", memProg.getAddr(), memProg.getCommand().toString(), VMSysFunction.values()[memoryManager.getIntPtrValue(addr)])) ;
+                     
+                   break;
                  case Halt:
                      break;
                  default:
-                   //try{
+                     customProcessFlag = false;
+                   try{
                        argVal = String.format("%s(%s)", addr,  Integer.toString(memoryManager.getIntPtrValue(addr))) ;
-                  /*}  catch(Exception e){
-                   }*/
+                  }  catch(Exception e){
+                   }
                      
                      
              }
              
              if(command == VMCommands.Halt) haltFlag = true;
             
-             System.out.println(String.format("%s| %s| %s", memProg.getAddr(), memProg.getCommand().toString(), argVal));
+             if(!customProcessFlag) System.out.println(String.format("%s| %s| %s", memProg.getAddr(), memProg.getCommand().toString(), argVal));
              memProg.next();
         }
         

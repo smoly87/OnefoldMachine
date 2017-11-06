@@ -71,9 +71,10 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
                           .setName("FunctionHeader")
                           .addChildNode(result.get("Id"), "FunctionId");
         
-        AstNode thisNode = new AstNode();
-        thisNode = processVarDescriptionNode(thisNode, "this", VarType.Integer);
-        rootNode.addChildNode(thisNode, "VarDescription");
+        addAutoDecalared(rootNode, "__ReturnAddress");
+        addAutoDecalared(rootNode, "__FrameStackRegister");
+        addAutoDecalared(rootNode, "this");
+       
         
         transformVarsNode(result.get("VarsBlock"), rootNode);
         
@@ -85,6 +86,11 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
         return rootNode;
     }
     
+    protected void addAutoDecalared( AstNode rootNode, String varName){
+        AstNode thisNode = new AstNode();
+        thisNode = processVarDescriptionNode(thisNode, varName, VarType.Integer);
+        rootNode.addChildNode(thisNode, "VarDescription");
+    }
   
     
     protected AstNode processVarDescriptionNode(AstNode idNode, String varName, VarType type){
