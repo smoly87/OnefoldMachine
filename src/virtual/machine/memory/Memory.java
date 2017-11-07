@@ -21,6 +21,7 @@ public class Memory {
     protected ArrayList<Byte> data;
     public static final int GC_FLAG_SIZE = 1;
     public static final byte GC_FLAG_OBJ = 2;
+    public static final byte GC_FLAG_PTR = 3;
     
     public static final int PTR_HEADERS_SIZE = GC_FLAG_SIZE + VM.INT_SIZE  ;
 
@@ -162,6 +163,10 @@ public class Memory {
        putValue(addr + GC_FLAG_SIZE, byteVal.length);
        putValue(addr + PTR_HEADERS_SIZE, byteVal);
     }
+    
+     public void putPtrIntField(int addr, int value, int fieldOffset) throws VmExecutionExeption{
+          putValue(addr + PTR_HEADERS_SIZE + fieldOffset, value);
+     }
     
     public void putPtrValue(int addr, int ptrSize) throws VmExecutionExeption{
       

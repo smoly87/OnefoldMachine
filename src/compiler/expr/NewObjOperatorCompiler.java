@@ -50,6 +50,8 @@ public class NewObjOperatorCompiler extends AstCompiler{
                 Integer fieldsSize = classInfo.getFieldsSize();
                  
                 programBuilder.addInstruction(VMCommands.Push, fieldsSize, VarType.Integer);
+                //Set object flag
+                programBuilder.addInstruction(VMCommands.Push, 1, VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.MemAllocPtr), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Dup, 0, VarType.Integer);
                 

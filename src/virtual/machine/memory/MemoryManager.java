@@ -7,6 +7,10 @@ package virtual.machine.memory;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import virtual.machine.DataBinConvertor;
 import virtual.machine.VM;
 import virtual.machine.VmExecutionExeption;
@@ -83,6 +87,35 @@ public class MemoryManager extends Memory{
     @Override
     public void setSysRegister(VmSysRegister register, int value) throws VmExecutionExeption{
        super.setSysRegister(register, value);
+    }
+    
+    public Map<Integer, Integer> transformResult(GarbageCollectorBlock gcFinalBlock){
+        Stream<GCPtrInfo> ptrStream = gcFinalBlock.getPtrAddressesLst().stream();
+        Map<Integer, Integer> ptrsMap = ptrStream.collect(Collectors.toMap(GCPtrInfo::getAddress, GCPtrInfo::getShiftedAddress));
+        return ptrsMap;
+    }
+    
+    public void reallocateAddresses(GarbageCollectorBlock gcFinalBlock) throws VmExecutionExeption{
+        Map<Integer, Integer> ptrsMap = transformResult(gcFinalBlock);
+        
+        int memHeapStart = this.getSysRegister(VmSysRegister.ProgDataMemHeapOffset);
+        int memHeapLast = this.getSysRegister(VmSysRegister.LastHeapPos);
+        
+        int varAddr = memHeapStart;
+        
+        while (varAddr < memHeapLast) {
+            Byte[] objFlag = memHeap.getValue(varAddr, 1);
+            int curBlockSize = getPtrSizeWithHeaders(varAddr);
+            if(objFlag[0] == Memory.GC_FLAG_PTR){
+                Integer ptrValue =  memHeap.getIntPtrValue(varAddr);
+                if(ptrsMap.containsKey(ptrValue)){
+                    memHeap.putPtrIntField(varAddr, ptrsMap.get(ptrValue), 0);
+                }
+            }
+            
+            varAddr = varAddr + curBlockSize;
+
+        }
     }
     
    

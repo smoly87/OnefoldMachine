@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import utils.Pair;
 import virtual.machine.DataBinConvertor;
 import virtual.machine.VMOutOfMemoryException;
 import virtual.machine.VM;
@@ -112,7 +113,7 @@ public class MemoryHeap extends Memory{
     protected void shiftPtrInVariables(){
     }
     
-    public int garbageCollect() throws VmExecutionExeption{
+    public Pair<Integer, GarbageCollectorBlock> garbageCollect() throws VmExecutionExeption{
         int blockPos = getSysRegister(VmSysRegister.ProgDataMemHeapOffset) ;
         int endAddr = this.segmentOffset + this.size;
         int clearedSize = 0; 
@@ -140,6 +141,8 @@ public class MemoryHeap extends Memory{
                 gcBlock = new GarbageCollectorBlock(); 
                  blockPos += curBlockSize;
                 gcBlock.setBlockStart(blockPos);
+                
+                clearedSize += curBlockSize;
                 continue;
              } else { 
                 gcBlock.addPtr(blockPos); 
@@ -176,9 +179,9 @@ public class MemoryHeap extends Memory{
                 data.addAll(block1.getBlockEnd(), block2Data);
 
                 //System.arraycopy(data, block2.getBlockStart(), data, block1.getBlockEnd(), block2.getSize()); 
-                
+                block2.shiftAddresses(-gapSize);
                 block1 = block1.merge(block2);
-                block1.shiftAddresses(gapSize);
+                
                 
                           
                 blocksCnt -= 2;
@@ -189,13 +192,25 @@ public class MemoryHeap extends Memory{
             k+=3;
         }
         
+        //Always one block left in the end, either exception should be thrown
+        GarbageCollectorBlock finalBlock;
+        if(blocksList.size() == 1){
+           finalBlock = blocksList.getFirst();
+            
+        } else{
+            throw new VmExecutionExeption("Error in garbage collection logic");
+        }
+        
+        
         
         int memHeapHead = getSysRegister(VmSysRegister.LastHeapPos);
         
         setSysRegister(VmSysRegister.LastHeapPos, memHeapHead - clearedSize);
-        return clearedSize;
+        return new Pair<Integer, GarbageCollectorBlock>(clearedSize, finalBlock);
          
     }
+    
+    
     
     public int garbageCollectLegacy() throws VmExecutionExeption{
         int blockPos = getSysRegister(VmSysRegister.ProgDataMemHeapOffset) ;

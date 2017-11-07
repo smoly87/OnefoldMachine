@@ -169,10 +169,12 @@ public class FunctionCompiler extends AstCompiler{
 
     public void processVariables( ProgramBuilder programBuilder) {
          programBuilder.setIsLocalContext(false);
+        // programBuilder.clearLocalVars();
          VarCompiler varCompiler = (VarCompiler)this.getCompiler("Var");
          //int totalVarsCount = declaredVarsCount + varCompiler.getLocalVarsCount();
          funcDescr.setLocalVarsCount(varCompiler.getLocalVarsCount());
          varCompiler.clearLocalVarsCount();
+         
         
         
     }

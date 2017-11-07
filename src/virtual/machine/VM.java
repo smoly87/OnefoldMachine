@@ -21,6 +21,7 @@ import program.builder.BinObjBuilder;
 import program.builder.BinaryReader;
 import types.TypeString;
 import utils.Pair;
+import virtual.machine.memory.GarbageCollectorBlock;
 import virtual.machine.memory.MemoryHeap;
 import virtual.machine.memory.MemoryManager;
 import virtual.machine.memory.MemoryProgram;
@@ -71,10 +72,10 @@ public class VM {
         while( binReader.getCurPos() < secEnd){
              int varInd = binReader.readIntAndNext();
              int varSize = binReader.readIntAndNext(); 
-             Byte isObjFlag = binReader.readAndNextBytes(1)[0];
+             Byte isObjPtrFlag = binReader.readAndNextBytes(1)[0];
              int ptrAddr = memHeap.memAllocPtr(varSize);
              memHeap.putPtrValue(ptrAddr, varSize);
-             memHeap.putValue(ptrAddr, isObjFlag);
+             memHeap.putValue(ptrAddr, isObjPtrFlag);
              addrTables.setAddrForIndex(VmExeHeader.VarTableSize, varInd, ptrAddr);
         }
     }
@@ -340,10 +341,12 @@ public class VM {
         MemoryHeap memHeap = this.memoryManager.getMemHeap();
         MemoryStack memStack = this.memoryManager.getMemStack();
         
+        int objType = stackPopInt();
         int dataSize = stackPopInt();
+        
         int ptrStart = memHeap.memAllocPtr(dataSize);
         System.err.println("Create ptr at:" + ptrStart);
-        memHeap.putValue(ptrStart, new Byte[]{Memory.GC_FLAG_OBJ});
+        memHeap.putValue(ptrStart, new Byte[]{objType == 1 ? Memory.GC_FLAG_OBJ : Memory.GC_FLAG_PTR});
         memHeap.putPtrValue(ptrStart, dataSize);
         
         
@@ -484,7 +487,13 @@ public class VM {
     }
     
     protected void sysGarbageCollect() throws VmExecutionExeption{
-      int freedSpace =  getMemHeap().garbageCollect();
+      Pair<Integer, GarbageCollectorBlock> gcRes = getMemHeap().garbageCollect();
+      int freedSpace =  gcRes.getObj1();
+      GarbageCollectorBlock gcFinalBlock = gcRes.getObj2();
+      
+      memoryManager.reallocateAddresses(gcFinalBlock);
+      
+      
       System.out.println("GC: Freed space after clean: " + freedSpace);
     }
     
@@ -522,7 +531,7 @@ public class VM {
             
             Byte[] objFlag = memStack.getValue(varAddr, 1);
             
-            if(objFlag[0] == Memory.GC_FLAG_OBJ){
+            if(objFlag[0] == Memory.GC_FLAG_PTR){
                 //TODO: Remove magic constants
                 int ptr = memStack.getPtrIntField(varAddr, VM.INT_SIZE);
                 changeIntFieldValue(ptr, 1, -1);
@@ -625,16 +634,17 @@ public class VM {
         this.addrTables = new VMAddrTables(program, getMemHeap());
         this.createDescrTables();
         this.allocateData();
-        this.allocateVariables();
         this.allocateClassesMetaInfo();
+        int heapSize =  memoryManager.getSysRegister(VmSysRegister.LastHeapPos);
+        memoryManager.setSysRegister(VmSysRegister.ProgDataMemHeapOffset, heapSize);
+        this.allocateVariables();
+        
         /*Start of program data segment on heap, where user objects/pointers stored and where
          garbage collection is carried out*/
         
-        int heapSize1 = getMemHeap().dataSize();
-        int heapSize =  memoryManager.getSysRegister(VmSysRegister.LastHeapPos);
-        System.out.println("Start user memheap: " + heapSize1 +" " + heapSize);
+
         
-        memoryManager.setSysRegister(VmSysRegister.ProgDataMemHeapOffset, heapSize);
+        
         this.translateAdresses();
         
         int progStart = memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
@@ -768,7 +778,7 @@ public class VM {
                         if(intVal == 1){
                             int objAddr = memStack.getPtrIntField(locVarAddr, INT_SIZE);
                             changeIntFieldValue(objAddr, 1, 1);
-                            memStack.putValue(locVarAddr, (byte)Memory.GC_FLAG_OBJ); 
+                            memStack.putValue(locVarAddr, (byte)Memory.GC_FLAG_PTR); 
                         }
                         intVal = memStack.getPtrIntField(locVarAddr, INT_SIZE);
                         System.out.println(String.format("Decalre ind: %s with value: %s, dbg> %s",varInd, intVal, valDbg) ); ;

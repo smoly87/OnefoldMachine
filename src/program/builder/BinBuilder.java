@@ -74,7 +74,7 @@ public class BinBuilder {
             fullData.addAll(binConverter.integerToByteList(varDescr.getCode()));
             int typeSize = typesInfoService.getTypeSize(varDescr.getType());
             fullData.addAll(binConverter.integerToByteList(typeSize));
-            fullData.add((varDescr.className != "") ? Memory.GC_FLAG_OBJ : 0);
+            fullData.add((varDescr.className != "") ? Memory.GC_FLAG_PTR : 0);
         }
         
         //Each varible stored in 2 bytes - code and type
