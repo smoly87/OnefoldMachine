@@ -1,10 +1,11 @@
 Class baz {
 Public bazar:Integer;
 Function Float test(Var al:Integer;Var bl:Integer;Var obj:foo;){
-/*Var d:Integer;*/
-/*Let d =8888;*/
+Var d:Integer;
+Var g:Integer;
+Let d =8888;
 Let bl = 104;
-/*Let this.bazar = 4444;*/
+Let this.bazar = 4444;
 Let obj.bazar = 9999;
 Return 8888;
 }
@@ -20,7 +21,7 @@ Var b:foo;
 Var c:foo;
 Var d:foo;
 Var e:foo;
-
+/*Let g = 44;*/
 Let a = New foo();
 Let b = New foo();
 Let c = New foo();

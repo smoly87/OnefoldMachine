@@ -122,7 +122,7 @@ public class FunctionCallCompiler extends AstCompiler{
         //Line to Return
         //retLineNum = programBuilder.addInstruction(VMCommands.Push, 0, VarType.Integer);
         //Add object flag :0, hense not object
-        
+        programBuilder.addLocalVar("__ReturnAddress", VarType.Integer);
         programBuilder.addInstruction(VMCommands.Push, TypesInfo.getInstance().getTypeSize(VarType.Integer), VarType.Integer);
         programBuilder.addInstruction(VMCommands.Var_Declare_Local_Def_value, Integer.toString(varNum ), VarType.Integer);
         varNum++;
@@ -209,6 +209,7 @@ public class FunctionCallCompiler extends AstCompiler{
                 //programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeleteFrame), VarType.Integer);
                 //programBuilder.changeCommandArg(retLineNum, programBuilder.commandsSize(), VarType.Integer);
                 programBuilder.changeCommandArgByNum(retLineNum, commandsSize * VM.COMMAND_SIZE, VarType.Integer, true);
+                programBuilder.clearLocalVars();
                 break;
             case "Arg":
               declareAndSetHeadVar(node, programBuilder);

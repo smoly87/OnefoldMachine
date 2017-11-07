@@ -126,8 +126,6 @@ public class FunctionCompiler extends AstCompiler{
                
                 
                 processReturnStatement(node, programBuilder);
-                processVariables(programBuilder);
-                MetaClassesInfo.getInstance().addFunction(funcName, funcDescr);
                 
                 
                 //Return to call address
@@ -154,6 +152,8 @@ public class FunctionCompiler extends AstCompiler{
                 
                 programBuilder.addInstruction(VMCommands.NOP, 0, VarType.Integer);
                 funcDescr.setEndLineNumber(programBuilder.commandsSize() );
+                processVariables(programBuilder);
+                MetaClassesInfo.getInstance().addFunction(funcName, funcDescr);
                 
                 break;
         }
@@ -169,7 +169,7 @@ public class FunctionCompiler extends AstCompiler{
 
     public void processVariables( ProgramBuilder programBuilder) {
          programBuilder.setIsLocalContext(false);
-        // programBuilder.clearLocalVars();
+         programBuilder.clearLocalVars();
          VarCompiler varCompiler = (VarCompiler)this.getCompiler("Var");
          //int totalVarsCount = declaredVarsCount + varCompiler.getLocalVarsCount();
          funcDescr.setLocalVarsCount(varCompiler.getLocalVarsCount());
