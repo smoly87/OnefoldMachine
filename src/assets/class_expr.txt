@@ -11,7 +11,7 @@ Let d =8888;
 /*Let bl = 104;*/
 /*Let this.bazar = 4444;*/
 /*Let obj.bazar = 9999;*/
-Let bl = Call obj.protest(al);
+Let d = Call this.protest(99,100);
 Return bl;
 }
 }

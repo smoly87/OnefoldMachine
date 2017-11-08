@@ -29,6 +29,7 @@ public class ParserStatementBuilder extends ParserAlternative implements ParserB
          this.add(this.getParser("Let"));
          this.add(this.getParser("Var"));
          this.add(this.getParser("While"));
+         this.add(this.getParser("If"));
          this.add(this.getParser("FunctionCall"));
          this.add(this.getParser("SysFunctionCall"));
          return this;
