@@ -461,6 +461,7 @@ public class VM {
              
             while(parentClassId > -1){
                 classMetaDataPtr = this.getClassMetaDataPointer(parentClassId);
+                methodsCount = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.METHODS_COUNT);
                 methodAddr = findMethodAddr(methodCode, methodsCount, binReader, classMetaDataPtr + headersSize);
                 if(methodAddr > -1) return methodAddr;
                 parentClassId = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.PARENT_ID); 

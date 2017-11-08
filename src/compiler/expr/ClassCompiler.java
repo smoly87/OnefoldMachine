@@ -43,13 +43,13 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
        switch(node.getName()){
             case "StartClass":   
                 classInfo = new ClassInfo(node.getToken().getValue());
-                
+                this.curFuncName = null;
                 break;
             case "ExtendsClass":
                 classInfo.setParentClass(node.getToken().getValue());
                 break;
             case "EndClass":
-                this.commitCurMethod(programBuilder);
+                //this.commitCurMethod(programBuilder);
                 MetaClassesInfo.getInstance().addClassInfo(classInfo);
                 classInfo = new ClassInfo(node.getToken().getValue());
                 break;
@@ -81,9 +81,11 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
         switch(nodeName){
             case "FunctionId":
                 funcStartLine = programBuilder.commandsSize();
-                commitCurMethod(programBuilder);
-                argsSignatureBuilder = new StringBuilder();
                 this.curFuncName = token.getValue();
+                argsSignatureBuilder = new StringBuilder();
+                commitCurMethod(programBuilder);
+                
+                
                 break;
             case "VarDescription":
                 VarType type = node.getToken().getVarType();

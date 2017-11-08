@@ -38,9 +38,11 @@ public class BinBuilderClassesMetaInfo {
                      .addInt(classInfo.getParentId());
         
         for(Map.Entry<Integer, MethodDescription> entry: classInfo.getMethodsList().entrySet()){
+           
            MethodDescription methodDescr = entry.getValue();
+           Integer methodAddr = methodDescr.getAddress(); 
            binObjBuilder.addInt(methodDescr.getCode())
-                        .addInt(methodDescr.getAddress());
+                        .addInt(methodAddr);
            System.out.println(String.format(">>Method: %s %s" , methodDescr.getCode(), methodDescr.getAddress()) );
         }
         
