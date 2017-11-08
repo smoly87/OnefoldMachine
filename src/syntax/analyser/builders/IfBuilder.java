@@ -26,6 +26,15 @@ import syntax.analyser.parser.ParserTag;
 public class IfBuilder extends  ParserChain implements ParserBuilder{
     
    
+    protected Parser getElseParser(){
+        ParserChain elseParser = new ParserChain();
+        elseParser.addKeyword("Else")
+                  .addKeyword("{", "StartElseExpr")   
+                  .add(this.getParser("ParserStatementRepeated"), "StatementElse")
+                  .addKeyword("}", "EndElse"); ;
+        
+        return new ParserOptional(elseParser);
+    }
     
     public Parser build() {
         //Указать нужен ли результат парсера
@@ -34,7 +43,8 @@ public class IfBuilder extends  ParserChain implements ParserBuilder{
             .add(this.getParser("LogicExprElem"), "LogExpr")
             .addKeyword("{", "StartExpr")   
             .add(this.getParser("ParserStatementRepeated"), "Statement")
-            .addKeyword("}", "End");
+            .addKeyword("}", "End")
+            .add(getElseParser(), "ElseBlock");
             //.addKeyword(";");
             
     }
@@ -44,6 +54,7 @@ public class IfBuilder extends  ParserChain implements ParserBuilder{
         //Reorder operators by calculations
         AstNode rootNode = result.get("If");
         rootNode.setCompiler(this.getCompiler("If"));
+                
         rootNode.addChildNode(new AstNode(), "StartIf");
         rootNode.addChildNode(result.get("LogExpr"), "LogExpr");
         rootNode.addChildNode(result.get("StartExpr"), "StartBody");
@@ -51,10 +62,16 @@ public class IfBuilder extends  ParserChain implements ParserBuilder{
         
         rootNode.addChildNode(result.get("Statement"), "Statement");
         rootNode.addChildNode(result.get("End"), "End");
+        
+         if(result.get("ElseBlock") != null){
+              rootNode.addChildNode(result.get("ElseBlock"), "ElseBlock");
+         }
      
         
         System.out.println("While parser has been reached");
         
         return rootNode;
     }
+    
+    
 }

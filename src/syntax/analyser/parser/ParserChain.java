@@ -68,7 +68,7 @@ public  class ParserChain extends Parser{
     
     @Override
     public boolean parseLexerResult(LexerResult lexerResults) throws UnexpectedSymbolException, ParserException{
-        HashMap<String, AstNode> resultMap = new HashMap<>();
+        LinkedHashMap<String, AstNode> resultMap = new LinkedHashMap<>();
         for(Map.Entry<String, Parser> entry: parsersList.entrySet()){
             Parser parser = entry.getValue();
             if(!parser.parse(lexerResults)){

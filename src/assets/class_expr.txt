@@ -29,7 +29,7 @@ Let a = New foo();
 Let a.bar = 450;
 Let a.bazar = 850;
 Let b = Call a.test(111, 222, a);
-Let b = Call a.protest(33333,552);
+/*Let b = Call a.protest(33333,552);*/
 /*Sys PrintObjField(a, 2);*/
 Sys PrintObjField(a, 3);
 /*Let c = a;

@@ -5,3 +5,6 @@ Let b = 3;
 If a > 2{
 Let b =7+a;
 }
+Else{
+Let b =05;
+}

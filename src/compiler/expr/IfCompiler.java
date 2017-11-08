@@ -19,27 +19,61 @@ import virtual.machine.VMCommands;
  * @author Andrey
  */
 public class IfCompiler extends AstCompiler{
-    protected Integer logExprCmdNum = 0;
+    protected Boolean hasElseBlock = false;
     protected Integer jmpOutCmdNum = -1;
+    protected Integer jmpOutIf = -1;
+    
+    protected void addJumpOutCmd(int commandNum, ProgramBuilder programBuilder) throws CompilerException{
+        programBuilder.addInstruction(VMCommands.NOP);
+        int commandsSize = programBuilder.commandsSize();
+        programBuilder.changeCommandArgByNum(commandNum, commandsSize, VarType.Integer, false);
+    }
+    
     @Override
     public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.  
         switch(node.getName()){
             case "StartIf":
                 
-                logExprCmdNum = programBuilder.addInstruction(VMCommands.NOP);
+                //this.hasElseBlock = false;
                 break;
             case "StartBody": 
+ 
                 jmpOutCmdNum =  programBuilder.addInstruction(VMCommands.JmpIfNot, 0, VarType.Integer); // PlaceHolder
-               
+                
+                   
+                
                 break;
+            
             case "End":
+               if(!hasElseBlock){
+                   addJumpOutCmd(jmpOutCmdNum, programBuilder);
+               } else{
+                   jmpOutIf = programBuilder.addInstruction(VMCommands.Jmp, 0, VarType.Integer); 
+               }
+              
+                //  jmpOutCmdNum =  programBuilder.addInstruction(VMCommands.Jmp, 0, VarType.Integer); // PlaceHolder
                 
-                programBuilder.addInstruction(VMCommands.NOP);
-                int commandsSize = programBuilder.commandsSize(); 
-                
-                programBuilder.changeCommandArgByNum(jmpOutCmdNum, commandsSize, VarType.Integer, false);
+              
+                  
+              
+              break;
+            case "EndElse":
+                addJumpOutCmd(jmpOutIf, programBuilder);
+                break;
+            case "StartElseExpr":
+                addJumpOutCmd(jmpOutCmdNum, programBuilder);
+                //jmpOutCmdNum =  programBuilder.addInstruction(VMCommands.JmpIfNot, 0, VarType.Integer);
                 break;
         }
+    }
+    
+    @Override
+    public  void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+        if(node.findChild("StartIf")!=null){
+            this.hasElseBlock = (node.findChild("ElseBlock") != null);
+        }
+        
+        super.compileRootPre(node, programBuilder);
     }
 }
