@@ -118,12 +118,12 @@ public class VM {
         while( binReader.getCurPos() < secEnd ){ 
             int classInd = binReader.readIntAndNext();
             int metaInfoSize = binReader.readInt();
-            int metaTablePtr =  memHeap.memAlloc(metaInfoSize + VM.INT_SIZE);
+            int metaTablePtr =  memHeap.memAlloc(metaInfoSize);
             System.out.println(String.format("Class_ID: %s MetaSize: %s", classInd, metaInfoSize)  );
             addrTables.setAddrForIndex(VmExeHeader.ClassesTableSize, classInd, metaTablePtr);
             
             binReader.prevBytes(VM.INT_SIZE);
-            Byte[] metaData =  binReader.readAndNextBytes(metaInfoSize + VM.INT_SIZE);
+            Byte[] metaData =  binReader.readAndNextBytes(metaInfoSize);
             memHeap.putValue(metaTablePtr, metaData);
             printClassMetaInfo(classInd);
         }

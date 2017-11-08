@@ -1,12 +1,18 @@
 Class baz {
 Public bazar:Integer;
-Function Float test(Var al:Integer;Var bl:Integer;Var obj:foo;){
+Function Integer protest(Var b:Integer;){
+Var d:Integer;
+Let d =8888;
+Return b;
+}
+Function Integer test(Var al:Integer;Var bl:Integer;Var obj:foo;){
 Var d:Integer;
 Let d =8888;
 /*Let bl = 104;*/
 Let this.bazar = 4444;
 /*Let obj.bazar = 9999;*/
-Return 7777;
+/*Let bl = Call this.protest(al);*/
+Return bl;
 }
 }
 Class foo : Extends baz{

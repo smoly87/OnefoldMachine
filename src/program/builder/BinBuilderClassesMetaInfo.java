@@ -55,7 +55,7 @@ public class BinBuilderClassesMetaInfo {
             System.out.println(String.format(">>fieldCode: %s %s" , fieldDescr.getCode(), fieldDescr.getFieldName()) );
         }
         // 4 is headers size
-        totalSize += (classInfo.getMethodsList().size() + classInfo.getFieldsList().size() + HEADERS_SIZE) * VM.INT_SIZE;
+        totalSize += (classInfo.getMethodsList().size()*2 + classInfo.getFieldsList().size() + HEADERS_SIZE) * VM.INT_SIZE;
         binObjBuilder.setInt(1, totalSize);
        
         return  binObjBuilder.getResult();
