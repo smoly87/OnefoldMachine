@@ -209,7 +209,7 @@ public class FunctionCallCompiler extends AstCompiler{
                 //programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeleteFrame), VarType.Integer);
                 //programBuilder.changeCommandArg(retLineNum, programBuilder.commandsSize(), VarType.Integer);
                 programBuilder.changeCommandArgByNum(retLineNum, commandsSize * VM.COMMAND_SIZE, VarType.Integer, true);
-                programBuilder.clearLocalVars();
+                //programBuilder.clearLocalVars();
                 break;
             case "Arg":
               declareAndSetHeadVar(node, programBuilder);

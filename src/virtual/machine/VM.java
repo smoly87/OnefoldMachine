@@ -806,7 +806,7 @@ public class VM {
                         Table Format: int|int|...
                         This table is table of pointers
                         */
-                        
+
                         varInd = addr;
                         frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart)  ;
                         frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
@@ -817,7 +817,7 @@ public class VM {
                         System.out.println("Put LocalcVar: " + intVal);
                         break;
                     case Var_Load_Local:
-                        varInd = addr ;
+                        varInd = addr ;System.out.println(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
                         frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart) ;
                         frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
                         varAddr = memStack.getIntValue(frameHeadersPosEnd + varInd * INT_SIZE);
@@ -825,7 +825,7 @@ public class VM {
                         value = memoryManager.getPtrByteValue(varAddr,INT_SIZE);
                         // intVal = binConvertorService.bytesToInt(value, 0);
                        intVal = memStack.getPtrIntField(varAddr, INT_SIZE);
-                        System.err.println(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
+                        System.out.println(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
                         memStack.push(binConvertorService.integerToByte(intVal));
                         break;    
                     case Mov:

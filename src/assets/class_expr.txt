@@ -1,18 +1,18 @@
 Class baz {
 Public bazar:Integer;
 Function Integer protest(Var b:Integer;Var a:Integer;){
-Var d:Integer;
-Let d =5555;
+Var v:Integer;
+Let a = 7898;
 Return 86;
 }
 Function Integer test(Var al:Integer;Var bl:Integer;Var obj:foo;){
 Var d:Integer;
-Let d =8888;
+Let this.bazar = 7898;
+Let d =882;
 /*Let bl = 104;*/
 /*Let this.bazar = 4444;*/
-/*Let obj.bazar = 9999;*/
-Let d = Call this.protest(99,100);
-Return bl;
+/*Let bl = Call this.protest(1414,1616);*/
+Return 688;
 }
 }
 Class foo : Extends baz{
@@ -30,7 +30,7 @@ Let a.bar = 450;
 Let a.bazar = 850;
 Let b = Call a.test(111, 222, a);
 /*Let b = Call a.protest(33333,552);*/
-/*Sys PrintObjField(a, 2);*/
+Sys PrintObjField(a, 2);
 Sys PrintObjField(a, 3);
 /*Let c = a;
 
