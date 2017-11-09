@@ -30,7 +30,7 @@ public class TreeWalkerASTCompiler  {
          return programBuilder;
     }
     
-    protected void walk(AstNode node, AstCompiler compiler) throws CompilerException{
+    protected void walk(AstNode node, AstCompilerList compiler) throws CompilerException{
         
         try {
             if(node.getCompiler() != null){
@@ -43,7 +43,7 @@ public class TreeWalkerASTCompiler  {
                 for(AstNode curNode : node.getChildNodes()){
                     if(curNode == null) continue;
                     if(curNode.hasChildNodes()){
-                        AstCompiler compilerL = compiler;
+                        AstCompilerList compilerL = compiler;
                         if(curNode.getCompiler()!=null){
                             compilerL = curNode.getCompiler();
                         }

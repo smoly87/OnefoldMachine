@@ -24,19 +24,19 @@ public abstract class AstCompiler {
     protected CompilersFactory compilersFactory;
     protected LinkedList<CompilerSubscriber> subscribers;
     
-    public void addSubscriber(CompilerSubscriber subscriber){
+   /* public void addSubscriber(CompilerSubscriber subscriber){
         subscribers.add(subscriber);
     }
     
     public void removeSubscriber(){
-    }
+    }*/
     
-    protected void callSubscribers(AstNode node, ProgramBuilder programBuilder){
+   /* protected void callSubscribers(AstNode node, ProgramBuilder programBuilder){
        
         for (CompilerSubscriber subscriber : subscribers) {
-           subscriber.nodeProcessEvent(node, programBuilder);
+           subscriber.compileChild(node, programBuilder);
         }
-    }
+    }*/
     
     public AstCompiler(){
         subscribers = new LinkedList<>();
@@ -48,15 +48,15 @@ public abstract class AstCompiler {
     }
     
     public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
-        if(subscribers.size() > 0) callSubscribers(node, programBuilder);
+        //if(subscribers.size() > 0) callSubscribers(node, programBuilder);
     }
     
     public  void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
-        if(subscribers.size() > 0) callSubscribers(node, programBuilder);
+       // if(subscribers.size() > 0) callSubscribers(node, programBuilder);
         
     }
     public  void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
-        if(subscribers.size() > 0) callSubscribers(node, programBuilder);
+       // if(subscribers.size() > 0) callSubscribers(node, programBuilder);
     }
     
     protected String regToStr(VmSysRegister reg){

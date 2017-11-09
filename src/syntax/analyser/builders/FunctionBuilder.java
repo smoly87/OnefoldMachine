@@ -69,27 +69,37 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
                           .get("Function")
                           .setCompiler(this.getCompiler("Function"))
                           .setName("FunctionHeader")
-                          .addChildNode(result.get("Id"), "FunctionId");
-        
-        addAutoDecalared(rootNode, "__ReturnAddress");
-        addAutoDecalared(rootNode, "__FrameStackRegister");
-        addAutoDecalared(rootNode, "this");
-       
-        
-        transformVarsNode(result.get("VarsBlock"), rootNode);
-        
-        rootNode.addChildNode(result.get("FunctionBody"), "FunctionBody")
-                .addChildNode(result.get("ReturnStatement"), "ReturnStatement")
-                .addChildNode(result.get("EndFunction"), "EndFunction");
+                          .addChildNode(result.get("Id"), "FunctionId")
+                
+                          .addChildNode(addAutoDecalared( "__ReturnAddress"))
+                          .addChildNode(addAutoDecalared( "__FrameStackRegister"))
+                          .addChildNode(addAutoDecalared( "this"))
+                          
+                          .addChildNode(result.get("VarsBlock"), "VarsBlock")
+
+                          .addChildNode(result.get("FunctionBody"), "FunctionBody")
+                          .addChildNode(result.get("ReturnStatement"), "ReturnStatement")
+                          .addChildNode(result.get("EndFunction"), "EndFunction");
         
         System.out.println("Function parser has been reached");
         return rootNode;
     }
     
-    protected void addAutoDecalared( AstNode rootNode, String varName){
-        AstNode thisNode = new AstNode();
-        thisNode = processVarDescriptionNode(thisNode, varName, VarType.Integer);
-        rootNode.addChildNode(thisNode, "VarDescription");
+    protected AstNode addAutoDecalared( String varName){
+        AstNode node = new AstNode();
+        
+        AstNode idNode = new AstNode();
+        idNode.setToken(new Token("Id", new Tag("Id"), varName));
+        
+        AstNode typeNode = new AstNode();
+        typeNode.setToken(new Token("Type", new Tag("Type"), "Integer"));
+        
+        node.setCompiler(this.getCompiler("Var"));
+        
+        node.addChildNode(idNode, "Id");
+        node.addChildNode(typeNode, "Type");
+        
+        return node;
     }
   
     

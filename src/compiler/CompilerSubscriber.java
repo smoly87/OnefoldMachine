@@ -5,6 +5,7 @@
  */
 package compiler;
 
+import compiler.exception.CompilerException;
 import program.builder.ProgramBuilder;
 import syntax.analyser.AstNode;
 
@@ -13,5 +14,5 @@ import syntax.analyser.AstNode;
  * @author Andrey
  */
 public interface CompilerSubscriber {
-    public void nodeProcessEvent(AstNode node, ProgramBuilder programBuilder);
+    public void compileChild(AstNode node, ProgramBuilder programBuilder)  throws CompilerException;
 }

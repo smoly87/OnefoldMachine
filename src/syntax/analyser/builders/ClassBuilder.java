@@ -66,9 +66,16 @@ public class ClassBuilder extends  ParserChain implements ParserBuilder{
         System.out.println("Class parser has been reached");
         rootNode.addChildNode(result.get("Id"), "StartClass");
         if(result.get("ExtendsBlock") != null) {
-            rootNode.addChildNode(result.get("ExtendsBlock"), "ExtendsBlock");
+            AstNode extendsBlock = result.get("ExtendsBlock");
+            extendsBlock.addCompiler(this.getCompiler("Class"));
+            rootNode.addChildNode(extendsBlock, "ExtendsBlock");
         }
-        rootNode.addChildNode(result.get("ClassFieldsOrMethods"), "ClassFieldsOrMethods");
+        
+        
+        AstNode fieldsOrMethodsNode = result.get("ClassFieldsOrMethods");
+        fieldsOrMethodsNode.addCompiler(this.getCompiler("Class"));
+        
+        rootNode.addChildNode(fieldsOrMethodsNode, "ClassFieldsOrMethods");
         rootNode.addChildNode(result.get("EndClass"), "EndClass");
         
         

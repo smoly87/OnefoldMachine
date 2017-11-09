@@ -30,12 +30,32 @@ public class FunctionCompiler extends AstCompiler{
     protected FunctionDescription funcDescr ;
     protected int funStartCommandNum;
     protected TypesInfo typesInfo;
-
+    protected int totalVarsTableSizeInstr;
     
     public FunctionCompiler(){
         typesInfo = TypesInfo.getInstance();
     }
     
+    protected void createFrameStack(ProgramBuilder programBuilder) throws CompilerException{
+        programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.StackHeadPos), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.FrameStackPos.ordinal(), VarType.Integer);
+        
+       /* programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.StackHeadPos), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.F1.ordinal(), VarType.Integer);*/
+
+     
+        //Headeres vars are local variables by theire essence
+        //Integer totalVarsCount = funcDescr.getArgsCount() + funcDescr.getLocalVarsCount() ; totalVarsCount * VM.INT_SIZE
+        totalVarsTableSizeInstr = programBuilder.addInstruction(VMCommands.Push,0, VarType.Integer); 
+        //Create table of local variables addresses by index
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.MemAllocStack), VarType.Integer);
+        
+        
+        programBuilder.addInstruction(VMCommands.Push, VmSysRegister.FrameStackTableStart.ordinal(), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
+
+    }
+     
     protected void processVarDescription(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         Token token = node.getToken();
         declaredVarsCount++;
@@ -99,6 +119,7 @@ public class FunctionCompiler extends AstCompiler{
                 programBuilder.addInstruction(VMCommands.NOP, 0, VarType.Integer);
                 
                 funcDescr = new FunctionDescription(this.funcName, programBuilder.commandsSize());
+                createFrameStack(programBuilder);
                 //addThisVar(programBuilder);
 
                 
@@ -107,22 +128,7 @@ public class FunctionCompiler extends AstCompiler{
                 processVarDescription(node, programBuilder);
                 break;  
             case "ReturnStatement":
-                   //Remove frame
-                  
-                //Clear local variables table
-                //programBuilder.addInstruction(VMCommands.Push, VmSysRegister.FrameStackPos.ordinal(), VarType.Integer);
-                //programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.StackHeadPos.ordinal(), VarType.Integer);
 
-                //Load FrameStackRegister
-               /* programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, "__FrameStackRegister", true);
-                programBuilder.addInstruction(VMCommands.Dup);
-                
-                programBuilder.addInstruction(VMCommands.Push, VmSysRegister.FrameStackPos.ordinal(), VarType.Integer);
-                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
-                
-                //programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, "__FrameStackRegister",  true);
-                programBuilder.addInstruction(VMCommands.Push, VmSysRegister.StackHeadPos.ordinal(), VarType.Integer);
-                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);*/
                
                 
                 processReturnStatement(node, programBuilder);
@@ -151,13 +157,17 @@ public class FunctionCompiler extends AstCompiler{
                 programBuilder.addInstruction(VMCommands.Jmp, 0, VarType.Integer);
                 
                 programBuilder.addInstruction(VMCommands.NOP, 0, VarType.Integer);
+                
+                //TODO: Is it realy need to convert constatnt in similay cases ?
+              //  programBuilder.changeCommandArgByNum(totalVarsTableSizeInstr, funcDescr.getTotalVarsCount() * VM.INT_SIZE, VarType.Integer, true);
+                
                 funcDescr.setEndLineNumber(programBuilder.commandsSize() );
                 processVariables(programBuilder);
                 MetaClassesInfo.getInstance().addFunction(funcName, funcDescr);
                 
                 break;
         }
-        this.callSubscribers(node, programBuilder);
+        //this.callSubscribers(node, programBuilder);
     }
     @Override
     public void compileRootPre(AstNode node, ProgramBuilder programBuilder) {

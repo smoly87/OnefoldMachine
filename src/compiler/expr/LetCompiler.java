@@ -22,7 +22,7 @@ import virtual.machine.VMSysFunction;
  *
  * @author Andrey
  */
-public class LetCompiler extends AstCompiler implements CompilerSubscriber{
+public class LetCompiler extends AstCompiler {
     
  
     // TODO: It's need to figure out why it so buggy
@@ -30,7 +30,7 @@ public class LetCompiler extends AstCompiler implements CompilerSubscriber{
     protected LetCompilerParams paramsObj;
     
     public LetCompiler(){
-        this.getCompiler("Function").addSubscriber(this);
+        //this.getCompiler("Function").addSubscriber(this);
     }
     
     public void addRightPartCommands(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
@@ -203,15 +203,6 @@ public class LetCompiler extends AstCompiler implements CompilerSubscriber{
         
     }
     
-    @Override
-    public void nodeProcessEvent(AstNode node, ProgramBuilder programBuilder) {
-       switch(node.getName()){
-           case "FunctionId":
-              
-               break;
-           case "VarDescription":
-               break;
-       }
-    }
+  
     
 }

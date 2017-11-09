@@ -31,7 +31,7 @@ public class VarBuilder extends ParserChain implements ParserBuilder{
      
        return this
             .addKeyword("Var")
-            .addTag("Id")
+            .addTag("Id", "Id")
             .addKeyword(":")
             .add(typesParserAlt, "Type")
             .addKeyword(";");
@@ -45,8 +45,8 @@ public class VarBuilder extends ParserChain implements ParserBuilder{
         rootNode.setCompiler(this.getCompiler("Var"));
         //Think about gloabl agreement of naming
         rootNode.setName("Var");
-        rootNode.addChildNode(result.get("Id"));
-        rootNode.addChildNode(result.get("Type"));
+        rootNode.addChildNode(result.get("Id"), "Id");
+        rootNode.addChildNode(result.get("Type"), "Type");
         
         return rootNode;
     }

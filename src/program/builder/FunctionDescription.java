@@ -78,6 +78,10 @@ public class FunctionDescription {
         return argsMap.size();
     }
     
+    public int getTotalVarsCount(){
+        return this.getArgsCount() + this.getLocalVarsCount();
+    }
+    
     /*public VarType getType(String varName){
         return argsMap.get(varName);
     }*/

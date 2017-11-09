@@ -30,8 +30,8 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
     protected int funcStartLine = -1;
     
     public ClassCompiler(){
-         this.getCompiler("Function").addSubscriber(this);
-         this.getCompiler("Field").addSubscriber(this);
+         /*this.getCompiler("Function").addSubscriber(this);
+         this.getCompiler("Field").addSubscriber(this);*/
     }
     
     @Override
@@ -39,7 +39,7 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
        
       
-        
+       Token token = node.getToken();
        switch(node.getName()){
             case "StartClass":   
                 classInfo = new ClassInfo(node.getToken().getValue());
@@ -53,6 +53,22 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
                 MetaClassesInfo.getInstance().addClassInfo(classInfo);
                 classInfo = new ClassInfo(node.getToken().getValue());
                 break;
+                
+            case "FunctionId":
+                funcStartLine = programBuilder.commandsSize();
+                this.curFuncName = token.getValue();
+                argsSignatureBuilder = new StringBuilder();
+                commitCurMethod(programBuilder);
+                
+                
+                break;
+            case "VarDescription":
+                VarType type = node.getToken().getVarType();
+                argsSignatureBuilder.append(Integer.toString(type.ordinal()));
+                break;
+            case "Field":
+                classInfo.addField(token.getValue(), token.getVarType());
+                break;    
             
         }
     }
@@ -72,10 +88,10 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
     }
    
 
-    @Override
+   /* @Override
     public void nodeProcessEvent(AstNode node, ProgramBuilder programBuilder) {
         Token token = node.getToken();
-        /*String meName = this.getClass().getCanonicalName();*/
+       
         String nodeName = "";
         if(node.getName() != null) nodeName = node.getName();
         switch(nodeName){
@@ -95,6 +111,6 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
                 classInfo.addField(token.getValue(), token.getVarType());
                 break;
         }
-    }
+    }*/
     
 }

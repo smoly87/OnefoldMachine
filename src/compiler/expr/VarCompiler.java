@@ -50,8 +50,8 @@ public class VarCompiler extends AstCompiler{
     
     @Override
     public void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
-        AstNode idNode = node.getChildNodes().get(0);
-        AstNode typeNode = node.getChildNodes().get(1);  
+        AstNode idNode = node.findChild("Id");
+        AstNode typeNode = node.findChild("Type");  
         String varName = idNode.getToken().getValue();
         
         String typeName = typeNode.getToken().getValue();
@@ -67,7 +67,7 @@ public class VarCompiler extends AstCompiler{
              if(!metaInfo.isClassExists(typeName)){
                throw new CompilerException(String.format("Variable %s declared with type class %s. But such class have not been declared before.", varName, typeName));
              }
-             type = VarType.Integer;
+             type = VarType.ClassPtr;
              classFlag = true;
         }
         
@@ -86,6 +86,7 @@ public class VarCompiler extends AstCompiler{
             int varInd =  programBuilder.getLocalVarCode(varName);
             String typeSize = Integer.toString(typesInfo.getTypeSize(token.getVarType()));
             programBuilder.addInstruction(VMCommands.Push, typeSize, VarType.Integer);
+            programBuilder.addInstruction(VMCommands.Push, classFlag ? 1: 0, VarType.Integer);
             programBuilder.addInstruction(VMCommands.Var_Declare_Local_Def_value, Integer.toString(varInd), VarType.Integer);
            
             localVarsCount++;

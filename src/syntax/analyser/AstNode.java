@@ -8,6 +8,7 @@ package syntax.analyser;
 
 import common.Token;
 import compiler.AstCompiler;
+import compiler.AstCompilerList;
 import java.util.ArrayList;
 
 /**
@@ -16,6 +17,8 @@ import java.util.ArrayList;
  */
 public class AstNode {
     protected ArrayList<AstNode> childNodes;
+    protected AstCompilerList compilersList;
+    
     protected Token token;
     protected AstCompiler compiler;
     protected String name ="";
@@ -29,18 +32,32 @@ public class AstNode {
         return this;
     }
 
-    public AstCompiler getCompiler() {
-        return compiler;
+    public AstCompilerList getCompiler() {
+        return compilersList;
     }
 
     public AstNode setCompiler(AstCompiler compiler) {
-        this.compiler = compiler;
+        //this.compiler = compiler;
+        this.compilersList.addCompiler(compiler);
         return this;
     }
+    
+    public AstNode addCompiler(AstCompiler compiler) {
+        //this.compiler = compiler;
+        this.compilersList.addCompiler(compiler);
+        if(this.getChildNodes().size() > 0){
+            for(AstNode childNode : this.getChildNodes()){
+                childNode.addCompiler(compiler);
+            }
+        }
+        return this;
+    }
+     
 
     
     public AstNode(){
         this.childNodes = new ArrayList<>();
+        this.compilersList = new AstCompilerList();
     }
     public AstNode addChildNode(AstNode childNode){
         childNodes.add(childNode);

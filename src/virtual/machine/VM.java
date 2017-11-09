@@ -754,20 +754,13 @@ public class VM {
                         //System.out.println("Program finished with Halt Command"); 
                         break;
                     //TODO: Possibly this command should be replaced to call syss func?    
-                    case Var_Declare_Local:
-                        /*int varSize = stackPopInt();
-                        memStack.push(new Byte[varSize]);*/
-                        //int flag = stackPopInt();
-                        intVal = stackPopInt();
+                  /* case Var_Declare_Local:
+                       
                         int varInd = memoryManager.getIntPtrValue(addr) ;//binConvertorService.bytesToInt(addr, 0) ;
                         int locVarAddr = memoryManager.getSysRegister(VmSysRegister.StackHeadPos);
                         
                       
-                        
-                        /*value = memStack.pop();
-                        intVal = binConvertorService.bytesToInt(value, 0);*/
-                        //System.out.println(String.format( "Local var declared: %s with size %s at addr #%s ", varInd ,varSize, locVarAddr));
-                        int frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart)  ;
+                          int frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart)  ;
                         
                         int frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
                         
@@ -776,30 +769,31 @@ public class VM {
                         int valDbg = stackPopInt();
                         memStack.push(valDbg);
                         
-                        if(intVal == 1){
-                            int objAddr = memStack.getPtrIntField(locVarAddr, INT_SIZE);
-                            changeIntFieldValue(objAddr, 1, 1);
-                            memStack.putValue(locVarAddr, (byte)Memory.GC_FLAG_PTR); 
-                        }
+                       
                         intVal = memStack.getPtrIntField(locVarAddr, INT_SIZE);
                         System.out.println(String.format("Decalre ind: %s with value: %s, dbg> %s",varInd, intVal, valDbg) ); ;
                         //int locVarPtrmemHeap.memAlloc(varSize);
-                        break;
+                        break;*/
                      case Var_Declare_Local_Def_value: 
-                        
-                         varInd = memoryManager.getIntPtrValue(addr) ;//binConvertorService.bytesToInt(addr, 0) ; 
+                        intVal = stackPopInt();
+                         int varInd = memoryManager.getIntPtrValue(addr) ;//binConvertorService.bytesToInt(addr, 0) ; 
                          int varSize = stackPopInt();
                          memStack.push(new Byte[varSize]);
-                         locVarAddr = memoryManager.getSysRegister(VmSysRegister.StackHeadPos);
-                        
+                         int  locVarAddr = memoryManager.getSysRegister(VmSysRegister.StackHeadPos);
+                         
+                         if(intVal == 1){
+                            int objAddr = memStack.getPtrIntField(locVarAddr, INT_SIZE);
+                            changeIntFieldValue(objAddr, 1, 1);
+                            memStack.putValue(locVarAddr, (byte)Memory.GC_FLAG_PTR); 
+                         }
                         /*value = memStack.pop();
                         intVal = binConvertorService.bytesToInt(value, 0);*/
                         //System.out.println(String.format( "Local var declared: %s with size %s at addr #%s ", varInd ,varSize, locVarAddr));
-                         frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart)  ;
+                         int  frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart)  ;
                         
-                         frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
+                         int  frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
                         
-                        memStack.putValue( frameHeadersPosEnd + varInd * INT_SIZE, locVarAddr);
+                         memStack.putValue( frameHeadersPosEnd + varInd * INT_SIZE, locVarAddr);
                          break;
                     case Var_Put_Local:
                         /*Local var table is allocated at the begin of stack address space
