@@ -43,7 +43,7 @@ public class WhileBuilder extends  ParserChain implements ParserBuilder{
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
         AstNode rootNode = result.get("While");
-        rootNode.setCompiler(this.getCompiler("While"));
+        
         rootNode.addChildNode(new AstNode(), "StartCycle");
         rootNode.addChildNode(result.get("LogExpr"), "LogExpr");
         rootNode.addChildNode(result.get("StartExpr"), "Start");
@@ -52,7 +52,7 @@ public class WhileBuilder extends  ParserChain implements ParserBuilder{
         rootNode.addChildNode(result.get("Statement"), "Statement");
         rootNode.addChildNode(result.get("End"), "End");
      
-        
+        rootNode.setCompiler(this.getCompiler("While"));
         System.out.println("While parser has been reached");
         
         return rootNode;

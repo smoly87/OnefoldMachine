@@ -738,11 +738,11 @@ public class VM {
                         value = memStack.pop();
                         if (!binConvertorService.bytesToBool(value)) {
                             if (addr == 0) {
-                                addr = stackPopInt() + progStart;
+                                addr = stackPopInt() ;
                                 System.out.println("Jump IfNot addr from stack");
                             }
                             System.out.println("Jump to addr:" + addr);
-                            memProg.jump(addr);
+                            memProg.jump(addr+ progStart);
                             continue;
                         }
                         break;             

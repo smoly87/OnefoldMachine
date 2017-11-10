@@ -53,7 +53,7 @@ public class IfBuilder extends  ParserChain implements ParserBuilder{
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
         AstNode rootNode = result.get("If");
-        rootNode.setCompiler(this.getCompiler("If"));
+        
                 
         rootNode.addChildNode(new AstNode(), "StartIf");
         rootNode.addChildNode(result.get("LogExpr"), "LogExpr");
@@ -63,12 +63,14 @@ public class IfBuilder extends  ParserChain implements ParserBuilder{
         rootNode.addChildNode(result.get("Statement"), "Statement");
         rootNode.addChildNode(result.get("End"), "End");
         
-         if(result.get("ElseBlock") != null){
-              rootNode.addChildNode(result.get("ElseBlock"), "ElseBlock");
-         }
+        if(result.get("ElseBlock") != null){
+             AstNode elseNode = result.get("ElseBlock");
+             elseNode.setCompiler(this.getCompiler("If"));
+             rootNode.addChildNode(elseNode, "ElseBlock");
+        }
      
-        
-        System.out.println("While parser has been reached");
+        rootNode.setCompiler(this.getCompiler("If"));
+        System.out.println("If parser has been reached");
         
         return rootNode;
     }

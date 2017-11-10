@@ -3,7 +3,7 @@ Var b:Integer;
 Let a = 20;
 Let b = 3;
 If a > 2{
-Let b =7+a;
+Let b =7;
 }
 Else{
 Let b =05;
