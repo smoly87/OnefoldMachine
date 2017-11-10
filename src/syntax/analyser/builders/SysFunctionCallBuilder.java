@@ -72,17 +72,17 @@ public class SysFunctionCallBuilder extends  ParserChain implements ParserBuilde
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
         AstNode rootNode = new AstNode();
-        rootNode.setCompiler(this.getCompiler("SysFunctionCall") );
+        
 
         AstNode argNode = result.get("ArgsBlock");
-        
+        argNode.addCompiler(this.getCompiler("SysFunctionCall"));
         if(argNode != null){
             rootNode.addChildNode(argNode, "ArgsBlock");
         }
         
         rootNode.addChildNode(result.get("Id"), "FunctionId");
           
-
+        rootNode.setCompiler(this.getCompiler("SysFunctionCall") );
         System.out.println("SysFunctionCall parser has been reached");
         
         return rootNode;

@@ -73,16 +73,19 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
     public  AstNode processChainResult(HashMap<String, AstNode> result){
 
         AstNode rootNode = new AstNode();
+       
         rootNode.addChildNode(result.get("LetStart"), "LetStart");
         rootNode.addChildNode(result.get("RightPartExpr"), "RightPartExpr");
         if(result.get("LeftObjName") != null){
-            rootNode.addChildNode(result.get("LeftObjName"), "LeftObjName");        
+            AstNode leftObjNode = result.get("LeftObjName");
+            leftObjNode.setCompiler(this.getCompiler("Let"));
+            rootNode.addChildNode(leftObjNode, "LeftObjName");        
         } 
         
            
         rootNode.addChildNode(result.get("LeftVarName"), "LeftVarName");
         
-        rootNode.setCompiler(this.getCompiler("Let"));
+         rootNode.setCompiler(this.getCompiler("Let"));
         return rootNode;
         
     }

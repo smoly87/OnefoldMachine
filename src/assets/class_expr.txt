@@ -7,7 +7,7 @@ Return 86;
 }
 Function Integer test(Var al:Integer;Var bl:Integer;){
 Var d:Integer;
-Let this.bazar = 7898;
+/*Let this.bazar = 7898;*/
 Let d =882;
 /*Let bl = 104;*/
 /*Let this.bazar = 4444;*/
@@ -27,11 +27,11 @@ Var b:Integer;
 /*Var s:String;*/
 Let a = New foo();
 Let a.bar = 450;
-Let a.bazar = 850;
-Let b = Call a.test(111, 222);
+/*Let a.bazar = 850;*/
+/*Let b = Call a.test(111, 222);*/
 /*Let b = Call a.protest(33333,552);*/
-Sys PrintObjField(a, 2);
 Sys PrintObjField(a, 3);
+/*Sys PrintObjField(a, 3);*/
 /*Let c = a;
 
 Let a = Null;
