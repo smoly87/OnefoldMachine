@@ -23,6 +23,8 @@ import syntax.analyser.builders.ParserBuilder;
  */
 public  class ParserChain extends Parser{
     protected LinkedHashMap<String, Parser> parsersList;
+    protected String compilerName;
+    public enum SET_COMPILER_MODE  {NONE, SET, ADD};
     //LinkedHashMap<String, Parser> parsersChain = new LinkedHashMap<>();
     public ParserChain(){
         parsersList = new LinkedHashMap<>();
@@ -85,4 +87,22 @@ public  class ParserChain extends Parser{
         return true;
     }
     
+    
+    protected AstNode addBlockIfExists(AstNode node, String blockName, HashMap<String, AstNode> result, SET_COMPILER_MODE mode, String compilerName){
+        if(result.get(blockName) != null){
+            AstNode resNode = result.get(blockName);
+            if(compilerName != null){   
+               switch(mode){
+                  case SET:
+                     resNode.setCompiler(this.getCompiler(compilerName));
+                     break;
+                  case ADD:
+                     resNode.addCompiler(this.getCompiler(compilerName));
+                     break;
+              }
+            } 
+           node.addChildNode(resNode, blockName);
+        }
+        return node;
+    }
 }

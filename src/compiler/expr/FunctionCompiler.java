@@ -37,6 +37,7 @@ public class FunctionCompiler extends AstCompiler{
     }
     
     protected void createFrameStack(ProgramBuilder programBuilder) throws CompilerException{
+        
         programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.StackHeadPos), VarType.Integer);
         programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.FrameStackPos.ordinal(), VarType.Integer);
         
@@ -112,21 +113,42 @@ public class FunctionCompiler extends AstCompiler{
                 
                 programBuilder.setIsLocalContext(true);
                 programBuilder.clearLocalVars();
+                              
+               /* VarCompiler varCompiler  = (VarCompiler)this.getCompiler("Var");
+                varCompiler.setLocalVarsCount(3);*/
                 declaredVarsCount = 0;
                 this.funcName = token.getValue();
                 /*/Start point is nop, this is protection from empty functions 
-                and it relieves from recount numeration of first Line*/
-                programBuilder.addInstruction(VMCommands.NOP, 0, VarType.Integer);
+                and it relieves from recount numeration of first Line*/  
+                funcDescr = new FunctionDescription(this.funcName);
+                funcDescr.setLineNumber(programBuilder.commandsSize());
+                programBuilder.addComment("Start func");
+                programBuilder.addInstruction(VMCommands.NOP);
+                //Save in register address for fill variables after stack creation
+                programBuilder.addInstruction(VMCommands.Push, VmSysRegister.T1.ordinal(), VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
                 
-                funcDescr = new FunctionDescription(this.funcName, programBuilder.commandsSize());
+             
                 createFrameStack(programBuilder);
-                //addThisVar(programBuilder);
+                programBuilder.addComment("Frame Stack");
+                //Return to fill params by caller
+                
+                programBuilder.addInstruction(VMCommands.Push, VmSysRegister.T1.ordinal(), VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Jmp, 0, VarType.Integer);
 
                 
                 break;
             case "VarDescription":
                 processVarDescription(node, programBuilder);
                 break;  
+            case "StartFunctionBody":
+                // MetaClassesInfo.getInstance().addFunction(funcDescr);
+                programBuilder.addInstruction(VMCommands.NOP);
+                funcDescr.setStartBody(programBuilder.commandsSize());
+                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.ArrangeFuncParams), VarType.Integer);
+  
+                break;
             case "ReturnStatement":
 
                
@@ -156,25 +178,24 @@ public class FunctionCompiler extends AstCompiler{
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Jmp, 0, VarType.Integer);
                 
-                programBuilder.addInstruction(VMCommands.NOP, 0, VarType.Integer);
+                programBuilder.addInstruction(VMCommands.NOP);
                 
                 //TODO: Is it realy need to convert constatnt in similay cases ?
               //  programBuilder.changeCommandArgByNum(totalVarsTableSizeInstr, funcDescr.getTotalVarsCount() * VM.INT_SIZE, VarType.Integer, true);
                 
                 funcDescr.setEndLineNumber(programBuilder.commandsSize() );
                 processVariables(programBuilder);
-                MetaClassesInfo.getInstance().addFunction(funcName, funcDescr);
+               
                 
+                break;
+            case "EndFunction":
+                
+                programBuilder.changeCommandArgByNum(totalVarsTableSizeInstr, funcDescr.getTotalVarsCount() * VM.INT_SIZE, VarType.Integer, true);
                 break;
         }
         //this.callSubscribers(node, programBuilder);
     }
-    @Override
-    public void compileRootPre(AstNode node, ProgramBuilder programBuilder) {
-       
-         VarCompiler varCompiler  = (VarCompiler)this.getCompiler("Var");
-         //if(node.getName() == "VarsBlock") processVarsBlock(node, programBuilder);
-    }
+    
     
 
     public void processVariables( ProgramBuilder programBuilder) {
@@ -187,6 +208,11 @@ public class FunctionCompiler extends AstCompiler{
          
         
         
+    }
+    
+    
+    public FunctionDescription getCurrentFunction(){
+        return funcDescr;
     }
     
 }

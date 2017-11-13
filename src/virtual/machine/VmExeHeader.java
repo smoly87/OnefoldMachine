@@ -13,6 +13,6 @@ package virtual.machine;
     //ConstCount|VarCount|...funcCount|ClassesCount
     // After instructions
 public enum VmExeHeader {
-   ConstTableSize, VarTableSize, ClassesTableSize, ProgramStartPoint,
-   ConstStart, VarTableStart, ClassesMetaInfoStart,  InstructionsStart
+   ConstTableSize, VarTableSize, ClassesTableSize, ProgramStartPoint, CommentsCount,
+   ConstStart, VarTableStart, ClassesMetaInfoStart,CommentsStart,  InstructionsStart
 }

@@ -18,8 +18,32 @@ import types.TypesInfo;
 public class FunctionDescription {
     
     protected LinkedList<FunctionArgDescription> argsMap;
+    protected FuncSignatureBuilder argsSignatureBuilder;
     protected Integer lineNumber;
+
+    public void setLineNumber(Integer lineNumber) {
+        this.lineNumber = lineNumber;
+    }
+    protected Integer startBody;
     protected Integer endLineNumber;
+    protected String signature;
+    protected Integer code;
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
+    }
+
+    public Integer getStartBody() {
+        return startBody;
+    }
+
+    public void setStartBody(Integer startBody) {
+        this.startBody = startBody;
+    }
 
     public Integer getEndLineNumber() {
         return endLineNumber;
@@ -47,10 +71,10 @@ public class FunctionDescription {
         this.localVarsCount = localVarsCount;
     }
 
-    public FunctionDescription(String funcName, Integer lineNumber) {
-        this.lineNumber = lineNumber;
+    public FunctionDescription(String funcName) {
         this.funcName = funcName;
         argsMap = new LinkedList<>();
+        argsSignatureBuilder = new FuncSignatureBuilder();
     }
     
      
@@ -61,6 +85,8 @@ public class FunctionDescription {
     public void addArgDecription(String varName, VarType varType){
         FunctionArgDescription argDescr = new FunctionArgDescription(varName, argsMap.size(), varType);
         argsMap.add(argDescr);
+         
+        argsSignatureBuilder.addArgType(varType);
     }
     
     protected int fullVarsSize(){
@@ -82,6 +108,18 @@ public class FunctionDescription {
         return this.getArgsCount() + this.getLocalVarsCount();
     }
     
+    
+    protected String getSignature(){
+        return argsSignatureBuilder.getSignature();
+    }
+    
+    public static String getFullName(String funcName, String signature){
+        return funcName + "#" + signature;
+    }
+    
+    public String getFullName(){
+        return this.getFullName(this.getFuncName(), this.getSignature());
+    }
     /*public VarType getType(String varName){
         return argsMap.get(varName);
     }*/

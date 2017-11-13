@@ -24,7 +24,7 @@ import syntax.analyser.parser.ParserTag;
  * @author Andrey
  */
 public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
-    
+    protected final String compilerName = "FunctionCall";
     protected Parser getTypesListParser(){
       
         return   this.getParser("TypesList");
@@ -61,7 +61,7 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
             //.addKeyword(":")  
             .add(this.getParser("ObjNameBlock"), "ObjName")   
             .addTag("Id")
-            .addKeyword("(")
+            .addKeyword("(", "StartArgs")
             .add(getArgBlockRepeatedParser(), "ArgsBlock")
             .addKeyword(")", "EndCall");
             //.addKeyword(";");
@@ -72,25 +72,22 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
         AstNode rootNode = result.get("Call");
-        rootNode.setCompiler(new FunctionCallCompiler());
-
+       
         
         
         rootNode.addChildNode(result.get("Id"), "FunctionId");
-        if(result.get("ObjName") != null){
-           rootNode.addChildNode(result.get("ObjName"), "ObjName");
-        }
-
-        AstNode argNode = result.get("ArgsBlock");
-  
-        if(argNode != null){
-            rootNode.addChildNode(argNode, "ArgsBlock");
-        }
+        
+        rootNode = addBlockIfExists(rootNode, "ObjName", result, SET_COMPILER_MODE.SET, compilerName );
+        rootNode.addChildNode(result.get("StartArgs"), "StartArgs");
+        rootNode.addChildNode(result.get("EndCall"), "EndCall");
+        rootNode = addBlockIfExists(rootNode, "ArgsBlock", result, SET_COMPILER_MODE.ADD, compilerName );
+        rootNode.addChildNode(new AstNode(), "AfterArgsBlock");
         
           
-        rootNode.addChildNode(result.get("EndCall"), "EndCall");
-        System.out.println("FunctionCall parser has been reached");
         
+        System.out.println("FunctionCall parser has been reached");
+        rootNode.setCompiler(this.getCompiler(this.compilerName));
+
         return rootNode;
     }
 }

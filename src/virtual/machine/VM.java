@@ -52,6 +52,8 @@ public class VM {
     protected VMAddrTables addrTables;
     protected boolean firstF1 = false;
     
+    public enum METHOD_ADDR_TYPE{Start, StartBody};
+    
     public VM() throws VmExecutionExeption{
         this.binConvertorService =  DataBinConvertor.getInstance();
         this.instructionsService = Instructions.getInstance();
@@ -108,7 +110,7 @@ public class VM {
     protected void allocateClassesMetaInfo() throws VMOutOfMemoryException, VmExecutionExeption{
 
         int secStart = program.readHeader(VmExeHeader.ClassesMetaInfoStart);
-        int secEnd = program.readHeader(VmExeHeader.InstructionsStart);
+        int secEnd = program.readHeader(VmExeHeader.CommentsStart);
         
         MemoryHeap memHeap = getMemHeap();
         
@@ -430,7 +432,7 @@ public class VM {
         System.err.println(String.format("PRINT_OBJ_FIELD: Value: %s FieldNum: %s  ", value, fieldNum) );
     }
     
-    protected int findMethodAddr(int code, int cnt, BinaryReader binReader, int start){
+    protected int findMethodAddr(int code, int cnt, BinaryReader binReader, int start, METHOD_ADDR_TYPE addrType){
         int k = 0;
         int offset = 0;
         binReader.setCurPos(start);
@@ -438,16 +440,24 @@ public class VM {
             int entryCode = binReader.readIntAndNext();
             
             if(entryCode == code){
-                return binReader.readIntAndNext();
+                //
+                if(addrType  == METHOD_ADDR_TYPE.Start){
+                    return binReader.readIntAndNext();
+                } else{
+                    binReader.readIntAndNext();
+                    return binReader.readIntAndNext();
+                }
             }
-            binReader.readIntAndNext();
+            
+            binReader.readAndNextBytes(2 * INT_SIZE);
+            
             k++;
         }
         
        return -1;
     }
     
-    protected int getMethodAddress(int classMetaDataPtr, int methodCode) throws VmExecutionExeption{
+    protected int getMethodAddress(int classMetaDataPtr, int methodCode, METHOD_ADDR_TYPE addrType) throws VmExecutionExeption{
         BinaryReader binReader = new BinaryReader(this.getMemHeap().getData());
         
         int methodsCount = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.METHODS_COUNT);
@@ -455,14 +465,14 @@ public class VM {
        
         
       
-        int methodAddr = findMethodAddr(methodCode, methodsCount, binReader, classMetaDataPtr + headersSize);
+        int methodAddr = findMethodAddr(methodCode, methodsCount, binReader, classMetaDataPtr + headersSize, addrType);
         if(methodAddr == -1){
             int parentClassId = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.PARENT_ID);
              
             while(parentClassId > -1){
                 classMetaDataPtr = this.getClassMetaDataPointer(parentClassId);
                 methodsCount = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.METHODS_COUNT);
-                methodAddr = findMethodAddr(methodCode, methodsCount, binReader, classMetaDataPtr + headersSize);
+                methodAddr = findMethodAddr(methodCode, methodsCount, binReader, classMetaDataPtr + headersSize, addrType);
                 if(methodAddr > -1) return methodAddr;
                 parentClassId = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.PARENT_ID); 
 
@@ -477,14 +487,42 @@ public class VM {
     protected void sysGetVirtualFuncAddr() throws  VmExecutionExeption{
          int objPtr = stackPopInt();
          int methodCode = stackPopInt();
+         int addrType = stackPopInt();
         
          int classId = getClassId(objPtr);
          int metaDataPtr = this.getClassMetaDataPointer(classId);
          
-         int methodAddr = getMethodAddress(metaDataPtr, methodCode);
+         int methodAddr = getMethodAddress(metaDataPtr, methodCode, METHOD_ADDR_TYPE.values()[addrType]);
          
          memoryManager.getMemStack().push(methodAddr);
          
+    }
+    
+    protected void sysArrangeFuncParams() throws  VmExecutionExeption{
+        
+        
+        
+        int paramsCount = stackPopInt();
+        MemoryStack memStack = this.memoryManager.getMemStack();
+        //int dbg = memStack.getIntPtrValue(2548)  ;
+        int frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart);
+        int frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
+        
+        int varAddr = memoryManager.getSysRegister(VmSysRegister.StackHeadPos);
+        
+        for(int varInd = paramsCount - 1; varInd >= 0; varInd--){
+          
+            memStack.putValue(frameHeadersPosEnd + varInd * INT_SIZE, varAddr);
+            int size = memStack.getPtrSize(varAddr);
+            //if(size == 8){
+              System.out.println(String.format("Local vaar with ind %s address is %s, value: %s",varInd,  varAddr, memStack.getPtrIntField(varAddr, VM.INT_SIZE)));
+           // }
+          varAddr = memStack.getIntPtrValue(varAddr);
+            
+        }
+       // memStack.pop();
+        /* dbg = memStack.getIntPtrValue(2548)  ;
+         dbg++;*/
     }
     
     protected void sysGarbageCollect() throws VmExecutionExeption{
@@ -525,7 +563,7 @@ public class VM {
         int varCount = memStack.getPtrSize(frameHeaders) / VM.INT_SIZE - 2; 
         int frameStart = frameHeaders + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
         int frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
-        for(int varInd = 0; varInd < varCount; varInd++){
+       /* for(int varInd = 0; varInd < varCount; varInd++){
             int varAddr = memStack.getIntValue(frameStart + varInd * INT_SIZE);
             
             Byte[] value = memStack.getPtrByteValue(varAddr, INT_SIZE);
@@ -537,7 +575,7 @@ public class VM {
                 int ptr = memStack.getPtrIntField(varAddr, VM.INT_SIZE);
                 changeIntFieldValue(ptr, 1, -1);
             }
-        }
+        }*/
 
         
         memoryManager.setSysRegister(VmSysRegister.StackHeadPos, frmStart);
@@ -582,9 +620,9 @@ public class VM {
                 memStack.push(binConvertorService.toBin(regValue));
                 break;
             case SetRegister:
-                arg = stackPopInt();
+                int regNum = stackPopInt();
                 regValue = stackPopInt();  
-                register =  VmSysRegister.values()[arg];
+                register =  VmSysRegister.values()[regNum];
                 /*if(register == VmSysRegister.F1){
                     regValue -= memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
                 }*/
@@ -615,6 +653,9 @@ public class VM {
                 break;
             case DeleteFrame:
                 sysDeleteFrame();
+                break;
+            case ArrangeFuncParams:
+                sysArrangeFuncParams();
                 break;
             default:
                 System.err.println("Callede unreliased function: " + sysFunc.toString());
@@ -682,7 +723,7 @@ public class VM {
                    
                         memStack.push(value);
                        // memStack.push(868);
-                       System.err.println("Stack push value: " + binConvertorService.bytesToInt(value, 0));
+                       System.out.println(String.format("Stack push value: %s addr: %s stackhead: %s", binConvertorService.bytesToInt(value, 0),addr, memoryManager.getSysRegister(VmSysRegister.StackHeadPos)));
                       /* System.err.println("Stack extr value: " + stackPopInt());
                         System.err.println("Stack ext2r value: " + stackPopInt());*/
                         break;
@@ -690,7 +731,7 @@ public class VM {
                        // value = memoryManager.getPtrByteValue(addr);
                        
                         memStack.push(binConvertorService.toBin(addr));
-                       System.err.println("Stack push addr: " + addr);
+                       System.out.println(String.format("Stack push addr: %s stack head:", addr, memoryManager.getSysRegister(VmSysRegister.StackHeadPos)));
                         break;    
                     case Pop:
                         memStack.pop();
@@ -806,21 +847,23 @@ public class VM {
                         frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
                         int varAddr = memStack.getIntValue(frameHeadersPosEnd + varInd * INT_SIZE);
                          
-                        value = memStack.pop(varAddr, INT_SIZE);
-                        intVal = binConvertorService.bytesToInt(value, 0);
-                        System.out.println("Put LocalcVar: " + intVal);
+                        memStack.pop(varAddr, INT_SIZE); 
+                        //value =
+                        //intVal = binConvertorService.bytesToInt(value, 0);
+                        System.out.println("Put Local_Var: " + memStack.getPtrIntField(varAddr, INT_SIZE));
                         break;
                     case Var_Load_Local:
-                        varInd = addr ;System.out.println(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
+                        varInd = addr ;
+                        //System.out.println(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
                         frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart) ;
                         frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
                         varAddr = memStack.getIntValue(frameHeadersPosEnd + varInd * INT_SIZE);
                        
                         value = memoryManager.getPtrByteValue(varAddr,INT_SIZE);
                         // intVal = binConvertorService.bytesToInt(value, 0);
-                       intVal = memStack.getPtrIntField(varAddr, INT_SIZE);
-                        System.out.println(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
-                        memStack.push(binConvertorService.integerToByte(intVal));
+                      // intVal = memStack.getPtrIntField(varAddr, INT_SIZE);
+                       // System.out.println(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
+                        memStack.push(value);
                         break;    
                     case Mov:
                         int regInd = memoryManager.getIntPtrValue(addr);
@@ -870,6 +913,33 @@ public class VM {
     }
     
   
+    protected String[] loadCodeComments() throws UnsupportedEncodingException{
+         int commentsCnt = program.readHeader(VmExeHeader.CommentsCount);
+         int commentsStart = program.readHeader(VmExeHeader.CommentsStart);
+         int commentsEnd = program.readHeader(VmExeHeader.InstructionsStart);
+         
+         TypeString convertor =(TypeString) TypesInfo.getInstance().getConvertor(VarType.String);
+         
+         if(commentsCnt > 0){
+             String res[] = new String[commentsCnt];
+             
+             BinaryReader binReader = new BinaryReader(program.getData());
+             binReader.setCurPos(commentsStart);
+
+             int k = 0;
+             while (binReader.getCurPos() < commentsEnd) {
+                 int commentSize = binReader.readIntAndNext();
+                 Byte[] binComment = binReader.readAndNextBytes(commentSize);
+                 res[k] = convertor.getValue(binComment);
+                 k++;
+             }
+             return res;
+         } else{
+             return null;
+         }
+         
+    }
+    
     protected void showFullCode(){
         int startInstrsInd = program.readHeader(VmExeHeader.InstructionsStart);
         int progStartPoint = program.readHeader(VmExeHeader.ProgramStartPoint);
@@ -884,6 +954,13 @@ public class VM {
         memProg.jump(startAddr);
        Boolean haltFlag = false; 
        Boolean customProcessFlag;
+       String[] codeComments = null;
+       try{
+           codeComments = loadCodeComments();
+       } catch(UnsupportedEncodingException e){
+           System.err.println("Can't load code comments: " + e.getMessage());
+       }
+      
        while (!haltFlag) {
              
              VMCommands command = memProg.getCommand();
@@ -896,13 +973,21 @@ public class VM {
                     System.out.println(String.format("%s %s (%s)", memProg.getAddr(), memProg.getCommand().toString(), VMSysFunction.values()[memoryManager.getIntPtrValue(addr)])) ;
                      
                    break;
+                 case Comment:
+                     
+                     if(addr > 0 ){
+                        argVal = codeComments[addr - 1];
+                        System.err.println(String.format("### %s", argVal));
+                     }
+                     break;  
                  case Halt:
                      break;
                  default:
                      customProcessFlag = false;
                    try{
                        argVal = String.format("%s(%s)", addr,  Integer.toString(memoryManager.getIntPtrValue(addr))) ;
-                  }  catch(Exception e){
+                   }  catch(Exception e){
+                       
                    }
                      
                      

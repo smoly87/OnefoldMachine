@@ -12,8 +12,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import main.ByteUtils;
 import types.TypeBoolean;
+import types.TypeString;
 import virtual.machine.DataBinConvertor;
 import types.TypesInfo;
 import virtual.machine.VMCommands;
@@ -62,6 +65,18 @@ public class BinBuilder {
      public void writeHeader(VmExeHeader header, int value){
          //All headers is int
          binConverter.setIntegerToByteList(fullData, value, header.ordinal() * VM.INT_SIZE); 
+     }
+     
+     public BinBuilder addCommentsSection(LinkedList<String> comments){
+         TypeString convertor =(TypeString) TypesInfo.getInstance().getConvertor(VarType.String);
+         for(String comment: comments){
+             Byte[] val = convertor.toBinary(comment);
+             fullData.addAll(binConverter.integerToByteList(val.length));
+             fullData.addAll(ByteUtils.listFromArr(val));
+         }
+         writeHeader(VmExeHeader.CommentsCount, comments.size()); 
+         writeHeader(VmExeHeader.InstructionsStart, fullData.size()); 
+         return this;
      }
      
      public BinBuilder addVarSection(LinkedHashMap<String, VarDescription> varsMap){
@@ -129,7 +144,7 @@ public class BinBuilder {
         fullData.addAll(metaBinBuilder.getClassesMetaInfo());
         
         writeHeader(VmExeHeader.ClassesTableSize, MetaClassesInfo.getInstance().classesMap.size()); 
-        writeHeader(VmExeHeader.InstructionsStart, fullData.size()); 
+        writeHeader(VmExeHeader.CommentsStart, fullData.size()); 
         return this;
     }
     

@@ -9,6 +9,7 @@ import common.Token;
 import common.VarType;
 import compiler.AstCompiler;
 import compiler.CompilerSubscriber;
+import compiler.exception.CompilerException;
 import java.util.LinkedList;
 import java.util.StringJoiner;
 import program.builder.ClassInfo;
@@ -25,7 +26,7 @@ import virtual.machine.VMCommands;
 public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
 
     protected String curFuncName;
-    protected StringBuilder argsSignatureBuilder;
+    
     protected ClassInfo classInfo;
     protected int funcStartLine = -1;
     
@@ -35,7 +36,7 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
     }
     
     @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) {
+    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
        
       
@@ -50,22 +51,24 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
                 break;
             case "EndClass":
                 //this.commitCurMethod(programBuilder);
+                programBuilder.addInstruction(VMCommands.NOP);
+                classInfo.setEndClassLine(programBuilder.commandsSize());
                 MetaClassesInfo.getInstance().addClassInfo(classInfo);
                 classInfo = new ClassInfo(node.getToken().getValue());
                 break;
                 
-            case "FunctionId":
-                funcStartLine = programBuilder.commandsSize();
+            case "StartFunctionBody":
+               /* funcStartLine = programBuilder.commandsSize();
                 this.curFuncName = token.getValue();
-                argsSignatureBuilder = new StringBuilder();
-                commitCurMethod(programBuilder);
-                
-                
+             
+                commitCurMethod(programBuilder);*/
+                FunctionCompiler funcCompiler  = (FunctionCompiler)this.getCompiler("Function");
+                classInfo.addMethod(funcCompiler.getCurrentFunction());
                 break;
-            case "VarDescription":
+           /* case "VarDescription":
                 VarType type = node.getToken().getVarType();
                 argsSignatureBuilder.append(Integer.toString(type.ordinal()));
-                break;
+                break;*/
             case "Field":
                 classInfo.addField(token.getValue(), token.getVarType());
                 break;    
@@ -80,13 +83,13 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
     }
     
 
-    protected void commitCurMethod(ProgramBuilder programBuilder){ 
+    /*protected void commitCurMethod(ProgramBuilder programBuilder){ 
         if (this.curFuncName != null) {
             ///String funcName = this.curFuncName + ":" + argsSignatureBuilder.toString();
-            classInfo.addMethod(curFuncName,argsSignatureBuilder.toString(), funcStartLine);
+            classInfo.addMethod(curFuncName, argsSignatureBuilder.toString());
         }
     }
-   
+   */
 
    /* @Override
     public void nodeProcessEvent(AstNode node, ProgramBuilder programBuilder) {

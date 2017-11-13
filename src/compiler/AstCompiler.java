@@ -11,6 +11,7 @@ import compiler.exception.CompilerException;
 import java.util.LinkedList;
 import syntax.analyser.AstNode;
 import program.builder.ProgramBuilder;
+import program.builder.VarDescription;
 import syntax.analyser.CompilersFactory;
 import virtual.machine.VMCommands;
 import virtual.machine.VMSysFunction;
@@ -75,7 +76,9 @@ public abstract class AstCompiler {
             return;
         }
         if (programBuilder.isVarExists(varName)) {
-            programBuilder.addInstructionVarArg(VMCommands.Var_Load, varName, false);
+           /* VarDescription verDescr = programBuilder.getVarDescription(varName);
+            verDescr.getType() == VarType.ClassPtr ? VMCommands.Push_Addr:*/
+            programBuilder.addInstructionVarArg( VMCommands.Var_Load, varName, false);
             return;
         }
 

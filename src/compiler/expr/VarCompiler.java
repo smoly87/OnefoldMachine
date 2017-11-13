@@ -26,6 +26,10 @@ import virtual.machine.VMCommands;
 public class VarCompiler extends AstCompiler{
 
     protected int localVarsCount;
+
+    public void setLocalVarsCount(int localVarsCount) {
+        this.localVarsCount = localVarsCount;
+    }
     protected TypesInfo typesInfo;
 
     

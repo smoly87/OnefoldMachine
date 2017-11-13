@@ -73,7 +73,13 @@ public class CommandInterpreter {
                 this.compileStage();
                 break;
             case "compile_run":
-                prog = this.compileStage();
+                try {
+                    prog = this.compileStage();
+                } catch (ParserException parserException) {
+                    throw parserException;
+                } catch (CompilerException compilerException) {
+                    throw compilerException;
+                } 
                 this.runProgram(prog);
                 break;
             case "run":
@@ -88,6 +94,7 @@ public class CommandInterpreter {
     
     
     protected Program compileStage() throws FileNotFoundException, ParserException, CompilerException, IOException{
+        
         Program prog = this.compile();
         ProgramFileSys programFileSys = new ProgramFileSys();
         

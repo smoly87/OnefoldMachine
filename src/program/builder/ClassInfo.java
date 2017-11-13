@@ -6,6 +6,7 @@
 package program.builder;
 
 import common.VarType;
+import compiler.exception.CompilerException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.SortedMap;
@@ -20,7 +21,7 @@ import types.TypesInfo;
  */
 public class ClassInfo {
     protected MetaClassesInfo metaInfo;
-    protected TreeMap<Integer, MethodDescription> methodsList;
+    protected TreeMap<Integer, FunctionDescription> methodsList;
     protected TreeMap<Integer, FieldDescription> fieldsList;
     protected HashSet<String> methodsListStr;
     protected HashSet<String> fieldsListStr;
@@ -28,6 +29,53 @@ public class ClassInfo {
     protected String parentClass;
     protected int parentId = -1;
 
+    protected int endClassLine;
+
+    public int getEndClassLine() {
+        return endClassLine;
+    }
+
+    public void setEndClassLine(int endClassLine) {
+        this.endClassLine = endClassLine;
+    }
+    
+    /*public FunctionDescription getFunctionDescription(){
+        
+    }*/
+    
+    public boolean isMethodExists(String methodName, String signature){
+        int code = metaInfo.getFuncCode(methodName, signature);
+        if(methodsList.containsKey(code)) return true;
+        if(parentClass !=""){
+           String curParentClass =  parentClass;
+           while(curParentClass !=null){
+              ClassInfo parentClassInfo = metaInfo.getClassInfo(curParentClass); 
+              if(parentClassInfo.isMethodExists( methodName, signature)) return true;
+              curParentClass = parentClassInfo.getParentClass();
+           } 
+        }
+        return false;
+    }
+    
+    public FunctionDescription getMethodDescription(String methodName, String signature){
+ 
+        int code = metaInfo.getFuncCode(methodName, signature);
+        if(methodsList.containsKey(code)) return methodsList.get(code);
+        
+        if(parentClass !=""){
+           String curParentClass =  parentClass;
+           while(curParentClass !=null){
+              ClassInfo parentClassInfo = metaInfo.getClassInfo(curParentClass); 
+              if(parentClassInfo.isMethodExists( methodName, signature)) {
+                 return parentClassInfo.getMethodDescription(methodName, signature);
+              }
+              curParentClass = parentClassInfo.getParentClass();
+           } 
+        }
+        return null;
+        //return methodsList.get(code);
+    }
+    
     public int getParentId() {
         return parentId;
     }
@@ -58,7 +106,7 @@ public class ClassInfo {
         return false;
     }
     
-    public TreeMap<Integer, MethodDescription> getMethodsList() {
+    public TreeMap<Integer, FunctionDescription> getMethodsList() {
         return methodsList;
     }
 
@@ -110,15 +158,19 @@ public class ClassInfo {
         this.className = className;
     }
     
-    public void addMethod(String name, String signature, int address){
-       int methodCode =  metaInfo.getMethodCode(name);
-       MethodDescription methodDescr = new MethodDescription();
+    public void addMethod(FunctionDescription methodDescr) throws CompilerException{
+       //FunctionDescription methodDescr =   metaInfo.getFuncDescr(name, signature);
+      /* MethodDescription methodDescr = new MethodDescription();
+       
        methodDescr.setCode(methodCode);
-       methodDescr.setAddress(address);
-       
-       methodsList.put(methodCode, methodDescr);
-       
-       methodsListStr.add(name);
+       methodDescr.setAddress(address);*/
+       //methodDescr.setCode(methodsList.size());
+       String methodSign = methodDescr.getSignature();
+       String funcName = methodDescr.getFuncName();
+       methodDescr.setCode(metaInfo.getFuncCodeOrAdd(funcName, methodSign));
+       this.methodsList.put(methodDescr.getCode(), methodDescr);
+       //methodsList.put(methodDescr.getCode(), methodDescr);
+       methodsListStr.add(methodDescr.getFullName());
        
     }
     

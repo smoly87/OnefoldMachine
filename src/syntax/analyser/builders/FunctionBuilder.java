@@ -29,6 +29,8 @@ import syntax.analyser.parser.ParserTag;
  */
 public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     
+    protected String compilerName = "Function";
+    
     protected Parser getVarBlockRepeatedParser(){
         return new ParserOptional( new ParserRepeated(this.getParser("Var")));
     }
@@ -55,32 +57,39 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
             .addKeyword("(")
             .add(getVarBlockRepeatedParser(), "VarsBlock")
             .addKeyword(")")
-            .addKeyword("{") // Body of function
+            .addKeyword("{", "StartFunctionBody") // Body of function
             .add(getFunctionBodyParser(), "FunctionBody") 
             .addKeyword("Return").add(getReturnStatementParser(), "ReturnStatement").addKeyword(";")
             .addKeyword("}", "EndFunction");
             //.addKeyword(";");
             
     }
+    
+    
+    
     @Override
     public  AstNode processChainResult(HashMap<String, AstNode> result){
         //Reorder operators by calculations
+        
+        
+        
         AstNode rootNode = result
                           .get("Function")
-                          .setCompiler(this.getCompiler("Function"))
+                          
                           .setName("FunctionHeader")
                           .addChildNode(result.get("Id"), "FunctionId")
                 
-                          .addChildNode(addAutoDecalared( "__ReturnAddress"))
-                          .addChildNode(addAutoDecalared( "__FrameStackRegister"))
-                          .addChildNode(addAutoDecalared( "this"))
-                          
-                          .addChildNode(result.get("VarsBlock"), "VarsBlock")
-
+                          .addChildNode(addAutoDecalared( "__ReturnAddress"), "VarDescription")
+                          .addChildNode(addAutoDecalared( "__FrameStackRegister"), "VarDescription")
+                          .addChildNode(addAutoDecalared( "this"), "VarDescription");
+        transformVarsNode(result.get("VarsBlock"), rootNode);    
+        
+                          //.addChildNode(varsNode, "VarsBlock")
+                  rootNode.addChildNode(result.get("StartFunctionBody"), "StartFunctionBody")
                           .addChildNode(result.get("FunctionBody"), "FunctionBody")
                           .addChildNode(result.get("ReturnStatement"), "ReturnStatement")
-                          .addChildNode(result.get("EndFunction"), "EndFunction");
-        
+                          .addChildNode(result.get("EndFunction"), "EndFunction")
+                          .setCompiler(this.getCompiler(this.compilerName));
         System.out.println("Function parser has been reached");
         return rootNode;
     }
@@ -88,7 +97,7 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     protected AstNode addAutoDecalared( String varName){
         AstNode node = new AstNode();
         
-        AstNode idNode = new AstNode();
+        /*AstNode idNode = new AstNode();
         idNode.setToken(new Token("Id", new Tag("Id"), varName));
         
         AstNode typeNode = new AstNode();
@@ -97,8 +106,10 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
         node.setCompiler(this.getCompiler("Var"));
         
         node.addChildNode(idNode, "Id");
-        node.addChildNode(typeNode, "Type");
+        node.addChildNode(typeNode, "Type");*/
         
+        node = processVarDescriptionNode(node, varName, VarType.Integer);
+        node.addCompiler(this.getCompiler(compilerName));
         return node;
     }
   

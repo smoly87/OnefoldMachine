@@ -37,9 +37,9 @@ public class WhileCompiler extends AstCompiler{
                 Integer startCycle = logExprCmdNum * VM.COMMAND_SIZE;
                 programBuilder.addInstruction(VMCommands.Jmp, startCycle.toString() , VarType.Integer, false);
               
-                int commandsSize = programBuilder.commandsSize(); 
-                programBuilder.addInstruction(VMCommands.NOP);
-                programBuilder.changeCommandArgByNum(jmpOutCycleAddr, commandsSize, VarType.Integer, false);
+               
+                //programBuilder.addInstruction(VMCommands.NOP);
+                programBuilder.changeCommandArgByNum(jmpOutCycleAddr, programBuilder.commandsSize(), VarType.Integer, false);
                 break;
         }
     }

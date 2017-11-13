@@ -11,6 +11,15 @@ package program.builder;
  */
 public class MethodDescription extends ClassMemeberDescription{
     protected int address;
+    protected int bodyAddress;
+
+    public int getBodyAddress() {
+        return bodyAddress;
+    }
+
+    public void setBodyAddress(int bodyAddress) {
+        this.bodyAddress = bodyAddress;
+    }
 
     public int getAddress() {
         return address;

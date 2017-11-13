@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.StringJoiner;
 import types.TypesInfo;
@@ -40,9 +41,15 @@ public class ProgramBuilder  {
     protected LinkedHashMap<String, VarDescription> localVarsMap;
     protected LinkedHashMap<ValueDescription, Integer> valuesMap;
     
+    protected LinkedList<String> codeComments;
+    
     protected int totalLocalVarSizes;
 
     protected int commandsCount;
+
+    public int getCommandsCount() {
+        return commandsCount;
+    }
     
     public int getTotalLocalVarSizes() {
         return totalLocalVarSizes;
@@ -74,7 +81,7 @@ public class ProgramBuilder  {
         totalLocalVarSizes = 0;
     }
     
-    public ProgramBuilder(){
+    public ProgramBuilder() throws CompilerException{
         asmText = new StringJoiner("\\n");
         instructionsService = Instructions.getInstance();
         binConvertorService = DataBinConvertor.getInstance();
@@ -82,11 +89,12 @@ public class ProgramBuilder  {
         valuesMap = new LinkedHashMap<>();
         localVarsMap = new LinkedHashMap<>();
         progData = new ArrayList<>();
+        codeComments = new LinkedList<>();
         
         totalLocalVarSizes = 0;
         typesInfo = TypesInfo.getInstance();
         commandsCount = 0;
-        addInstruction(VMCommands.NOP, 0, VarType.Integer);
+        addInstruction(VMCommands.NOP);
     }
     
     public void addVar(String name, VarType type){
@@ -95,7 +103,7 @@ public class ProgramBuilder  {
     
     public void addVar(String name, String className ){
         
-       addVar(name, VarType.Integer, className, varsMap) ;   
+       addVar(name, VarType.ClassPtr, className, varsMap) ;   
     }
     
     public void addLocalVar(String name, VarType type){
@@ -171,6 +179,7 @@ public class ProgramBuilder  {
                   .addConstSection(valuesMap)
                   .addVarSection(varsMap)
                   .addClassesMetaInfo()
+                  .addCommentsSection(codeComments)
                   .addSection(this.progData)
                   .addEntryPoint()
                   .getResult();
@@ -185,6 +194,12 @@ public class ProgramBuilder  {
     
     protected void addData(ArrayList<Byte> data){
         this.progData.addAll(data);
+    }
+    
+    public void addComment(String comment){
+        codeComments.add(comment);
+        Integer commentId = codeComments.size();
+        this.addInstruction(VMCommands.Comment, commentId.toString(), VarType.Integer, false);
     }
     
     public int addInstruction(VMCommands command) throws CompilerException{

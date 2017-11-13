@@ -9,9 +9,12 @@ import common.Token;
 import common.VarType;
 import compiler.AstCompiler;
 import compiler.exception.CompilerException;
+import program.builder.ClassInfo;
+import program.builder.FuncSignatureBuilder;
 import program.builder.FunctionDescription;
 import program.builder.MetaClassesInfo;
 import program.builder.ProgramBuilder;
+import program.builder.VarDescription;
 import syntax.analyser.AstNode;
 import types.TypesInfo;
 import virtual.machine.VM;
@@ -32,43 +35,28 @@ public class FunctionCallCompiler extends AstCompiler{
     protected int varNum ;
     protected boolean objMethod = false;
     protected String objName;
+    protected String methodName;
     
-    protected int retLineNum;
+    protected Integer retLineNum;
+    protected Integer startArgsLineNum;
+    protected  String argSignature ;
+  
     /*At the begin of frame table is
     Link to caller(this)|Stack Position out of Frame|Return address
     */
-   
     public FunctionCallCompiler(){
         typesInfo = TypesInfo.getInstance();
+
     }
     
    
-    
-   /* protected void decalareReturnAddressVariable(String callerName, ProgramBuilder programBuilder) throws CompilerException{
-        programBuilder.addInstruction(VMCommands.Push, TypesInfo.getInstance().getTypeSize(VarType.Integer), VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Var_Declare_Local_Def_value, Integer.toString(varNum ), VarType.Integer);
-
-        varNum++;
-    }
-    
-    protected void decalareThisVariable(String callerName, ProgramBuilder programBuilder) throws CompilerException{
-        //programBuilder.addInstruction(VMCommands.Push, TypesInfo.getInstance().getTypeSize(VarType.Integer), VarType.Integer);
-        this.addVarLoadCommand(callerName, programBuilder);
-        //programBuilder.addInstruction(VMCommands.Push, varNum, VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Push, 1, VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Var_Declare_Local, Integer.toString(varNum ), VarType.Integer);
-        //this.addVarLoadCommand(callerName, programBuilder);
-       //programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeferPtrValue), VarType.Integer);
-        varNum++;
-    }
-    */
     protected void addCallParamValue(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         Token token =  node.getToken();
         String tokName = token.getTagName();
         
         
-       VarType argType = funcDescr.getArgDescr(varNum).getVarType();
-                
+      //funcDescr.getArgDescr(varNum).getVarType();
+        //signBuilder.addArgType(argType);
         switch(tokName){
              //Do Nothing with mathExpr
              //In math expr loadvar
@@ -81,7 +69,8 @@ public class FunctionCallCompiler extends AstCompiler{
                 
                 break;
              default:
-                 
+                 String strType = node.getToken().getTagName() ;
+                 VarType argType = VarType.valueOf(strType);
                  programBuilder.addInstruction(VMCommands.Push, token.getValue(), argType);
                  //programBuilder.addInstruction(VMCommands.Push, 0 , VarType.Integer);
                  //TODO: How to set value?
@@ -89,12 +78,12 @@ public class FunctionCallCompiler extends AstCompiler{
             
         }
         //programBuilder.addInstruction(VMCommands.Push, varNum, VarType.Integer);
-         programBuilder.addInstruction(VMCommands.Var_Declare_Local, Integer.toString(varNum ), VarType.Integer);
-        
-        
+         
       varNum++;
 
     }
+    
+    
     /*
     protected void decalareReturnAddress(ProgramBuilder programBuilder) throws CompilerException{
         //Line to Return
@@ -108,28 +97,52 @@ public class FunctionCallCompiler extends AstCompiler{
     
     protected void addCommandsSaveState(ProgramBuilder programBuilder) throws CompilerException{
           
+         programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.T3), VarType.Integer);
+       programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
+
               
-        programBuilder.addInstruction(VMCommands.Push, VmSysRegister.StackHeadPos.ordinal(), VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Push, 0 , VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Var_Put_Local, Integer.toString(varNum), VarType.Integer);
+       /* programBuilder.addInstruction(VMCommands.Push, VmSysRegister.StackHeadPos.ordinal(), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);*/
+        //programBuilder.addInstruction(VMCommands.Push, 0 , VarType.Integer);
+       // programBuilder.addInstruction(VMCommands.Var_Put_Local, Integer.toString(varNum), VarType.Integer);
          varNum++;
         //programBuilder.addInstruction(VMCommands.Var_Put_Local, "__ReturnAddress", VarType.Integer);
         //programBuilder.addInstruction(VMCommands.Push, getSy, VarType.Integer, false);
     }
     
     protected void addRetPlaceHolder(ProgramBuilder programBuilder) throws CompilerException{
-        retLineNum = programBuilder.addInstruction(VMCommands.Push, "0", VarType.Integer, false);
+        //retLineNum = programBuilder.addInstruction(VMCommands.NOP, "0", VarType.Integer, false);
         
+        retLineNum = programBuilder.addInstruction(VMCommands.Push, 0, VarType.Integer);
+       // programBuilder.addComment("Ret placeholder");
+        varNum++;
         /*programBuilder.addInstruction(VMCommands.Push, VmSysRegister.ProgOffsetAddr.ordinal(), VarType.Integer);
         programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
         programBuilder.addInstruction(VMCommands.Add);*/
-                
-        programBuilder.addInstruction(VMCommands.Var_Put_Local, Integer.toString(varNum), VarType.Integer);
-        varNum++;
+       // varNum++;        
+        //programBuilder.addInstruction(VMCommands.Var_Put_Local,"0", VarType.Integer);
+
     }
     
+    public void addCommandGetVirtualMethodAddr(VM.METHOD_ADDR_TYPE addrType, ProgramBuilder programBuilder) throws CompilerException{
+        programBuilder.addInstruction(VMCommands.Push, addrType.ordinal(), VarType.Integer);
+
+        Integer methodCode = MetaClassesInfo.getInstance().getMethodCode(funcDescr.getFuncName());
+
+        programBuilder.addInstruction(VMCommands.Push, methodCode.toString(), VarType.Integer);
+        this.addVarLoadCommand(objName, programBuilder);
+
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetVirtualFuncAddr), VarType.Integer);
+               
+    }
     
+    protected void addThisValue(String varName, ProgramBuilder programBuilder) throws CompilerException{
+
+       /* Integer ind = programBuilder.getVarCode(varName);
+        programBuilder.addInstruction(VMCommands.Push,ind ,VarType.Integer);*/
+       this.addVarLoadCommand(objName, programBuilder);
+        varNum++;
+    }
     
     @Override
     public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
@@ -142,27 +155,39 @@ public class FunctionCallCompiler extends AstCompiler{
               varNum = 0;
               objMethod = false;
               objName = null;
-              funcDescr = MetaClassesInfo.getInstance().getFuncDescr(token.getValue());
+              //funcDescr = MetaClassesInfo.getInstance().getFuncDescr(token.getValue());
+              methodName = token.getValue();
               
-
-              addRetPlaceHolder(programBuilder); // Local var with index 0 is always Return address
-              addCommandsSaveState(programBuilder);// Local var with index 1 is always FramePosition
               
               break;
             case "ObjName":
                 objMethod = true;
                 objName = token.getValue();
-                addCallParamValue(node, programBuilder);// Local var with index 2 is always link to this
+                
+                  programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.StackHeadPos), VarType.Integer);
+                  programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.T3.ordinal(), VarType.Integer);
+
+                
+                //programBuilder.addComment("Puth $this");
+               // 
+              //  addCallParamValue(node, programBuilder);// Local var with index 2 is always link to this
+                 //addCallParamValue(node, programBuilder);
+                //programBuilder.addComment("Puth En");
+                VarDescription varDescr =  programBuilder.getVarDescription(objName);
+                ClassInfo classInfo = MetaClassesInfo.getInstance().getClassInfo(varDescr.getClassName()) ;
+                if(!classInfo.isMethodExists(methodName, argSignature)){
+                    throw new CompilerException(String.format("There is no realization for method %s in class %s with signature %s", methodName, varDescr.getClassName(), argSignature));
+                } else{
+                    funcDescr = classInfo.getMethodDescription(methodName, argSignature);
+                }
+                //TODO: Load signature 
+                
+                
                 break;
             case "EndCall":
-                if(varNum < funcDescr.getArgsCount()) {
-                    throw new CompilerException(String.format(
-                            "It should be exactly %s params in call function %s. %s given", 
-                            funcDescr.getArgsCount(), funcDescr.getFuncName(), varNum
-                    ));
-                }
+               
                 //Add number of line to return after function
-                programBuilder.addInstruction(VMCommands.Push, 0, VarType.Integer); 
+               Integer retLineToFill = programBuilder.addInstruction(VMCommands.Push, 0, VarType.Integer); 
                /* int commandRet = programBuilder.commandsSize() - VM.COMMAND_SIZE;
                 
                 programBuilder.addInstruction(VMCommands.Push, VmSysRegister.F1.ordinal(), VarType.Integer);
@@ -170,29 +195,50 @@ public class FunctionCallCompiler extends AstCompiler{
                 
                 if(objMethod){
                     //String varClass = programBuilder.getVarDescription(objName).getClassName();
-                    Integer methodCode = MetaClassesInfo.getInstance().getMethodCode(funcDescr.getFuncName());
                     
-                    programBuilder.addInstruction(VMCommands.Push, methodCode.toString() , VarType.Integer);
-                    this.addVarLoadCommand(objName, programBuilder);
-              
-                    programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetVirtualFuncAddr), VarType.Integer);
-                    
-                    addRetPlaceHolder(programBuilder);
+                    //Set address type - entry point to function
+                    addCommandGetVirtualMethodAddr(VM.METHOD_ADDR_TYPE.Start, programBuilder);
+                    //addRetPlaceHolder(programBuilder);
                     programBuilder.addInstruction(VMCommands.Jmp, "0" , VarType.Integer, false);
                 } else{
-                    addRetPlaceHolder(programBuilder);
-                    programBuilder.addInstruction(VMCommands.Jmp, Integer.toString(funcDescr.getLineNumber()) , VarType.Integer, false);
+                    //addRetPlaceHolder(programBuilder);
+                    programBuilder.addInstruction(VMCommands.Jmp, Integer.toString(funcDescr.getLineNumber()) , VarType.Integer, true);
                 }
                 
                 int  commandsSize = programBuilder.addInstruction(VMCommands.NOP);
                 //programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeleteFrame), VarType.Integer);
-                //programBuilder.changeCommandArg(retLineNum, programBuilder.commandsSize(), VarType.Integer);
-                programBuilder.changeCommandArgByNum(retLineNum, commandsSize * VM.COMMAND_SIZE, VarType.Integer, true);
+               // programBuilder.changeCommandArgByNum(retLineNum, programBuilder.commandsSize(), VarType.Integer, true);
+               programBuilder.changeCommandArgByNum(retLineToFill, programBuilder.commandsSize(), VarType.Integer, true);
+              // programBuilder.addComment("After ret first part");
                 //programBuilder.clearLocalVars();
+               programBuilder.addComment("Local var fill");
+               //    addRetPlaceHolder(programBuilder); // Local var with index 0 is always Return address
+              retLineNum = programBuilder.addInstruction(VMCommands.Push, 0, VarType.Integer);
+                //  programBuilder.addInstruction(VMCommands.Push, programBuilder.commandsSize(), VarType.Integer);
+            
+               addCommandsSaveState(programBuilder);// Local var with index 1 is always FramePosition
+                addThisValue(objName, programBuilder);
+                
+                break;
+            case "StartArgs":
+                startArgsLineNum = programBuilder.addInstruction(VMCommands.NOP);
                 break;
             case "Arg":
               addCallParamValue(node, programBuilder);
               break;
+            case "AfterArgsBlock":
+                //For ArrangeFunc params function.
+                programBuilder.addInstruction(VMCommands.Push, funcDescr.getArgsCount(), VarType.Integer);
+                if(objMethod){
+                  addCommandGetVirtualMethodAddr(VM.METHOD_ADDR_TYPE.StartBody, programBuilder);
+                  programBuilder.addInstruction(VMCommands.Jmp, "0" , VarType.Integer, false);
+                  programBuilder.addInstruction(VMCommands.NOP);
+               //programBuilder.changeCommandArgByNum(retLineNum, programBuilder.commandsSize(), VarType.Integer, true);
+                }else{
+                    throw new CompilerException("Funtion call in global context not releazed yet.");
+                }  
+                programBuilder.changeCommandArgByNum(retLineNum, programBuilder.commandsSize(), VarType.Integer, true);
+                break;
         }
         
         
@@ -202,8 +248,28 @@ public class FunctionCallCompiler extends AstCompiler{
 
     @Override
     public void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
-       /* callFromLineNum = programBuilder.getLineCount();
-        programBuilder.addInstruction(VMCommands.Jmp, callFromLineNum.toString());*/
+       AstNode argsNode = node.findChild("ArgsBlock");
+       if(argsNode == null) return;
+       FuncSignatureBuilder signBuilder = new FuncSignatureBuilder();
+       
+       signBuilder.addArgType(VarType.Integer); // AutoGenerated Return Address
+       signBuilder.addArgType(VarType.Integer); // AutoGenerated Stack Position Address
+       signBuilder.addArgType(VarType.Integer); // AutoGenerated link to this
+       
+       for(AstNode curNode: argsNode.getChildNodes()){
+           AstNode argNode = curNode.findChild("Arg");
+           String argTypeStr = argNode.getToken().getTag().getName();
+           //TODO: Load info about variable from global or local context
+           switch(argTypeStr){
+               case "Id":
+                   throw new CompilerException("Need to releaze Loading info about variable from global or local context");
+                   //break;
+               default:
+                   signBuilder.addArgType(VarType.valueOf(argTypeStr));
+           }
+       }
+       argSignature = signBuilder.getSignature();
+      
     }
 
     @Override

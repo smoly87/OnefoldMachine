@@ -18,5 +18,5 @@ public enum VMCommands {
     Invoke_Sys_Function,
     Mov, Dup,
     Cmp, CmpMore, CmpLess,
-    JmpIf,JmpIfNot
+    JmpIf,JmpIfNot, Comment
 }

@@ -5,6 +5,7 @@
  */
 package main;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -29,6 +30,10 @@ public class ByteUtils {
         }
         
         return Bytes;
+    }
+    
+    public static ArrayList<Byte> listFromArr(Byte[] arr){
+       return new ArrayList<>(Arrays.asList(arr));
     }
     
     public static <T> T[] concat(T[] first, T[] second) {
