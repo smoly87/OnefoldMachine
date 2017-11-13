@@ -81,6 +81,7 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
                 
                           .addChildNode(addAutoDecalared( "__ReturnAddress"), "VarDescription")
                           .addChildNode(addAutoDecalared( "__FrameStackRegister"), "VarDescription")
+                          .addChildNode(addAutoDecalared( "__FrameTableStart"), "VarDescription")
                           .addChildNode(addAutoDecalared( "this"), "VarDescription");
         transformVarsNode(result.get("VarsBlock"), rootNode);    
         

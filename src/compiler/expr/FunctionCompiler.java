@@ -159,6 +159,7 @@ public class FunctionCompiler extends AstCompiler{
                 //Return to call address
                 //programBuilder.addInstruction(VMCommands.Push, VmSysRegister.F1.ordinal(), VarType.Integer);
                // programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
+                programBuilder.addComment("Load Return Addr");
                 programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, "__ReturnAddress",  true);
                 programBuilder.addInstruction(VMCommands.Push, VmSysRegister.T1.ordinal(), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
@@ -167,7 +168,9 @@ public class FunctionCompiler extends AstCompiler{
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);             
                 programBuilder.addInstruction(VMCommands.Add, 0, VarType.Integer);*/
                 
-                //If address is null it will be got from stack  
+                //Params for clear stack
+                programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, "__FrameTableStart",  true);
+                programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, "__FrameStackRegister",  true);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeleteFrame), VarType.Integer);
                 
                 programBuilder.addInstruction(VMCommands.Push, VmSysRegister.T2.ordinal(), VarType.Integer);

@@ -109,7 +109,7 @@ public class MetaClassesInfo {
     }
     
     protected int getOrAddCode(HashMap<String, Integer> collection, String value){
-        int code = 0;
+        int code = -1;
         if(!collection.containsKey(value)){
             code = collection.size();
             collection.put(value, code);

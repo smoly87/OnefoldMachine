@@ -72,7 +72,14 @@ public abstract class AstCompiler {
         
         
         if (programBuilder.isLocalVariableExists(varName)) {
-            programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, varName, true);
+            if(varName.equals("this")){
+                programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.T4), VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
+            } else{
+                programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, varName, true);
+            }
+            
+      
             return;
         }
         if (programBuilder.isVarExists(varName)) {

@@ -14,6 +14,6 @@ public enum VmSysRegister {
    ProgOffsetAddr, ProgEndAddr,
    ProgDataMemHeapOffset,
    F1, F2,
-   T1, T2, T3, T4
+   T1, T2, T3, T4, T5, T6
    
 }
