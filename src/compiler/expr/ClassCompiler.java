@@ -28,6 +28,10 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
     protected String curFuncName;
     
     protected ClassInfo classInfo;
+
+    public ClassInfo getClassInfo() {
+        return classInfo;
+    }
     protected int funcStartLine = -1;
     
     public ClassCompiler(){

@@ -1,17 +1,17 @@
 Class baz {
 Public bazar:Integer;
-/*Function Integer protest(Var b:Integer;Var a:Integer;){
+Function Integer protest(Var b:Integer;Var a:Integer;){
 Var v:Integer;
 Let a = 7898;
 Return 86;
-}*/
-Function Integer test(Var al:Integer;Var bl:Integer;Var dl:Integer;){
+}
+Function Integer test(Var al:Integer;Var bl:Integer;Var a:baz;){
 Var d:Integer;
 /*Let this.bazar = 7898;*/
 /*Let d =882;*/
 Let bl = 104;
 /*Let this.bazar = 4444;*/
-/*Let bl = Call this.protest(1414,1616);*/
+Let  bl = Call this.protest(1414,1616);
 Return 688;
 }
 }
@@ -29,8 +29,9 @@ Let a = New foo();
 Let a.bar = 450;
 Let b = 98989;
 /*Let a.bazar = 850;*/
-Let b = Call a.test(111, 222,333);
-/*Let b = Call a.protest(33333,552);*/
+/*Let b = Call a.protest(111, 222);*/
+Let b = Call a.test(33333,552);
+/*Let b = 3;*/
 /*Sys PrintObjField(a, 3);*/
 /*Sys PrintObjField(a, 3);*/
 /*Let c = a;

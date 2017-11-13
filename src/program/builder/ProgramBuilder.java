@@ -199,7 +199,7 @@ public class ProgramBuilder  {
     public void addComment(String comment){
         codeComments.add(comment);
         Integer commentId = codeComments.size();
-        this.addInstruction(VMCommands.Comment, commentId.toString(), VarType.Integer, false);
+        this.addInstruction(VMCommands.NOP, commentId.toString(), VarType.Integer, false);
     }
     
     public int addInstruction(VMCommands command) throws CompilerException{

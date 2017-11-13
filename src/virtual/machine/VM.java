@@ -705,8 +705,9 @@ public class VM {
         MemoryStack memStack = this.memoryManager.getMemStack();
         MemoryHeap memHeap = this.memoryManager.getMemHeap();
         //Continue in jmp
-        
+        String[] codeComments = loadCodeComments();
         memProg.jump(startAddr);
+        
         
         Byte[] value;
         int intVal = -1;
@@ -872,6 +873,10 @@ public class VM {
                         memoryManager.setSysRegister(VmSysRegister.values()[regInd], val);
                         break;
                     case NOP:
+                        if(addr > 0){
+                            System.out.println("###" + codeComments[addr - 1]); 
+                        }
+                         
                         break;
                     case Dup:
                         value = memStack.pop();
@@ -913,7 +918,8 @@ public class VM {
     }
     
   
-    protected String[] loadCodeComments() throws UnsupportedEncodingException{
+    protected String[] loadCodeComments() { 
+       try{
          int commentsCnt = program.readHeader(VmExeHeader.CommentsCount);
          int commentsStart = program.readHeader(VmExeHeader.CommentsStart);
          int commentsEnd = program.readHeader(VmExeHeader.InstructionsStart);
@@ -937,8 +943,15 @@ public class VM {
          } else{
              return null;
          }
-         
+       
+          
+       } catch(UnsupportedEncodingException e){
+           System.err.println("Can't load code comments: " + e.getMessage());
+       }
+       return null;
     }
+    
+  
     
     protected void showFullCode(){
         int startInstrsInd = program.readHeader(VmExeHeader.InstructionsStart);
@@ -954,12 +967,8 @@ public class VM {
         memProg.jump(startAddr);
        Boolean haltFlag = false; 
        Boolean customProcessFlag;
-       String[] codeComments = null;
-       try{
-           codeComments = loadCodeComments();
-       } catch(UnsupportedEncodingException e){
-           System.err.println("Can't load code comments: " + e.getMessage());
-       }
+       String[] codeComments = loadCodeComments();
+      
       
        while (!haltFlag) {
              
@@ -973,7 +982,7 @@ public class VM {
                     System.out.println(String.format("%s %s (%s)", memProg.getAddr(), memProg.getCommand().toString(), VMSysFunction.values()[memoryManager.getIntPtrValue(addr)])) ;
                      
                    break;
-                 case Comment:
+                 case NOP:
                      
                      if(addr > 0 ){
                         argVal = codeComments[addr - 1];

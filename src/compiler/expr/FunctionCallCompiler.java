@@ -140,7 +140,17 @@ public class FunctionCallCompiler extends AstCompiler{
 
        /* Integer ind = programBuilder.getVarCode(varName);
         programBuilder.addInstruction(VMCommands.Push,ind ,VarType.Integer);*/
-       this.addVarLoadCommand(objName, programBuilder);
+       if(!objName.equals("this")){
+             this.addVarLoadCommand(objName, programBuilder);
+             programBuilder.addInstruction(VMCommands.Dup);
+             programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.T4), VarType.Integer);
+             programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
+       } else{
+             programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.T4), VarType.Integer);
+             programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
+
+       }
+   
         varNum++;
     }
     
@@ -173,10 +183,21 @@ public class FunctionCallCompiler extends AstCompiler{
               //  addCallParamValue(node, programBuilder);// Local var with index 2 is always link to this
                  //addCallParamValue(node, programBuilder);
                 //programBuilder.addComment("Puth En");
-                VarDescription varDescr =  programBuilder.getVarDescription(objName);
-                ClassInfo classInfo = MetaClassesInfo.getInstance().getClassInfo(varDescr.getClassName()) ;
+                ClassInfo classInfo;
+                String className;
+                if(!objName.equals("this") ){
+                    VarDescription varDescr =  programBuilder.getVarDescription(objName);
+                    classInfo = MetaClassesInfo.getInstance().getClassInfo(varDescr.getClassName()) ;
+                    className = varDescr.getClassName();
+                } else{
+                    ClassCompiler classCompiler = (ClassCompiler)this.getCompiler("Class");
+                    
+                    classInfo = classCompiler.getClassInfo();
+                    className = classInfo.getClassName();
+                }
+              
                 if(!classInfo.isMethodExists(methodName, argSignature)){
-                    throw new CompilerException(String.format("There is no realization for method %s in class %s with signature %s", methodName, varDescr.getClassName(), argSignature));
+                    throw new CompilerException(String.format("There is no realization for method %s in class %s with signature %s", methodName, className, argSignature));
                 } else{
                     funcDescr = classInfo.getMethodDescription(methodName, argSignature);
                 }
@@ -217,7 +238,8 @@ public class FunctionCallCompiler extends AstCompiler{
                 //  programBuilder.addInstruction(VMCommands.Push, programBuilder.commandsSize(), VarType.Integer);
             
                addCommandsSaveState(programBuilder);// Local var with index 1 is always FramePosition
-                addThisValue(objName, programBuilder);
+                 programBuilder.addComment("Local This fill");
+               addThisValue(objName, programBuilder);
                 
                 break;
             case "StartArgs":
