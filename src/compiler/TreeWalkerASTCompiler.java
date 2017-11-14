@@ -20,7 +20,7 @@ public class TreeWalkerASTCompiler  {
 
     protected ProgramBuilder programBuilder;
     
-    public TreeWalkerASTCompiler(){
+    public TreeWalkerASTCompiler() throws CompilerException{
         this.programBuilder = new ProgramBuilder();
     }
     

@@ -28,21 +28,22 @@ import syntax.analyser.parser.ParserTag;
  *
  * @author Andrey
  */
-public class TypesListBuilder extends  ParserChain implements ParserBuilder{
+public class TypesListBuilder extends  ParserAlternative implements ParserBuilder{
     public Parser build() {
         //Указать нужен ли результат парсера
         
         GrammarInfo gs = GrammarInfoStorage.getInstance();
         HashSet<String> typesSet = gs.getTypesList();
         
-        ParserAlternative altParser = new ParserAlternative();
+        //ParserAlternative altParser = new ParserAlternative(); 
+       
         for(String typeName:typesSet){
-             altParser.add(new ParserTag(typeName));
+             this.add(new ParserTag(typeName));
         }
         
-         
-        altParser.add(new ParserTag("Id"));
-        return altParser;   
+        this.add(new ParserTag("Id"));
+       
+        return this;   
     }
    
 }

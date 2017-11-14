@@ -899,10 +899,16 @@ public class VM {
                         memStack.push(value);
                         memStack.push(value);
                         break;
+                     case CmpEqual:
+                        arg2 = stackPopInt();
+                        arg1 = stackPopInt();
+                        boolean operResBool = arg1 == arg2;
+                        memStack.push(binConvertorService.toBin(operResBool));
+                        break;    
                     case CmpMore:
                         arg2 = stackPopInt();
                         arg1 = stackPopInt();
-                        boolean operResBool = arg1 > arg2;
+                        operResBool = arg1 > arg2;
                         memStack.push(binConvertorService.toBin(operResBool));
                         break;
                      case CmpLess:

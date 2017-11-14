@@ -60,7 +60,7 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
             .addKeyword("Call")
             //.addKeyword(":")  
             .add(this.getParser("ObjNameBlock"), "ObjName")   
-            .addTag("Id")
+            .addTag("Id", "FunctionId")
             .addKeyword("(", "StartArgs")
             .add(getArgBlockRepeatedParser(), "ArgsBlock")
             .addKeyword(")", "EndCall");
@@ -73,9 +73,9 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
         //Reorder operators by calculations
         AstNode rootNode = result.get("Call");
        
+        rootNode.setCompiler(this.getCompiler(this.compilerName));
         
-        
-        rootNode.addChildNode(result.get("Id"), "FunctionId");
+        rootNode.addChildNode(result.get("FunctionId"), "FunctionId");
         
         rootNode = addBlockIfExists(rootNode, "ObjName", result, SET_COMPILER_MODE.SET, compilerName );
         rootNode.addChildNode(result.get("StartArgs"), "StartArgs");
@@ -86,7 +86,7 @@ public class FunctionCallBuilder extends  ParserChain implements ParserBuilder{
           
         
         System.out.println("FunctionCall parser has been reached");
-        rootNode.setCompiler(this.getCompiler(this.compilerName));
+        
 
         return rootNode;
     }

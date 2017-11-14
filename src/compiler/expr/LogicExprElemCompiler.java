@@ -49,6 +49,9 @@ public class LogicExprElemCompiler extends AstCompiler{
                 case "<":
                     programBuilder.addInstruction(VMCommands.CmpLess);
                     break;
+                case "==":
+                    programBuilder.addInstruction(VMCommands.CmpEqual);
+                    break;    
         }
     }
     

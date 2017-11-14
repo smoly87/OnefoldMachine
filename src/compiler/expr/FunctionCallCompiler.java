@@ -300,8 +300,10 @@ public class FunctionCallCompiler extends AstCompiler{
            //TODO: Load info about variable from global or local context
            switch(argTypeStr){
                case "Id":
-                   throw new CompilerException("Need to releaze Loading info about variable from global or local context");
-                   //break;
+                   //throw new CompilerException("Need to releaze Loading info about variable from global or local context");
+                   VarDescription varDesc = programBuilder.getVarDescription(argNode.getToken().getValue());
+                   signBuilder.addArgType(varDesc.getType());
+                   break;
                default:
                    signBuilder.addArgType(VarType.valueOf(argTypeStr));
            }

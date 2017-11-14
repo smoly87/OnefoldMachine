@@ -11,15 +11,15 @@ Var d:Integer;
 /*Let d =882;
 Let bl = 104;*/
 /*Let this.bazar = 4444;*/
-/*Let  d = Call this.protest(1414,1616);*/
-Return 10;
+Let  d = Call this.test(1414,1616);
+Return d;
 }
 Function Integer fac(Var a:Integer;Var b:Integer;){
 Var r:Integer;
 Let r = 1;
 /*If a > 1{*/
 /*Let a = a-1;*/
-/*Let r = Call this.fac(a, 5);*/
+Let r = Call this.fac(a, 5);
 /*Let r = a * r;*/
 /*} 
 Else{
@@ -38,15 +38,14 @@ Public barbar:Integer;
 Var c:foo;
 Var a:foo;
 Var b:Integer;
-Var d:Integer;
 /*Var s:String;*/
 Let a = New foo();
 Let a.bar = 450;
-Let d = 98989;
+Let b = 98989;
 /*Let a.bazar = 850;*/
 /*Let b = Call a.protest(111, 222);*/
-Let b = Call a.test(888,b);
-/*Let b = Call a.fac(10, 5);*/
+/*Let b = Call a.test(33333,552);*/
+Let b = Call a.fac(10, 5);
 /*Let b = 3;*/
 /*Sys PrintObjField(a, 3);*/
 /*Sys PrintObjField(a, 3);*/
