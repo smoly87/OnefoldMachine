@@ -10,6 +10,7 @@ import common.Token;
 import compiler.AstCompiler;
 import compiler.AstCompilerList;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  *
@@ -94,5 +95,14 @@ public class AstNode {
         }
         
         return null;
+    }
+    
+    public LinkedList<AstNode> findChilds(String nodeName){
+        LinkedList<AstNode> res = new LinkedList<>();
+        for(AstNode childNode: this.getChildNodes()){
+            if(childNode.getName().equals(nodeName)) res.add(childNode) ;
+        }
+        
+        return res;
     }
 }

@@ -61,7 +61,7 @@ public class FunctionCallCompiler extends AstCompiler{
      
         //Headeres vars are local variables by theire essence
         //Integer totalVarsCount = funcDescr.getArgsCount() + funcDescr.getLocalVarsCount() ; totalVarsCount * VM.INT_SIZE
-        int mockVal = 4 + 2;//funcDescr.getTotalVarsCount()
+        int mockVal = funcDescr.getTotalVarsCount();
         programBuilder.addInstruction(VMCommands.Push, mockVal * VM.INT_SIZE, VarType.Integer); 
         //Create table of local variables addresses by index
         programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.MemAllocStack), VarType.Integer);
