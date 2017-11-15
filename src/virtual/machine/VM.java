@@ -566,7 +566,7 @@ public class VM {
         int varCount = memStack.getPtrSize(frameHeaders) / VM.INT_SIZE - 2; 
         int frameStart = frameHeaders + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
         int frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
-       /* for(int varInd = 0; varInd < varCount; varInd++){
+        for(int varInd = 0; varInd < varCount; varInd++){
             int varAddr = memStack.getIntValue(frameStart + varInd * INT_SIZE);
             
             Byte[] value = memStack.getPtrByteValue(varAddr, INT_SIZE);
@@ -578,7 +578,7 @@ public class VM {
                 int ptr = memStack.getPtrIntField(varAddr, VM.INT_SIZE);
                 changeIntFieldValue(ptr, 1, -1);
             }
-        }*/
+        }
 
         System.out.println( String.format(">> StackHead moved from %s to %s " , memoryManager.getSysRegister(VmSysRegister.StackHeadPos), frmStart));
         //memoryManager.setSysRegister(VmSysRegister.StackHeadPos, frmStart);

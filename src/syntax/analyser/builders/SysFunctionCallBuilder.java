@@ -75,8 +75,9 @@ public class SysFunctionCallBuilder extends  ParserChain implements ParserBuilde
         
 
         AstNode argNode = result.get("ArgsBlock");
-        argNode.addCompiler(this.getCompiler("SysFunctionCall"));
+        
         if(argNode != null){
+            argNode.addCompiler(this.getCompiler("SysFunctionCall"));
             rootNode.addChildNode(argNode, "ArgsBlock");
         }
         
