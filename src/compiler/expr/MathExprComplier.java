@@ -46,6 +46,9 @@ public class MathExprComplier extends AstCompiler{
                 case "+":
                     programBuilder.addInstruction(VMCommands.Add);
                     break;
+                case "-":
+                    programBuilder.addInstruction(VMCommands.Sub);
+                    break;
                 case "*":
                     programBuilder.addInstruction(VMCommands.Mul);
                     break;

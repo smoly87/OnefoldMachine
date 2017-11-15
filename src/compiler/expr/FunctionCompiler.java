@@ -122,7 +122,7 @@ public class FunctionCompiler extends AstCompiler{
                 and it relieves from recount numeration of first Line*/  
                 funcDescr = new FunctionDescription(this.funcName);
                 funcDescr.setLineNumber(programBuilder.commandsSize());
-                programBuilder.addComment("Start func");
+                /*programBuilder.addComment("Start func");
                 programBuilder.addInstruction(VMCommands.NOP);
                 //Save in register address for fill variables after stack creation
                 programBuilder.addInstruction(VMCommands.Push, VmSysRegister.T1.ordinal(), VarType.Integer);
@@ -135,7 +135,7 @@ public class FunctionCompiler extends AstCompiler{
                 
                 programBuilder.addInstruction(VMCommands.Push, VmSysRegister.T1.ordinal(), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
-                programBuilder.addInstruction(VMCommands.Jmp, 0, VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Jmp, 0, VarType.Integer);*/
 
                 
                 break;
@@ -169,6 +169,7 @@ public class FunctionCompiler extends AstCompiler{
                 programBuilder.addInstruction(VMCommands.Add, 0, VarType.Integer);*/
                 
                 //Params for clear stack
+                 // programBuilder.addComment("Load __FrameTableStart");
                 programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, "__FrameTableStart",  true);
                 programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, "__FrameStackRegister",  true);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeleteFrame), VarType.Integer);
@@ -193,7 +194,7 @@ public class FunctionCompiler extends AstCompiler{
                 break;
             case "EndFunction":
                 
-                programBuilder.changeCommandArgByNum(totalVarsTableSizeInstr, funcDescr.getTotalVarsCount() * VM.INT_SIZE, VarType.Integer, true);
+                //programBuilder.changeCommandArgByNum(totalVarsTableSizeInstr, funcDescr.getTotalVarsCount() * VM.INT_SIZE, VarType.Integer, true);
                 break;
         }
         //this.callSubscribers(node, programBuilder);

@@ -40,7 +40,8 @@ public class FunctionCallCompiler extends AstCompiler{
     protected Integer retLineNum;
     protected Integer startArgsLineNum;
     protected  String argSignature ;
-  
+    protected Boolean isFirstArg = true;
+    protected int totalVarsCount;
     /*At the begin of frame table is
     Link to caller(this)|Stack Position out of Frame|Return address
     */
@@ -49,7 +50,28 @@ public class FunctionCallCompiler extends AstCompiler{
 
     }
     
-   
+       protected void createFrameStack(ProgramBuilder programBuilder) throws CompilerException{
+        
+        programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.StackHeadPos), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.FrameStackPos.ordinal(), VarType.Integer);
+        
+       /* programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.StackHeadPos), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.F1.ordinal(), VarType.Integer);*/
+
+     
+        //Headeres vars are local variables by theire essence
+        //Integer totalVarsCount = funcDescr.getArgsCount() + funcDescr.getLocalVarsCount() ; totalVarsCount * VM.INT_SIZE
+        int mockVal = 4 + 2;//funcDescr.getTotalVarsCount()
+        programBuilder.addInstruction(VMCommands.Push, mockVal * VM.INT_SIZE, VarType.Integer); 
+        //Create table of local variables addresses by index
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.MemAllocStack), VarType.Integer);
+        
+        
+        //programBuilder.addInstruction(VMCommands.Push, VmSysRegister.FrameStackTableStart.ordinal(), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Push, VmSysRegister.C1.ordinal(), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
+
+    }
     protected void addCallParamValue(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         Token token =  node.getToken();
         String tokName = token.getTagName();
@@ -103,11 +125,14 @@ public class FunctionCallCompiler extends AstCompiler{
     
     protected void addCommandsSaveState(ProgramBuilder programBuilder) throws CompilerException{
           
-        programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.T3), VarType.Integer);
+        addCommandGetRegistrerLoad(VmSysRegister.T3, programBuilder);
+        addCommandGetRegistrerLoad(VmSysRegister.T5, programBuilder);
+        /*programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.T3), VarType.Integer);
         programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
 
         programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.T5), VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);*/
+        
         /* programBuilder.addInstruction(VMCommands.Push, VmSysRegister.StackHeadPos.ordinal(), VarType.Integer);
         programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);*/
         //programBuilder.addInstruction(VMCommands.Push, 0 , VarType.Integer);
@@ -161,6 +186,17 @@ public class FunctionCallCompiler extends AstCompiler{
         varNum++;
     }
     
+    protected void addCommandGetRegistrerLoad(VmSysRegister src, ProgramBuilder programBuilder) throws CompilerException{
+        programBuilder.addInstruction(VMCommands.Push, regToStr(src), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.GetRegister), VarType.Integer);
+
+    }
+    
+    protected void addCommandSaveRegister(VmSysRegister src, VmSysRegister dst, ProgramBuilder programBuilder) throws CompilerException{
+        programBuilder.addInstruction(VMCommands.Push, regToStr(src), VarType.Integer);
+        programBuilder.addInstruction(VMCommands.Mov, dst.ordinal(), VarType.Integer);
+    }
+    
     @Override
     public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         Token token =  node.getToken();
@@ -174,21 +210,28 @@ public class FunctionCallCompiler extends AstCompiler{
               objName = null;
               //funcDescr = MetaClassesInfo.getInstance().getFuncDescr(token.getValue());
               methodName = token.getValue();
-                    programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.StackHeadPos), VarType.Integer);
-                  programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.T3.ordinal(), VarType.Integer);
-
+                 /*   programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.StackHeadPos), VarType.Integer);
+                  programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.T3.ordinal(), VarType.Integer);*/
+              isFirstArg = true;
+              programBuilder.addComment("Save proc registres");
+              addCommandSaveRegister(VmSysRegister.StackHeadPos, VmSysRegister.T3, programBuilder);
+              addCommandSaveRegister(VmSysRegister.FrameStackTableStart, VmSysRegister.T5, programBuilder);
+              
+              
               
               break;
             case "ObjName":
                 objMethod = true;
                 objName = token.getValue();
                 
-                  programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.StackHeadPos), VarType.Integer);
+                 /* programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.StackHeadPos), VarType.Integer);
                   programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.T3.ordinal(), VarType.Integer);
 
                   programBuilder.addInstruction(VMCommands.Push, regToStr(VmSysRegister.FrameStackTableStart), VarType.Integer);
-                  programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.T5.ordinal(), VarType.Integer);
-
+                  programBuilder.addInstruction(VMCommands.Mov, VmSysRegister.T5.ordinal(), VarType.Integer);*/
+                
+             
+                
                 //programBuilder.addComment("Puth $this");
                // 
               //  addCallParamValue(node, programBuilder);// Local var with index 2 is always link to this
@@ -212,60 +255,42 @@ public class FunctionCallCompiler extends AstCompiler{
                 } else{
                     funcDescr = classInfo.getMethodDescription(methodName, argSignature);
                 }
-                //TODO: Load signature 
-                
+                programBuilder.addComment("Create stack in new way");
+                createFrameStack(programBuilder);
+                addRetPlaceHolder(programBuilder);
+                addCommandsSaveState(programBuilder);// Local var with index 1 is always FramePosition
+                addThisValue(objName, programBuilder);
+             
                 
                 break;
-            case "EndCall":
-               
-                //Add number of line to return after function
-               Integer retLineToFill = programBuilder.addInstruction(VMCommands.Push, 0, VarType.Integer); 
-               /* int commandRet = programBuilder.commandsSize() - VM.COMMAND_SIZE;
-                
-                programBuilder.addInstruction(VMCommands.Push, VmSysRegister.F1.ordinal(), VarType.Integer);
-                programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);*/
-                
-                if(objMethod){
-                    //String varClass = programBuilder.getVarDescription(objName).getClassName();
-                    programBuilder.addComment("Add toFunctStart");
-                    //Set address type - entry point to function
-                    addCommandGetVirtualMethodAddr(VM.METHOD_ADDR_TYPE.Start, programBuilder);
-                    //addRetPlaceHolder(programBuilder);
-                    programBuilder.addInstruction(VMCommands.Jmp, "0" , VarType.Integer, false);
-                } else{
-                    //addRetPlaceHolder(programBuilder);
-                    programBuilder.addInstruction(VMCommands.Jmp, Integer.toString(funcDescr.getLineNumber()) , VarType.Integer, true);
-                }
-                
-                int  commandsSize = programBuilder.addInstruction(VMCommands.NOP);
-                //programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.DeleteFrame), VarType.Integer);
-               // programBuilder.changeCommandArgByNum(retLineNum, programBuilder.commandsSize(), VarType.Integer, true);
-               programBuilder.changeCommandArgByNum(retLineToFill, programBuilder.commandsSize(), VarType.Integer, true);
-              // programBuilder.addComment("After ret first part");
-                //programBuilder.clearLocalVars();
-               programBuilder.addComment("Local var fill");
-               //    addRetPlaceHolder(programBuilder); // Local var with index 0 is always Return address
-              retLineNum = programBuilder.addInstruction(VMCommands.Push, 0, VarType.Integer);
-                //  programBuilder.addInstruction(VMCommands.Push, programBuilder.commandsSize(), VarType.Integer);
-            
-               addCommandsSaveState(programBuilder);// Local var with index 1 is always FramePosition
-              
+          
 
-                 programBuilder.addComment("Local This fill");
-               addThisValue(objName, programBuilder);
-                
-                break;
             case "StartArgs":
                 startArgsLineNum = programBuilder.addInstruction(VMCommands.NOP);
+                
+             
+                
                 break;
             case "Arg":
+             //   programBuilder.addComment("Add call param");
+             /* if(isFirstArg){
+                   isFirstArg = false;
+
+              }  */
               addCallParamValue(node, programBuilder);
               break;
-            case "AfterArgsBlock":
+            case "EndCall":
                 //For ArrangeFunc params function.
+                //TODO: Here ought be restore
+               // addCommandSaveRegister(VmSysRegister.FrameStackTableStart, VmSysRegister.C2, programBuilder);
+               // addCommandSaveRegister(VmSysRegister.FrameStackTableStart, VmSysRegister.C2, programBuilder);
                 programBuilder.addInstruction(VMCommands.Push, funcDescr.getArgsCount(), VarType.Integer);
+                addCommandSaveRegister(VmSysRegister.C1, VmSysRegister.FrameStackTableStart, programBuilder);
                 if(objMethod){
-                  addCommandGetVirtualMethodAddr(VM.METHOD_ADDR_TYPE.StartBody, programBuilder);
+                 /* addCommandSaveRegister(VmSysRegister.C1, VmSysRegister.StackHeadPos, programBuilder);*/
+                  ;
+                  
+                  addCommandGetVirtualMethodAddr(VM.METHOD_ADDR_TYPE.StartBody, programBuilder);      
                   programBuilder.addInstruction(VMCommands.Jmp, "0" , VarType.Integer, false);
                   programBuilder.addInstruction(VMCommands.NOP);
                //programBuilder.changeCommandArgByNum(retLineNum, programBuilder.commandsSize(), VarType.Integer, true);

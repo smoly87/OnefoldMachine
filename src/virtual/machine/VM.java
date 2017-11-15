@@ -754,6 +754,12 @@ public class VM {
                         operRes = arg1 + arg2;
                         memStack.push(binConvertorService.toBin(operRes));
                         break;
+                    case Sub:
+                        arg1 = stackPopInt();
+                        arg2 = stackPopInt();
+                        operRes = arg1 - arg2;
+                        memStack.push(binConvertorService.toBin(operRes));
+                        break;    
                     case Mul:
                         arg1 = stackPopInt();
                         arg2 = stackPopInt();
@@ -875,18 +881,20 @@ public class VM {
                         frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart) ;
                         frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
                         varAddr = memStack.getIntValue(frameHeadersPosEnd + varInd * INT_SIZE);
-                       
-                        value = memoryManager.getPtrByteValue(varAddr,INT_SIZE);
+                       intVal = memStack.getPtrIntField(varAddr, INT_SIZE);
+                      //  value = memoryManager.getPtrByteValue(varAddr,INT_SIZE);
                         // intVal = binConvertorService.bytesToInt(value, 0);
-                      // intVal = memStack.getPtrIntField(varAddr, INT_SIZE);
+                      // 
                        // System.out.println(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
-                        memStack.push(value);
+                        memStack.push(binConvertorService.integerToByte(intVal));
                         break;    
                     case Mov:
                         int regInd = memoryManager.getIntPtrValue(addr);
                         int srcReg = stackPopInt();
                         int val = memoryManager.getSysRegister(VmSysRegister.values()[srcReg]);
                         memoryManager.setSysRegister(VmSysRegister.values()[regInd], val);
+                        
+                        System.out.println(String.format("###Set value %s for registre %s from %s", val,VmSysRegister.values()[regInd].toString(),VmSysRegister.values()[srcReg].toString()  ));
                         break;
                     case NOP:
                         if(addr > 0){
@@ -1008,7 +1016,7 @@ public class VM {
                      
                      if(addr > 0 ){
                         argVal = codeComments[addr - 1];
-                        System.err.println(String.format("### %s", argVal));
+                        System.out.println(String.format("### %s", argVal));
                      }
                      break;  
                  case Halt:
