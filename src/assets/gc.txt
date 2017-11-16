@@ -1,6 +1,6 @@
 Class baz {
 Public bazar:Integer;
-Function Float test(Var al:Integer;Var bl:Integer;Var obj:foo;){
+Function Integer test(Var al:Integer;Var bl:Integer;Var obj:foo;){
 Var d:Integer;
 Var g:Integer;
 Let d =8888;
@@ -15,20 +15,27 @@ Public bar:Integer;
 Public rebar:Integer;
 Public rerebar:Integer;
 Public barbar:Integer;
+Function Integer testtest(Var al:Integer;Var bl:Integer;){
+Var g:baz;
+Let g = New baz();
+Return 3333;
+}
 }
 Var a:foo;
 Var b:foo;
 Var c:foo;
 Var d:foo;
 Var e:foo;
+Var r:Integer;
 /*Let g = 44;*/
 Let a = New foo();
 Let b = New foo();
 Let c = New foo();
 Let d = New foo();
 Let e = New foo();
-Let d.bar = 333;
-Sys PrintObjField(d, 3);
+/*Let d.bar = 333;
+Sys PrintObjField(d, 3);*/
+Let r = Call a.testtest(2, 3);
 Let c = Null;
 Sys GarbageCollect();
-Sys PrintObjField(d, 3);
+/*Sys PrintObjField(d, 3);*/

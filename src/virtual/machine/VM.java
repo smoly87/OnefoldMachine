@@ -205,10 +205,7 @@ public class VM {
         int parentId = readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.PARENT_ID);
         
         System.out.println(String.format("Fields: %s, methods: %s.Parent_Id: %s", fieldsCount, methodsCount, parentId));
-        
-       /* int fieldOffset = getFieldOffsetObj(metaDataPtr, 1);
-         System.out.println(String.format("Offset of field %s is %s", 1, fieldOffset));*/
-        
+           
     }
     
     /**
@@ -252,16 +249,6 @@ public class VM {
             int addr = getMemHeap().getIntValue(i + 1);
             int varAdrPtr;
             switch(command){
-                /*case Jmp: case JmpIf: case JmpIfNot:
-                   
-                    //Convert relative adress to absolute
-                    
-                    if(addr !=0 ){
-                        int absAddr = addr + progStart;
-                        memoryManager.putValue(i + 1, absAddr);
-                    }
-                    
-                    break;*/
                 case Push:
                   
                     constAdrPtr = addrTables.getAddrByIndex(VmExeHeader.ConstTableSize, addr); 
@@ -515,14 +502,15 @@ public class VM {
             memStack.putValue(varCellAddr, varAddr);
             int size = memStack.getPtrSize(varAddr);
             //if(size == 8){
+            
+            
+            
               System.out.println(String.format("Local vaar with ind %s address is %s, value: %s stored at %s",varInd,  varAddr, memStack.getPtrIntField(varAddr, VM.INT_SIZE), varCellAddr));
            // }
           varAddr = memStack.getIntPtrValue(varAddr);
             
         }
-       // memStack.pop();
-        /* dbg = memStack.getIntPtrValue(2548)  ;
-         dbg++;*/
+
     }
     
     protected void sysGarbageCollect() throws VmExecutionExeption{
@@ -840,11 +828,11 @@ public class VM {
                          memStack.push(new Byte[varSize]);
                          int  locVarAddr = memoryManager.getSysRegister(VmSysRegister.StackHeadPos);
                          
-                         if(intVal == 1){
+                       /*  if(intVal == 1){
                             int objAddr = memStack.getPtrIntField(locVarAddr, INT_SIZE);
                             changeIntFieldValue(objAddr, 1, 1);
                             memStack.putValue(locVarAddr, (byte)Memory.GC_FLAG_PTR); 
-                         }
+                         }*/
                         /*value = memStack.pop();
                         intVal = binConvertorService.bytesToInt(value, 0);*/
                         //System.out.println(String.format( "Local var declared: %s with size %s at addr #%s ", varInd ,varSize, locVarAddr));
