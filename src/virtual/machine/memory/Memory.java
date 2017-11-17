@@ -9,9 +9,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import virtual.machine.DataBinConvertor;
-import virtual.machine.VMOutOfMemoryException;
+import virtual.machine.exception.VMOutOfMemoryException;
 import virtual.machine.VM;
-import virtual.machine.VmExecutionExeption;
+import virtual.machine.exception.VmExecutionExeption;
 
 /**
  *

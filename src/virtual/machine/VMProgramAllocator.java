@@ -5,6 +5,8 @@
  */
 package virtual.machine;
 
+import virtual.machine.exception.VMOutOfMemoryException;
+import virtual.machine.exception.VmExecutionExeption;
 import java.util.ArrayList;
 import program.builder.BinaryReader;
 import static virtual.machine.VM.COMMAND_SIZE;

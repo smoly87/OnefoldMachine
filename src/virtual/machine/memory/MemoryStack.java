@@ -8,10 +8,10 @@ package virtual.machine.memory;
 import java.util.ArrayList;
 import main.ByteUtils;
 import virtual.machine.DataBinConvertor;
-import virtual.machine.VMStackOverflowException;
+import virtual.machine.exception.VMStackOverflowException;
 import virtual.machine.VM;
-import virtual.machine.VmExecutionExeption;
-import virtual.machine.VmStackEmptyPop;
+import virtual.machine.exception.VmExecutionExeption;
+import virtual.machine.exception.VmStackEmptyPopException;
 
 /**
  *
@@ -34,18 +34,18 @@ public class MemoryStack extends Memory{
     }
     
     
-    public Byte[] pop() throws VmStackEmptyPop,  VmExecutionExeption{
+    public Byte[] pop() throws VmStackEmptyPopException,  VmExecutionExeption{
         return pop(0);
     }
     
-    public Byte[] pop(int addr) throws VmStackEmptyPop, VmExecutionExeption{
+    public Byte[] pop(int addr) throws VmStackEmptyPopException, VmExecutionExeption{
         return pop(addr, 0);
     }
     
-    public Byte[] pop(int addr, int offset) throws VmStackEmptyPop, VmExecutionExeption{
+    public Byte[] pop(int addr, int offset) throws VmStackEmptyPopException, VmExecutionExeption{
         //Control if no elements
         int headAddr = this.getSysRegister(VmSysRegister.StackHeadPos);
-        if(headAddr == 0) throw new VmStackEmptyPop();
+        if(headAddr == 0) throw new VmStackEmptyPopException();
         
         int fullSize = this.getIntValue(headAddr + GC_FLAG_SIZE)+ PTR_HEADERS_SIZE;
         int prevElemAddr = this.getIntValue(headAddr + PTR_HEADERS_SIZE);

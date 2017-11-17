@@ -5,6 +5,8 @@
  */
 package virtual.machine;
 
+import virtual.machine.exception.VMOutOfMemoryException;
+import virtual.machine.exception.VmExecutionExeption;
 import java.util.HashMap;
 import virtual.machine.memory.MemoryHeap;
 import virtual.machine.memory.VmSysRegister;

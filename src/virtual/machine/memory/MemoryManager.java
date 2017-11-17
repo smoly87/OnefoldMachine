@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import virtual.machine.DataBinConvertor;
 import virtual.machine.VM;
-import virtual.machine.VmExecutionExeption;
-import virtual.machine.VmStackEmptyPop;
+import virtual.machine.exception.VmExecutionExeption;
+import virtual.machine.exception.VmStackEmptyPopException;
 
 /**
  *
@@ -63,7 +63,7 @@ public class MemoryManager extends Memory{
     }
     
    
-    public int stackPopInt() throws VmStackEmptyPop, VmExecutionExeption{
+    public int stackPopInt() throws VmStackEmptyPopException, VmExecutionExeption{
         return binConvertorService.bytesToInt(this.getMemStack().pop(), 0);
     }
     

@@ -20,7 +20,7 @@ import syntax.analyser.AstNode;
 import syntax.analyser.parser.ParserException;
 import virtual.machine.Program;
 import virtual.machine.VM;
-import virtual.machine.VmExecutionExeption;
+import virtual.machine.exception.VmExecutionExeption;
 
 /**
  *

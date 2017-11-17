@@ -5,6 +5,7 @@
  */
 package virtual.machine;
 
+import virtual.machine.exception.VmExecutionExeption;
 import common.VarType;
 import java.io.UnsupportedEncodingException;
 import program.builder.BinaryReader;

@@ -12,9 +12,9 @@ import java.util.LinkedList;
 import java.util.List;
 import utils.Pair;
 import virtual.machine.DataBinConvertor;
-import virtual.machine.VMOutOfMemoryException;
+import virtual.machine.exception.VMOutOfMemoryException;
 import virtual.machine.VM;
-import virtual.machine.VmExecutionExeption;
+import virtual.machine.exception.VmExecutionExeption;
 
 
 /**

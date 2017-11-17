@@ -5,6 +5,7 @@
  */
 package virtual.machine;
 
+import virtual.machine.exception.VmExecutionExeption;
 import program.builder.BinBuilderClassesMetaInfo;
 import program.builder.BinaryReader;
 import utils.Pair;

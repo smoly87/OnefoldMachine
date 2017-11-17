@@ -6,6 +6,8 @@
 
 package virtual.machine;
 
+import virtual.machine.exception.VmStackEmptyPopException;
+import virtual.machine.exception.VmExecutionExeption;
 import types.TypesInfo;
 import common.VarType;
 import virtual.machine.memory.Memory;
@@ -60,7 +62,7 @@ public class VM {
        return VarType.values()[code];
     }
         
-    protected int stackPopInt() throws VmStackEmptyPop, VmExecutionExeption{
+    protected int stackPopInt() throws VmStackEmptyPopException, VmExecutionExeption{
         return binConvertorService.bytesToInt(memoryManager.getMemStack().pop(), 0);
     }
     

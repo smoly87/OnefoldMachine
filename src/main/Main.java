@@ -36,7 +36,7 @@ import virtual.machine.Program;
 import virtual.machine.VM;
 import virtual.machine.VMCommands;
 import virtual.machine.VmExeHeader;
-import virtual.machine.VmExecutionExeption;
+import virtual.machine.exception.VmExecutionExeption;
 
 /**
  *

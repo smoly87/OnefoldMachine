@@ -5,6 +5,10 @@
  */
 package virtual.machine;
 
+import virtual.machine.exception.VmStackEmptyPopException;
+import virtual.machine.exception.VMOutOfMemoryException;
+import virtual.machine.exception.VmExecutionExeption;
+import virtual.machine.exception.VMStackOverflowException;
 import common.VarType;
 import java.io.UnsupportedEncodingException;
 import types.TypeString;
@@ -33,7 +37,7 @@ public class VmSysFunctions {
         this.binConvertorService =  DataBinConvertor.getInstance();
     }
     
-     protected int sysMemAllocStack() throws VmStackEmptyPop, VMStackOverflowException, VmExecutionExeption {
+     protected int sysMemAllocStack() throws VmStackEmptyPopException, VMStackOverflowException, VmExecutionExeption {
         MemoryStack memStack = this.memoryManager.getMemStack();
         int dataSize = memoryManager.stackPopInt();
          
@@ -46,7 +50,7 @@ public class VmSysFunctions {
         return ptrStart;
     }
     
-    protected int sysMemAlloc() throws VmStackEmptyPop, VMOutOfMemoryException, VMStackOverflowException,  VmExecutionExeption{
+    protected int sysMemAlloc() throws VmStackEmptyPopException, VMOutOfMemoryException, VMStackOverflowException,  VmExecutionExeption{
         MemoryHeap memHeap = this.memoryManager.getMemHeap();
         MemoryStack memStack = this.memoryManager.getMemStack();
         
@@ -57,7 +61,7 @@ public class VmSysFunctions {
         return ptrStart;
     }
     
-    protected int sysMemAllocPtr() throws VmStackEmptyPop, VMOutOfMemoryException, VMStackOverflowException,  VmExecutionExeption{
+    protected int sysMemAllocPtr() throws VmStackEmptyPopException, VMOutOfMemoryException, VMStackOverflowException,  VmExecutionExeption{
         MemoryHeap memHeap = this.memoryManager.getMemHeap();
         MemoryStack memStack = this.memoryManager.getMemStack();
         

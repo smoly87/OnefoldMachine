@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package virtual.machine;
+package virtual.machine.exception;
 
 /**
  *
  * @author Andrey
  */
-public class VmStackEmptyPop extends VmExecutionExeption {
+public class VmStackEmptyPopException extends VmExecutionExeption {
     
 }
