@@ -59,7 +59,7 @@ public class Main {
 
            while(true){
               System.out.println("Type a command:");
-              String inpStr = !fullDebug ? reader.readLine() : "compile_run --path_src gc.txt"; //;//class class_expr
+              String inpStr = !fullDebug ? reader.readLine() : "compile_run --path_src class_expr.txt"; //;//class class_expr
               if(inpStr.equals("exit") ) return;
               if(!commadInter.executeCommand(inpStr)){
                 System.err.println(commadInter.getError());

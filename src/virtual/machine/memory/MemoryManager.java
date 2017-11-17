@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import virtual.machine.DataBinConvertor;
 import virtual.machine.VM;
 import virtual.machine.VmExecutionExeption;
+import virtual.machine.VmStackEmptyPop;
 
 /**
  *
@@ -62,7 +63,9 @@ public class MemoryManager extends Memory{
     }
     
    
-    
+    public int stackPopInt() throws VmStackEmptyPop, VmExecutionExeption{
+        return binConvertorService.bytesToInt(this.getMemStack().pop(), 0);
+    }
     
     public void allocateProgramInstructions(ArrayList<Byte> programData, int startInstrInd) throws VmExecutionExeption{
         
