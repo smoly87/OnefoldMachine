@@ -6,6 +6,9 @@
 
 package program.builder;
 
+import compiler.metadata.ValueDescription;
+import compiler.metadata.VarDescription;
+import compiler.metadata.MetaClassesInfo;
 import common.Token;
 import common.VarType;
 import compiler.exception.CompilerException;

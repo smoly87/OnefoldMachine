@@ -5,6 +5,8 @@
  */
 package program.builder;
 
+import compiler.metadata.ClassMemeberDescription;
+
 /**
  *
  * @author Andrey

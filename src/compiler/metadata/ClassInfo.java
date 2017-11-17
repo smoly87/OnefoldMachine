@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package program.builder;
+package compiler.metadata;
 
 import common.VarType;
 import compiler.exception.CompilerException;
@@ -13,6 +13,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import javafx.collections.transformation.SortedList;
+import program.builder.ClassMemeberComparator;
 import types.TypesInfo;
 
 /**

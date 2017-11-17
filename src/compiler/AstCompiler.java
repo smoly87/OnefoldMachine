@@ -11,7 +11,7 @@ import compiler.exception.CompilerException;
 import java.util.LinkedList;
 import syntax.analyser.AstNode;
 import program.builder.ProgramBuilder;
-import program.builder.VarDescription;
+import compiler.metadata.VarDescription;
 import syntax.analyser.CompilersFactory;
 import virtual.machine.VMCommands;
 import virtual.machine.VMSysFunction;

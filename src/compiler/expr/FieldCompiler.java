@@ -8,7 +8,7 @@ package compiler.expr;
 import common.Token;
 import common.VarType;
 import compiler.AstCompiler;
-import program.builder.FunctionDescription;
+import compiler.metadata.FunctionDescription;
 import program.builder.ProgramBuilder;
 import syntax.analyser.AstNode;
 import virtual.machine.VMCommands;

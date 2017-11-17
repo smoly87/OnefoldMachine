@@ -18,7 +18,7 @@ import compiler.AstCompiler;
 import compiler.exception.CompilerException;
 import grammar.GrammarInfo;
 import grammar.GrammarInfoStorage;
-import program.builder.MetaClassesInfo;
+import compiler.metadata.MetaClassesInfo;
 import program.builder.ProgramBuilder;
 import syntax.analyser.AstNode;
 import types.TypesInfo;

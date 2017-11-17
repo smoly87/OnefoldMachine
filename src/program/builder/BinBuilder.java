@@ -5,9 +5,11 @@
  */
 package program.builder;
 
+import compiler.metadata.ValueDescription;
+import compiler.metadata.MetaClassesInfo;
 import common.VarType;
 import compiler.exception.CompilerException;
-import program.builder.VarDescription;
+import compiler.metadata.VarDescription;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -89,7 +91,7 @@ public class BinBuilder {
             fullData.addAll(binConverter.integerToByteList(varDescr.getCode()));
             int typeSize = typesInfoService.getTypeSize(varDescr.getType());
             fullData.addAll(binConverter.integerToByteList(typeSize));
-            fullData.add((varDescr.className != "") ? Memory.GC_FLAG_PTR : 0);
+            fullData.add((varDescr.getClassName() != "") ? Memory.GC_FLAG_PTR : 0);
         }
         
         //Each varible stored in 2 bytes - code and type
@@ -143,7 +145,7 @@ public class BinBuilder {
         BinBuilderClassesMetaInfo metaBinBuilder = new BinBuilderClassesMetaInfo();
         fullData.addAll(metaBinBuilder.getClassesMetaInfo());
         
-        writeHeader(VmExeHeader.ClassesTableSize, MetaClassesInfo.getInstance().classesMap.size()); 
+        writeHeader(VmExeHeader.ClassesTableSize, MetaClassesInfo.getInstance().getClassesMap().size()); 
         writeHeader(VmExeHeader.CommentsStart, fullData.size()); 
         return this;
     }

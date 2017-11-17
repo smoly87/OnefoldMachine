@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package program.builder;
+package compiler.metadata;
 
 import common.VarType;
 import java.util.ArrayList;

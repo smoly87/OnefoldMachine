@@ -5,6 +5,7 @@
  */
 package program.builder;
 
+import compiler.metadata.ClassMemeberDescription;
 import java.util.Comparator;
 
 /**

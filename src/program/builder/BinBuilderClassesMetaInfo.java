@@ -5,6 +5,10 @@
  */
 package program.builder;
 
+import compiler.metadata.FunctionDescription;
+import compiler.metadata.MetaClassesInfo;
+import compiler.metadata.ClassInfo;
+import compiler.metadata.FieldDescription;
 import common.VarType;
 import java.util.ArrayList;
 import java.util.Map;
