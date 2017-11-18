@@ -5,15 +5,11 @@
  */
 package main;
 
-import common.FullPipeline;
 import compiler.exception.CompilerException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 import lexer.LexerResult;
 import program.builder.ProgramFileSys;
 import syntax.analyser.AstNode;
@@ -66,27 +62,34 @@ public class CommandInterpreter {
             return false;
         }
         
-       
-        switch (command.getCommandName()) {
-            case "compile":
-
-                this.compileStage();
-                break;
-            case "compile_run":
-                try {
-                    prog = this.compileStage();
-                } catch (ParserException parserException) {
-                    throw parserException;
-                } catch (CompilerException compilerException) {
-                    throw compilerException;
-                } 
-                this.runProgram(prog);
-                break;
-            case "run":
-                prog = ProgramFileSys.load(command.getOption("path"));
-                this.runProgram(prog);
-                break;
+        
+        
+        try {
+            switch (command.getCommandName()) {
+                case "compile":
+                    
+                    this.compileStage();
+                    break;
+                case "compile_run":
+                    try {
+                        prog = this.compileStage();
+                    } catch (ParserException parserException) {
+                        throw parserException;
+                    } catch (CompilerException compilerException) {
+                        throw compilerException;
+                    }                    
+                    this.runProgram(prog);
+                    break;
+                case "run":
+                    prog = ProgramFileSys.load(command.getOption("path"));
+                    this.runProgram(prog);
+                    break;
+            }
+        } 
+        catch (CompilerException|ParserException compilerException) {
+          throw compilerException;
         }
+        
          
         
         return true;

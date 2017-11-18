@@ -37,6 +37,7 @@ public class ParserAlternative extends Parser{
             if(parser.parse(lexerResults)){
                 AstNode resultNode = parser.getParseResult();
                // resultNode.setName(entry.getKey());
+                if(resultNode == null) return false;
                 this.setParseResult(resultNode);
                 return true;
             }

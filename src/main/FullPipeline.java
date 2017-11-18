@@ -4,8 +4,9 @@
  * and open the template in the editor.
  */
 
-package common;
+package main;
 
+import common.Token;
 import compiler.TreeWalkerASTCompiler;
 import compiler.exception.CompilerException;
 import grammar.GrammarInfoStorage;
@@ -47,24 +48,12 @@ public class FullPipeline {
         return lex.parse(programSrc);
     }
     
-    protected String getLexerPosDescription(LexerResult lexerResult, int errPos){
-        StringJoiner sJoiner = new StringJoiner(" ");
-        if(errPos > 0){
-            lexerResult.setCurPos(errPos - 1);
-            for(int i = 0; i < 3; i++){
-                Token token = lexerResult.getCurToken();
-                sJoiner.add(token.getValue());
-            }
-        }
-        
-        return sJoiner.toString();
-        
-    }
+   
     
     public AstNode buildAst(LexerResult lexerResult) throws ParserException{   
         Parser rootParser = new ParserProgramBody().build();
-        if(!rootParser.parse(lexerResult)){
-            String nearTokens = getLexerPosDescription(lexerResult, rootParser.getParserStopPos());
+        if(!rootParser.parse(lexerResult) && lexerResult.hasNext()){
+            String nearTokens = lexerResult.getLexerPosDescription();
             throw new ParserException(String.format("Error at token %s", nearTokens));
         }
         return rootParser.getParseResult();
@@ -94,17 +83,5 @@ public class FullPipeline {
         
         return programSrc;
     }
-    /*public AstNode buildMathAst(LexerResult lexerResult){
-        try {
-            ParserMathExpr rootParser = new ParserMathExpr();
-            rootParser.parse(lexerResult);
-            return rootParser.getParseResult();
-        } catch(UnexpectedSymbolException e){
-            System.out.println("Error:" + e.getMessage());
-        }
-        
-        return null;
-    }*/
-    /*public compile(AstNode rootNode, String fileName){
-    }*/
+
 }

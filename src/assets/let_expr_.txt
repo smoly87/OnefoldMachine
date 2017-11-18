@@ -1,0 +1,10 @@
+Class baz {
+Public bazar:Integer;
+Function Integer protest(Var b:Integer;Var a:Integer;){
+Var v:Integer;
+Let a = 7898;
+Return b;
+}
+}
+Var a:Integer;
+Let a = ;

@@ -9,6 +9,7 @@ package lexer;
 import common.Token;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.StringJoiner;
 
 /**
  *
@@ -43,5 +44,20 @@ public class LexerResult implements Iterator<Token>{
     public Token next() {
         this.pos++;
         return getCurToken();
+    }
+    
+    public String getLexerPosDescription(){
+        StringJoiner sJoiner = new StringJoiner(" ");
+        if(getCurPos() > 0){
+            int endToken = getCurPos() + 3;
+            if(endToken > tokens.size()) endToken = tokens.size();
+            for(int i = getCurPos(); i < endToken; i++){
+                Token token = this.tokens.get(i);
+                sJoiner.add(token.getValue());
+            }
+        }
+        
+        return sJoiner.toString() + " at " + getCurPos();
+        
     }
 }

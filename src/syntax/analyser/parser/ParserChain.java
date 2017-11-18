@@ -25,7 +25,7 @@ public  class ParserChain extends Parser{
     protected LinkedHashMap<String, Parser> parsersList;
     protected String compilerName;
     public enum SET_COMPILER_MODE  {NONE, SET, ADD};
-    //LinkedHashMap<String, Parser> parsersChain = new LinkedHashMap<>();
+   
     public ParserChain(){
         parsersList = new LinkedHashMap<>();
     }

@@ -33,6 +33,7 @@ public class ParserRepeated extends Parser{
         AstNode rootNode = new AstNode();
         //How should it been marked ?
         boolean flag = false;
+        
         while (parser.parse(lexerResults)){
             rootNode.addChildNode(parser.getParseResult());
             flag = true;
@@ -45,10 +46,7 @@ public class ParserRepeated extends Parser{
         }
         
         return flag;
-         /* if(){
-                this.setParseResult(parser.getParseResult());
-                return true;
-           }*/
+
     }
     
 }

@@ -3,7 +3,7 @@ Let a = 30;
 Let b = 40;
 Var c:Integer;
 Let c = 50;
-Return 60
+Return 60;
 }
 Var a:Integer;
 Let a = Call test(120,130);;
