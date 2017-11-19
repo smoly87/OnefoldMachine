@@ -26,6 +26,15 @@ public class VmCodeDebuger {
     protected MemoryManager memoryManager;
     protected VmProgramMetaInfo progMetaInfo;
     protected VMAddrTables addrTables;
+    protected boolean debugMode;
+
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
+    }
     
     public VmCodeDebuger(Program program, MemoryManager memoryManager, VmProgramMetaInfo progMetaInfo, VMAddrTables addrTables){
         this.program =  program;
@@ -95,14 +104,14 @@ public class VmCodeDebuger {
              customProcessFlag = true;
              switch(command){
                  case Invoke_Sys_Function:
-                    System.out.println(String.format("%s %s (%s)", memProg.getAddr(), memProg.getCommand().toString(), VMSysFunction.values()[memoryManager.getIntPtrValue(addr)])) ;
+                    this.addLog(String.format("%s %s (%s)", memProg.getAddr(), memProg.getCommand().toString(), VMSysFunction.values()[memoryManager.getIntPtrValue(addr)])) ;
                      
                    break;
                  case NOP:
                      
                      if(addr > 0 ){
                         argVal = codeComments[addr - 1];
-                        System.out.println(String.format("### %s", argVal));
+                        this.addLog(String.format("### %s", argVal));
                      }
                      break;  
                  case Halt:
@@ -120,7 +129,7 @@ public class VmCodeDebuger {
              
              if(command == VMCommands.Halt) haltFlag = true;
             
-             if(!customProcessFlag) System.out.println(String.format("%s| %s| %s", memProg.getAddr(), memProg.getCommand().toString(), argVal));
+             if(!customProcessFlag) this.addLog(String.format("%s| %s| %s", memProg.getAddr(), memProg.getCommand().toString(), argVal));
              memProg.next();
         }
         
@@ -132,7 +141,7 @@ public class VmCodeDebuger {
         int methodsCount = progMetaInfo.readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.METHODS_COUNT);
         int parentId = progMetaInfo.readClassMetaDataHeader(metaDataPtr, VmMetaClassHeader.PARENT_ID);
         
-        System.out.println(String.format("Fields: %s, methods: %s.Parent_Id: %s", fieldsCount, methodsCount, parentId));
+        this.addLog(String.format("Fields: %s, methods: %s.Parent_Id: %s", fieldsCount, methodsCount, parentId));
            
     }
     
@@ -143,9 +152,14 @@ public class VmCodeDebuger {
      for(int i = 0; i < N; i++){
          int varAddrPtr =  addrTables.getAddrByIndex(VmExeHeader.VarTableSize, i);
          int varAddr = memHeap.getIntValue(varAddrPtr) ;
-         System.out.println(String.format("Value of %s by addr %s is %s", i, varAddrPtr, memHeap.getIntPtrValue(varAddrPtr)));
+         this.addLog(String.format("Value of %s by addr %s is %s", i, varAddrPtr, memHeap.getIntPtrValue(varAddrPtr)));
      }
-        System.out.println("Stack pos " + this.memoryManager.getSysRegister(VmSysRegister.StackHeadPos));
+        this.addLog("Stack pos " + this.memoryManager.getSysRegister(VmSysRegister.StackHeadPos));
     }
     
+    public void addLog(String text){
+    }
+    
+    public void addError(String text){
+    }
 }

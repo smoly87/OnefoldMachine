@@ -35,8 +35,8 @@ public class VM {
     protected int pos;
     protected int offset;
     protected Program program;
-    
-    
+    protected VmCodeDebuger codeDebuger; 
+    protected VmProgramMetaInfo progMetaInfo;
     
     protected int[] varAddr;
     protected TypesInfo typesInfo;
@@ -66,27 +66,38 @@ public class VM {
         return binConvertorService.bytesToInt(memoryManager.getMemStack().pop(), 0);
     }
     
-  
-    public void run(Program program) throws VmExecutionExeption{
-     // try{  
-        this.program = program;
+    
+    public void allocateProgram() throws VmExecutionExeption{
+        
         
         
         int startInstrsInd = program.readHeader(VmExeHeader.InstructionsStart);
-        int progStartPoint = program.readHeader(VmExeHeader.ProgramStartPoint);
+        
         
         memoryManager.allocateProgramInstructions(program.getData(), startInstrsInd);
-        int startAddr = progStartPoint + memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
         
         VMProgramAllocator progAllocator = new VMProgramAllocator(memoryManager, program);
         progAllocator.allocateProgram();
         
-        VmProgramMetaInfo progMetaInfo = new VmProgramMetaInfo(memoryManager, progAllocator.getAddrTables());
-        VmSysFunctions vmSysFunctions = new VmSysFunctions(memoryManager, progMetaInfo);
-        VmCodeDebuger codeDebuger = new VmCodeDebuger(program, memoryManager, progMetaInfo, progAllocator.getAddrTables());
+        progMetaInfo = new VmProgramMetaInfo(memoryManager, progAllocator.getAddrTables());
         
+        
+        boolean isDebug = true;
+        codeDebuger = new VmCodeDebuger(program, memoryManager, progMetaInfo, progAllocator.getAddrTables());
+        codeDebuger.setDebugMode(isDebug);
+    }
+  
+    public void run(Program program) throws VmExecutionExeption{
+     // try{ 
+        this.program = program;
+        allocateProgram();
+        VmSysFunctions vmSysFunctions = new VmSysFunctions(memoryManager, progMetaInfo);
+        boolean isDebug =  codeDebuger.isDebugMode();
+        int progStartPoint = program.readHeader(VmExeHeader.ProgramStartPoint);
+        int startAddr = progStartPoint + memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
+       
         int progStart = memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
-        System.out.println("Entry Point is " + startAddr);
+        if(isDebug)codeDebuger.addLog("Entry Point is " + startAddr);
         codeDebuger.showFullCode();
         
         int addr;
@@ -107,10 +118,11 @@ public class VM {
         
         Byte[] value;
         int intVal = -1;
+        
         while (!haltFlag) {
                 VMCommands command = memProg.getCommand();
                 addr = memProg.getCommandAddrArg();
-                 System.out.println(String.format("Command %s at line %s Addr: %s", command.toString(),memProg.getAddr(), addr ));
+                if(isDebug)codeDebuger.addLog(String.format("Command %s at line %s Addr: %s", command.toString(),memProg.getAddr(), addr ));
                 
                 switch (command) {
                     case Push_Addr_Value:
@@ -120,7 +132,7 @@ public class VM {
                    
                         memStack.push(value);
                        // memStack.push(868);
-                       System.out.println(String.format("Stack push value: %s addr: %s stackhead: %s", binConvertorService.bytesToInt(value, 0),addr, memoryManager.getSysRegister(VmSysRegister.StackHeadPos)));
+                       if(isDebug)codeDebuger.addLog(String.format("Stack push value: %s addr: %s stackhead: %s", binConvertorService.bytesToInt(value, 0),addr, memoryManager.getSysRegister(VmSysRegister.StackHeadPos)));
                       /* System.err.println("Stack extr value: " + stackPopInt());
                         System.err.println("Stack ext2r value: " + stackPopInt());*/
                         break;
@@ -128,7 +140,7 @@ public class VM {
                        // value = memoryManager.getPtrByteValue(addr);
                        
                         memStack.push(binConvertorService.toBin(addr));
-                       System.out.println(String.format("Stack push addr: %s stack head:", addr, memoryManager.getSysRegister(VmSysRegister.StackHeadPos)));
+                        if(isDebug)codeDebuger.addLog(String.format("Stack push addr: %s stack head:", addr, memoryManager.getSysRegister(VmSysRegister.StackHeadPos)));
                         break;    
                     case Pop:
                         memStack.pop();
@@ -161,9 +173,9 @@ public class VM {
                     case Jmp:
                         if(addr == 0){
                             addr = stackPopInt() ;
-                            System.out.println("Jump addr from stack");
+                            if(isDebug)codeDebuger.addLog("Jump addr from stack");
                         }
-                        System.out.println("Jump to addr:" + addr);
+                        if(isDebug)codeDebuger.addLog("Jump to addr:" + addr);
                         memProg.jump(addr + progStart);
                         continue;
                     case JmpIf:
@@ -171,9 +183,9 @@ public class VM {
                         if (binConvertorService.bytesToBool(value)) {
                             if (addr == 0) {
                                 addr = stackPopInt();
-                                System.out.println("Jump IfNot addr from stack");
+                                if(isDebug)codeDebuger.addLog("Jump IfNot addr from stack");
                             }
-                            System.out.println("Jump to addr:" + addr);
+                            if(isDebug)codeDebuger.addLog("Jump to addr:" + addr);
                             memProg.jump(addr+ progStart);
                             continue;
                         }
@@ -183,9 +195,9 @@ public class VM {
                         if (!binConvertorService.bytesToBool(value)) {
                             if (addr == 0) {
                                 addr = stackPopInt() ;
-                                System.out.println("Jump IfNot addr from stack");
+                                if(isDebug)codeDebuger.addLog("Jump IfNot addr from stack");
                             }
-                            System.out.println("Jump to addr:" + addr);
+                            if(isDebug)codeDebuger.addLog("Jump to addr:" + addr);
                             memProg.jump(addr+ progStart);
                             continue;
                         }
@@ -195,7 +207,7 @@ public class VM {
                         break;
                     case Halt:
                         haltFlag = true;
-                        //System.out.println("Program finished with Halt Command"); 
+                        //if(isDebug)codeDebuger.addLog("Program finished with Halt Command"); 
                         break;
                     case Var_Declare_Local_Def_value: 
                         intVal = stackPopInt();
@@ -223,16 +235,16 @@ public class VM {
                            memStack.pop(varAddr, INT_SIZE);  
                         } else{
                             intVal = stackPopInt();
-                            System.out.println("Put_Local_Var ERR: " + intVal);
+                            if(isDebug)codeDebuger.addLog("Put_Local_Var ERR: " + intVal);
                         }
                         
                         //value =
                         intVal =  memStack.getPtrIntField(varAddr, INT_SIZE);
-                        System.out.println("Put Local_Var: " + intVal);
+                        if(isDebug)codeDebuger.addLog("Put Local_Var: " + intVal);
                         break;
                     case Var_Load_Local:
                         varInd = addr ;
-                        //System.out.println(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
+                        //if(isDebug)codeDebuger.addLog(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
                         frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart) ;
                         frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
                         varAddr = memStack.getIntValue(frameHeadersPosEnd + varInd * INT_SIZE);
@@ -240,7 +252,7 @@ public class VM {
                       //  value = memoryManager.getPtrByteValue(varAddr,INT_SIZE);
                         // intVal = binConvertorService.bytesToInt(value, 0);
                       // 
-                       // System.out.println(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
+                       // if(isDebug)codeDebuger.addLog(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
                         memStack.push(binConvertorService.integerToByte(intVal));
                         break;    
                     case Mov:
@@ -249,11 +261,11 @@ public class VM {
                         int val = memoryManager.getSysRegister(VmSysRegister.values()[srcReg]);
                         memoryManager.setSysRegister(VmSysRegister.values()[regInd], val);
                         
-                        System.out.println(String.format("###Set value %s for registre %s from %s", val,VmSysRegister.values()[regInd].toString(),VmSysRegister.values()[srcReg].toString()  ));
+                        if(isDebug)codeDebuger.addLog(String.format("###Set value %s for registre %s from %s", val,VmSysRegister.values()[regInd].toString(),VmSysRegister.values()[srcReg].toString()  ));
                         break;
                     case NOP:
                         if(addr > 0){
-                            System.out.println("###" + codeComments[addr - 1]); 
+                            if(isDebug)codeDebuger.addLog("###" + codeComments[addr - 1]); 
                         }
                          
                         break;
@@ -281,7 +293,7 @@ public class VM {
                         memStack.push(binConvertorService.toBin(operResBool));
                         break;    
                     default:
-                        System.err.println("Unprocessed command: " + command.toString());
+                        codeDebuger.addError("Unprocessed command: " + command.toString());
                
                 }
                 memProg.next();

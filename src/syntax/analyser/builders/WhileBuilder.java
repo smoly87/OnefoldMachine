@@ -24,19 +24,15 @@ import syntax.analyser.parser.ParserTag;
  * @author Andrey
  */
 public class WhileBuilder extends  ParserChain implements ParserBuilder{
-    
-   
-    
+      
     public Parser build() {
-        //Указать нужен ли результат парсера
+
        return this
             .addKeyword("While") 
             .add(this.getParser("LogicExprElem"), "LogExpr")
             .addKeyword("{", "StartExpr")   
             .add(this.getParser("ParserStatementRepeated"), "Statement")
-            .addKeyword("}", "End");
-            //.addKeyword(";");
-            
+            .addKeyword("}", "End");            
     }
     
     @Override
