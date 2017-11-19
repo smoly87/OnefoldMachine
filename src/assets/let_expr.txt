@@ -1,5 +1,5 @@
 Var a:Integer;
 Var b:Integer;
 Let a = 2;
-Let b =7+a;
-Let b=b-5;
+Let b =7;
+Let b= a*b*3;

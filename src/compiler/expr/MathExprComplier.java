@@ -19,13 +19,10 @@ import virtual.machine.VMCommands;
  */
 public class MathExprComplier extends AstCompiler{
 
-    @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+
+    public void compileOperChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         switch(node.getToken().getTagName()){
-            //TODO: convension of naming
             case "Id":
-                //TODO: if Var existed in global variables check
-                // It should be fine with order of code execution
                 String varName = node.getToken().getValue();
                 this.addVarLoadCommand(varName, programBuilder);
                 
@@ -39,9 +36,15 @@ public class MathExprComplier extends AstCompiler{
         }
         
     }
-
-    @Override
-    public void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
+    
+    protected void processOperatorNode(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+        for(AstNode childNode: node.getChildNodes()){
+            if(childNode.getToken().getTagName().equals("Operator")){
+                processOperatorNode(childNode, programBuilder);
+            } else{
+                compileOperChild(childNode, programBuilder);
+            }
+        }
         switch(node.getToken().getName()){
                 case "+":
                     programBuilder.addInstruction(VMCommands.Add);
@@ -53,6 +56,11 @@ public class MathExprComplier extends AstCompiler{
                     programBuilder.addInstruction(VMCommands.Mul);
                     break;
         }
+    }
+    
+    @Override
+    public void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
+        processOperatorNode(node, programBuilder);
     }
     
 }

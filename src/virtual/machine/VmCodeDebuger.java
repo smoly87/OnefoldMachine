@@ -158,8 +158,10 @@ public class VmCodeDebuger {
     }
     
     public void addLog(String text){
+        System.out.println(text);
     }
     
     public void addError(String text){
+        System.err.println(text);
     }
 }

@@ -45,6 +45,7 @@ public abstract class ParserExprReversePolish extends Parser{
             int curPrior = getOperatorPrior(token.getName());
             boolean flag = true;
             while (flag) {
+                if(stack.size() == 0) break;
                 String headOper = stack.firstElement().getName();
                 int headOperPrior = getOperatorPrior(headOper);
                 if (headOperPrior > curPrior) {
