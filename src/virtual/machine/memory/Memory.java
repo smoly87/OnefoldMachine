@@ -23,7 +23,7 @@ import virtual.machine.exception.VmExecutionExeption;
 public class Memory {
     protected ArrayList<Byte> data;
     public static final int GC_FLAG_SIZE = 1;
-    public static final byte GC_FLAG_OBJ = 2;
+    public static final byte GC_FLAG_OBJ = 127;
     public static final byte GC_FLAG_PTR = 3;
     
     public static final int PTR_HEADERS_SIZE = GC_FLAG_SIZE + VM.INT_SIZE  ;

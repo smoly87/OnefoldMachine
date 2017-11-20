@@ -84,6 +84,7 @@ public class MathExprComplier extends AstCompiler{
             
         }
         Token token = node.getToken();
+        node.getToken().setVarType(transformToFloat ? VarType.Float : VarType.Integer);
         VarType operType = node.getToken().getVarType();
         
         switch(token.getName()){

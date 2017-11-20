@@ -19,6 +19,7 @@ import syntax.analyser.AstNode;
 import virtual.machine.VM;
 import virtual.machine.VMCommands;
 import virtual.machine.VMSysFunction;
+import virtual.machine.memory.Memory;
 
 /**
  *
@@ -51,7 +52,7 @@ public class NewObjOperatorCompiler extends AstCompiler{
                  
                 programBuilder.addInstruction(VMCommands.Push, fieldsSize, VarType.Integer);
                 //Set object flag
-                programBuilder.addInstruction(VMCommands.Push, 1, VarType.Integer);
+                programBuilder.addInstruction(VMCommands.Push, Memory.GC_FLAG_OBJ, VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.MemAllocPtr), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Dup, 0, VarType.Integer);
                 

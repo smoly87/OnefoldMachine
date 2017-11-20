@@ -209,40 +209,6 @@ public class MemoryHeap extends Memory{
         return new Pair<Integer, GarbageCollectorBlock>(clearedSize, finalBlock);
          
     }
-    
-    
-    
-    public int garbageCollectLegacy() throws VmExecutionExeption{
-        int blockPos = getSysRegister(VmSysRegister.ProgDataMemHeapOffset) ;
-        int endAddr = this.segmentOffset + this.size;
-        int clearedSize = 0; 
-        
-        while(blockPos < endAddr){
-            int curBlockSize = getPtrSizeWithHeaders(blockPos);
-            if(isNullLinks(blockPos)){
-                 int newBlockPos = getBlockEndAddr(blockPos);
-                 int newBlockSize = 0;
-                 if(newBlockPos < endAddr){
-                    newBlockSize = getPtrSizeWithHeaders(blockPos);
-                    System.arraycopy(data, newBlockPos, data, blockPos, newBlockSize); 
-                 } else{
-                    clearedSize += curBlockSize;
-                    break;
-                 }
-                 
-                 clearedSize += curBlockSize;
-                 blockPos = newBlockPos + newBlockSize;
-             } else { 
-                blockPos += curBlockSize;
-            }
-        }
-        
-        int memHeapHead = getSysRegister(VmSysRegister.LastHeapPos);
-        
-        setSysRegister(VmSysRegister.LastHeapPos, memHeapHead - clearedSize);
-        return clearedSize;
-         
-    }
-   
+       
     
 }

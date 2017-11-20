@@ -65,12 +65,12 @@ public class VmSysFunctions {
         MemoryHeap memHeap = this.memoryManager.getMemHeap();
         MemoryStack memStack = this.memoryManager.getMemStack();
         
-        int objType = memoryManager.stackPopInt();
+        byte objType = (byte)memoryManager.stackPopInt();
         int dataSize = memoryManager.stackPopInt();
         
         int ptrStart = memHeap.memAllocPtr(dataSize);
-        System.err.println("Create ptr at:" + ptrStart);
-        memHeap.putValue(ptrStart, new Byte[]{objType == 1 ? Memory.GC_FLAG_OBJ : Memory.GC_FLAG_PTR});
+        //System.err.println("Create ptr at:" + ptrStart);
+        memHeap.putValue(ptrStart, new Byte[]{objType});
         memHeap.putPtrValue(ptrStart, dataSize);
         
         

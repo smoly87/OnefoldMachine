@@ -13,6 +13,7 @@ import compiler.exception.CompilerException;
 import compiler.expr.utils.LetCompilerParams;
 import compiler.metadata.ClassInfo;
 import compiler.metadata.MetaClassesInfo;
+import compiler.metadata.VarDescription;
 import syntax.analyser.AstNode;
 import program.builder.ProgramBuilder;
 import virtual.machine.VMCommands;
@@ -28,6 +29,7 @@ public class LetCompiler extends AstCompiler {
     // TODO: It's need to figure out why it so buggy
     protected String className = "";
     protected LetCompilerParams paramsObj;
+    protected VarType rightPartType;
     
     public LetCompiler(){
         //this.getCompiler("Function").addSubscriber(this);
@@ -143,32 +145,27 @@ public class LetCompiler extends AstCompiler {
                     addRightPartCommands(paramsObj.getRightPartNode(), programBuilder);
                 }
                 break;
-            case "RightPartExpr":
-                //addRightPartCommands(node, programBuilder);
-                
-                
-                //paramsObj = new LetCompilerParams();
-               
-               
-               /* AstNode classNameNode = node.findChild("ClassName");
-                if (classNameNode != null) {
-                    paramsObj.setClassName(classNameNode.getToken().getValue());
-                }*/
-                
-                
+            case "RightPartExpr":                
                 paramsObj.setRightPartNode(node); 
-                
                 break;
             case "LeftVarName":
                 String varName = node.getToken().getValue();
                 paramsObj.setVarName(varName);
-                if(!paramsObj.isObjLeftPart() && !this.className.equals("")){
-                    
-                    String varClass = programBuilder.getVarDescription(varName).getClassName();
-                    if(varClass != null && !varClass.equals(this.className)){
-                       throw new CompilerException(String.format("Variable %s is decalred as %s. But there is an attempt to assign it to instance of %s",
+                VarDescription varDescr = programBuilder.getVarDescription(varName);
+                if(paramsObj.isObjLeftPart()){
+                   if(!this.className.equals("")){ 
+                      String varClass = varDescr.getClassName();
+                      if(varClass != null && !varClass.equals(this.className)){
+                        throw new CompilerException(String.format("Variable %s is decalred as %s. But there is an attempt to assign it to instance of %s",
                                varName, varClass, this.className));
-                    } 
+                      } 
+                   }
+                } else{
+                    if(varDescr.getType() != rightPartType){
+                        if( rightPartType == VarType.Float && varDescr.getType() == VarType.Integer ){
+                            throw new CompilerException(String.format("Try to assing float value to variable %s of Integer type" , varName));
+                        }
+                    }
                 }
                 
                 
@@ -201,6 +198,9 @@ public class LetCompiler extends AstCompiler {
           if(classNameNode != null) {
              this.className = classNameNode.getToken().getValue(); 
           }
+        } else{
+            //This place is produced after MathParser Type conclusion.
+            rightPartType =  node.getToken().getVarType();
         }
         
         

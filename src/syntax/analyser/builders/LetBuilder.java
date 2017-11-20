@@ -49,6 +49,7 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
         altParser//.add(this.getParser("MathExpr"));
                  .add(new ParserMathExpr())
                  .add(new ParserTag("String"))
+                 .add(new ParserTag("Boolean"))
                  .add(new ParserTag("Id"))
                  .add(new ParserTag("Null"))
                  .add(this.getParser("FunctionCall"), "FunctionCall")
@@ -76,7 +77,12 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
         AstNode rootNode = new AstNode();
        
         rootNode.addChildNode(result.get("LetStart"), "LetStart");
-        rootNode.addChildNode(result.get("RightPartExpr"), "RightPartExpr");
+        AstNode rightExprNode = result.get("RightPartExpr");
+        if(rightExprNode.getToken().getTagName().equals("Operator")){
+            rightExprNode.addCompiler(this.getCompiler("Let"));
+        }
+        rootNode.addChildNode(rightExprNode, "RightPartExpr");
+        
         if(result.get("LeftObjName") != null){
             AstNode leftObjNode = result.get("LeftObjName");
             leftObjNode.setCompiler(this.getCompiler("Let"));
@@ -87,6 +93,7 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
         rootNode.addChildNode(result.get("LeftVarName"), "LeftVarName");
         
          rootNode.setCompiler(this.getCompiler("Let"));
+         
         return rootNode;
         
     }
