@@ -108,7 +108,7 @@ public abstract class AstCompiler {
         
         //Increment pass ptr field value as argument of addition operation
         programBuilder.addInstruction(VMCommands.Push, step, VarType.Integer);
-        programBuilder.addInstruction(VMCommands.Add, 0, VarType.Integer);
+        programBuilder.addInstruction(VMCommands.IAdd, 0, VarType.Integer);
         
         programBuilder.addInstruction(VMCommands.Push, fieldNum, VarType.Integer); 
         programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetPtrField), VarType.Integer);

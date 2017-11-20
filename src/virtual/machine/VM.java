@@ -63,9 +63,12 @@ public class VM {
     }
         
     protected int stackPopInt() throws VmStackEmptyPopException, VmExecutionExeption{
-        return binConvertorService.bytesToInt(memoryManager.getMemStack().pop(), 0);
+        return memoryManager.stackPopInt();
     }
     
+    protected float stackPopFloat() throws VmStackEmptyPopException, VmExecutionExeption{
+        return memoryManager.stackPopFloat();
+    }
     
     public void allocateProgram() throws VmExecutionExeption{
         
@@ -127,15 +130,11 @@ public class VM {
                 switch (command) {
                     case Push_Addr_Value:
                        
-                        value = memoryManager.getPtrByteValue(addr);
-                        
-                   
-                        memStack.push(value);
-                       // memStack.push(868);
+                       value = memoryManager.getPtrByteValue(addr);
+                       memStack.push(value);
                        if(isDebug)codeDebuger.addLog(String.format("Stack push value: %s addr: %s stackhead: %s", binConvertorService.bytesToInt(value, 0),addr, memoryManager.getSysRegister(VmSysRegister.StackHeadPos)));
-                      /* System.err.println("Stack extr value: " + stackPopInt());
-                        System.err.println("Stack ext2r value: " + stackPopInt());*/
-                        break;
+
+                       break;
                     case Push_Addr:
                        // value = memoryManager.getPtrByteValue(addr);
                        
@@ -145,24 +144,30 @@ public class VM {
                     case Pop:
                         memStack.pop();
                         break;
-                    case Add:
+                    case IAdd:
                         arg1 = stackPopInt();
                         arg2 = stackPopInt();
                         operRes = arg1 + arg2;
                         memStack.push(binConvertorService.toBin(operRes));
                         break;
-                    case Sub:
+                    case ISub:
                         arg1 = stackPopInt();
                         arg2 = stackPopInt();
                         operRes = arg1 - arg2;
                         memStack.push(binConvertorService.toBin(operRes));
                         break;    
-                    case Mul:
+                    case IMul:
                         arg1 = stackPopInt();
                         arg2 = stackPopInt();
                         operRes = arg1 * arg2;
                         memStack.push(binConvertorService.toBin(operRes));
                         break;
+                    case FAdd:
+                        float farg1 = stackPopFloat();
+                        float farg2 = stackPopFloat();
+                        float foperRes = farg1 + farg2;
+                        memStack.push(binConvertorService.toBin(foperRes));
+                        break;    
                     case Var_Put:        
                         memStack.pop(addr);
                         break;

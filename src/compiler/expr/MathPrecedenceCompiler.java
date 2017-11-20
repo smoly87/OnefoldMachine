@@ -40,7 +40,7 @@ public class MathPrecedenceCompiler extends AstCompiler{
     public  void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
        switch(node.getToken().getValue()){
            case "*":
-               programBuilder.addInstruction(VMCommands.Mul);
+               programBuilder.addInstruction(VMCommands.IMul);
                break;
        }
         

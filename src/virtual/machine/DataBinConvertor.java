@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import types.IType;
 import types.TypeBoolean;
+import types.TypeFloat;
 import types.TypeInteger;
 import types.TypesInfo;
 
@@ -37,6 +38,11 @@ public class DataBinConvertor  {
          return convertor;
     }
     
+    protected TypeFloat getFloatConventor(){
+         TypeFloat convertor = (TypeFloat) typesInfoService.getConvertor(VarType.Float);
+         return convertor;
+    }
+    
     protected TypeBoolean getBoolConvertor(){
         TypeBoolean convertor = (TypeBoolean) typesInfoService.getConvertor(VarType.Boolean);
         return convertor;
@@ -52,10 +58,19 @@ public class DataBinConvertor  {
         
         return  getIntegerConventor().toBinary(value);
     }
-   public Boolean bytesToBool(Byte[] arr) {
+    public Boolean bytesToBool(Byte[] arr) {
        return getBoolConvertor().getValue(arr);
     }
+    
+    public float bytesToFloat(Byte[] arr) {
+       return getFloatConventor().getValue(arr);
+    }
 
+    public Byte[] toBin(float value) {
+        
+        return  getFloatConventor().toBinary(value);
+    }
+    
     public Byte[] toBin(Boolean value) {
         
         return  getBoolConvertor().toBinary(value);

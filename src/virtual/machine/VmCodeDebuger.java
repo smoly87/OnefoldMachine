@@ -152,7 +152,7 @@ public class VmCodeDebuger {
      for(int i = 0; i < N; i++){
          int varAddrPtr =  addrTables.getAddrByIndex(VmExeHeader.VarTableSize, i);
          int varAddr = memHeap.getIntValue(varAddrPtr) ;
-         this.addLog(String.format("Value of %s by addr %s is %s", i, varAddrPtr, memHeap.getIntPtrValue(varAddrPtr)));
+         this.addLog(String.format("Value of %s by addr %s is %s", i, varAddrPtr, memHeap.getFloatPtrValue(varAddrPtr)));
      }
         this.addLog("Stack pos " + this.memoryManager.getSysRegister(VmSysRegister.StackHeadPos));
     }

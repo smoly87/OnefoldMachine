@@ -1,5 +1,10 @@
-Var a:Integer;
+/*Var a:Integer;
 Var b:Integer;
 Let a = 2;
 Let b =7;
-Let b= a*b*3;
+Let b= 2*3*4;*/
+Var a:Float;
+Var b:Float;
+Let a = 1.2;
+Let b = 1.2;
+Let a = 1.2+1;

@@ -46,7 +46,7 @@ public class LetBuilder extends ParserChain implements ParserBuilder{
     
     protected Parser getRightPartParser(){
         ParserAlternative altParser = new ParserAlternative();
-        altParser//.add(this.getParser("MathExpr"))
+        altParser//.add(this.getParser("MathExpr"));
                  .add(new ParserMathExpr())
                  .add(new ParserTag("String"))
                  .add(new ParserTag("Id"))

@@ -5,9 +5,12 @@
  */
 package virtual.machine.memory;
 
+import common.VarType;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import types.TypesInfo;
 import virtual.machine.DataBinConvertor;
 import virtual.machine.exception.VMOutOfMemoryException;
 import virtual.machine.VM;
@@ -71,11 +74,19 @@ public class Memory {
         return this.getValue(addr + VM.INT_SIZE, size);
     }
     
-     public int  getIntPtrValue(int addr){
+    public int  getIntPtrValue(int addr){
        // Addr check  
        return  binConvertorService.bytesToInt(data, addr + PTR_HEADERS_SIZE);
     }
-     
+    
+    public float  getFloatPtrValue(int addr){
+       // Addr check  
+       //Byte[] value = foo.toArray(new Integer[foo.size()]);
+        final int floatSize = TypesInfo.getInstance().getTypeSize(VarType.Float);
+        List<Byte> subList = data.subList(addr + PTR_HEADERS_SIZE, addr + PTR_HEADERS_SIZE+ floatSize);
+        Byte[] byteValue = subList.toArray(new Byte[floatSize]);
+       return  binConvertorService.bytesToFloat(byteValue);
+    }
     /**
      * This method uses to get a single cell as integer
      * In most cases it's a pointer to address

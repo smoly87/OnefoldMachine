@@ -21,9 +21,9 @@ public class MathParserMultiBuilder extends ParserChain implements ParserBuilder
 
     public Parser getArgParser(){
         ParserAlternative altParser = new ParserAlternative();
-        
-       
-        altParser.add(new ParserLazy("MathExpr"));
+        altParser.add(new ParserTag("Integer"));
+        altParser.add(new ParserTag("Id"));
+        altParser.add(new ParserLazy("MathExprBuilder"));
         return altParser;
     }
     

@@ -27,9 +27,9 @@ public class ParserMathExpr extends ParserExprReversePolish{
     
     public ParserMathExpr(){
        super();
-       allowedOperadsTags.add("Id");
-       allowedOperadsTags.add("Integer");
-        
+       allowedOperandTags.add("Id");
+       allowedOperandTags.add("Integer");
+       allowedOperandTags.add("Float"); 
     }
     
     protected void setPriorsTable(){
@@ -39,4 +39,6 @@ public class ParserMathExpr extends ParserExprReversePolish{
         priors.put("+", 2);
         priors.put("-", 2);
     }    
+    
+
 }

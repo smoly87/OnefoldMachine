@@ -24,12 +24,12 @@ import syntax.analyser.Parser;
 public abstract class ParserExprReversePolish extends Parser{
 
     protected HashMap<String, Integer> priors;
-    protected HashSet<String> allowedOperadsTags;
+    protected HashSet<String> allowedOperandTags;
     protected   String OperatorTag = "Operator";
     
     public ParserExprReversePolish(){
         priors = new HashMap<>();
-        allowedOperadsTags = new HashSet<String>();
+        allowedOperandTags = new HashSet<String>();
         setPriorsTable();
         
     }
@@ -71,7 +71,7 @@ public abstract class ParserExprReversePolish extends Parser{
                     if(token.getTagName().equals(OperatorTag)){
                         reorderOperators(token, stack, out);
                     } else {
-                        if (allowedOperadsTags.contains(token.getTagName())) {
+                        if (allowedOperandTags.contains(token.getTagName())) {
                             out.add(token);
                         } else {
                             lexFlag = false;
@@ -129,7 +129,7 @@ public abstract class ParserExprReversePolish extends Parser{
                        stack.push(operNode);
                     }else{
                         //Обратный порядок извлечения
-                        if (!allowedOperadsTags.contains(token.getTagName())) {
+                        if (!allowedOperandTags.contains(token.getTagName())) {
                             throw new ParserException(String.format("Unknown tag in expr:", token.getTagName()));
                         }
                         AstNode varNode = new AstNode();

@@ -24,8 +24,6 @@ public class MathExprBuilder extends ParserAlternative implements ParserBuilder{
     @Override
     public Parser build() {
         this.add(new ParserLazy("MathParserMulti"));
-        this.add(new ParserTag("Integer"));
-        this.add(new ParserTag("Id"));
         
         
         

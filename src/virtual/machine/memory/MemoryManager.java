@@ -67,6 +67,10 @@ public class MemoryManager extends Memory{
         return binConvertorService.bytesToInt(this.getMemStack().pop(), 0);
     }
     
+    public float stackPopFloat() throws VmStackEmptyPopException, VmExecutionExeption{
+        return binConvertorService.bytesToFloat(this.getMemStack().pop());
+    }
+    
     public void allocateProgramInstructions(ArrayList<Byte> programData, int startInstrInd) throws VmExecutionExeption{
         
         int progInstrSize = programData.size() - startInstrInd;

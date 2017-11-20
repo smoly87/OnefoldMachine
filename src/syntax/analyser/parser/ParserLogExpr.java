@@ -24,8 +24,8 @@ public class ParserLogExpr extends ParserExprReversePolish{
 
     public ParserLogExpr() {
        super();
-       allowedOperadsTags.add("Id");
-       allowedOperadsTags.add("Boolean");
+       allowedOperandTags.add("Id");
+       allowedOperandTags.add("Boolean");
     }
 
 
