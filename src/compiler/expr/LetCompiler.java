@@ -31,11 +31,11 @@ public class LetCompiler extends AstCompiler {
     protected LetCompilerParams paramsObj;
     protected VarType rightPartType;
     
-    public LetCompiler(){
-        //this.getCompiler("Function").addSubscriber(this);
+    public LetCompiler(ProgramBuilder programBuilder){
+       super(programBuilder);
     }
     
-    public void addRightPartCommands(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    public void addRightPartCommands(AstNode node ) throws CompilerException{
         String tokName = node.getToken().getTagName();
          String varName = node.getToken().getValue();
         switch(tokName){
@@ -51,8 +51,8 @@ public class LetCompiler extends AstCompiler {
                 //if(objLeftPart){
                 String varClass = programBuilder.getVarDescription(varName).getClassName();
                 if(varClass != null && varClass != ""){
-                       this.addVarLoadCommand(varName, programBuilder); 
-                     this.addCommandChangeFieldValue(programBuilder, varName, 1, 1 );
+                       this.addVarLoadCommand(varName); 
+                     this.addCommandChangeFieldValue( varName, 1, 1 );
                 }
                   
                 //}
@@ -61,8 +61,8 @@ public class LetCompiler extends AstCompiler {
             case "Null":
                 
                 //Decrease links count to object
-                this.addVarLoadCommand(paramsObj.getVarName(), programBuilder); 
-                this.addCommandChangeFieldValue(programBuilder, paramsObj.getVarName(), 1, -1 );
+                this.addVarLoadCommand(paramsObj.getVarName()); 
+                this.addCommandChangeFieldValue( paramsObj.getVarName(), 1, -1 );
                 paramsObj.setRightPartIsNull();
                
                 
@@ -129,7 +129,7 @@ public class LetCompiler extends AstCompiler {
         }
     }
     @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    public void compileChild(AstNode node) throws CompilerException{
         String nodeName = "";
         if( node.getName() != null) nodeName = node.getName();
         
@@ -142,7 +142,7 @@ public class LetCompiler extends AstCompiler {
                 paramsObj.setLeftObjName(node.getToken().getValue());
                 addCommandsLeftPartObj(node, programBuilder);
                 if(paramsObj.getRightPartNode() !=null){
-                    addRightPartCommands(paramsObj.getRightPartNode(), programBuilder);
+                    addRightPartCommands(paramsObj.getRightPartNode());
                 }
                 break;
             case "RightPartExpr":                
@@ -173,7 +173,7 @@ public class LetCompiler extends AstCompiler {
                     addCommandsLeftPartObjField(node, programBuilder);
                 } else{
                     if(paramsObj.getRightPartNode() !=null){
-                        addRightPartCommands(paramsObj.getRightPartNode(), programBuilder);
+                        addRightPartCommands(paramsObj.getRightPartNode());
                     }
                     addCommandsLeftPartVar(node, programBuilder);
                 }
@@ -185,11 +185,13 @@ public class LetCompiler extends AstCompiler {
                 break;
             
             /*default:
+                System.err.println("Unknown part in Let compiler:" + node.getToken().getValue());*/            
+            /*default:
                 System.err.println("Unknown part in Let compiler:" + node.getToken().getValue());*/
         }
     }
-    
-    public  void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    @Override
+    public  void compileRootPre(AstNode node) throws CompilerException{
         //paramsObj = new LetCompilerParams();
         AstNode rightExprNode = node.findChild("RightPartExpr");
        

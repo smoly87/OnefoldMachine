@@ -19,15 +19,19 @@ import virtual.machine.VMCommands;
  */
 public class LogicExprElemCompiler extends AstCompiler{
 
+    public LogicExprElemCompiler(ProgramBuilder programBuilder) {
+        super(programBuilder);
+    }
+
     @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    public void compileChild(AstNode node) throws CompilerException{
         switch(node.getToken().getTagName()){
             //TODO: convension of naming
             case "Id":
                 //TODO: if Var existed in global variables check
                 // It should be fine with order of code execution
                 String varName = node.getToken().getValue();
-                this.addVarLoadCommand(varName, programBuilder);
+                this.addVarLoadCommand(varName);
                 
                 break;
             case "Integer": case "Float":
@@ -41,7 +45,7 @@ public class LogicExprElemCompiler extends AstCompiler{
     }
 
     @Override
-    public void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
+    public void compileRootPost(AstNode node) throws CompilerException {
         switch(node.getToken().getValue()){
                 case ">":
                     programBuilder.addInstruction(VMCommands.CmpMore);

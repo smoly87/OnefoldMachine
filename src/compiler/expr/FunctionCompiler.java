@@ -9,6 +9,8 @@ import common.Token;
 import common.VarType;
 import compiler.AstCompiler;
 import compiler.exception.CompilerException;
+import compiler.metadata.ClassInfo;
+import compiler.metadata.FuncSignatureBuilder;
 import java.util.LinkedList;
 import compiler.metadata.FunctionDescription;
 import compiler.metadata.MetaClassesInfo;
@@ -32,24 +34,29 @@ public class FunctionCompiler extends AstCompiler{
     protected int funStartCommandNum;
     protected TypesInfo typesInfo;
     protected int totalVarsTableSizeInstr;
-    
-    public FunctionCompiler(){
+    protected boolean firstStage = true;
+
+    public boolean isFirtStage() {
+        return firstStage;
+    }
+
+    public void setFirtStage(boolean firtStage) {
+        this.firstStage = firtStage;
+    }
+
+    public FunctionCompiler(ProgramBuilder programBuilder){
+        super(programBuilder);
         typesInfo = TypesInfo.getInstance();
     }
-    
-   
-     
+      
     protected void processVarDescription(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         Token token = node.getToken();
         funcDescr.addArgDecription(token.getValue(), token.getVarType());
         programBuilder.addLocalVar(token.getValue(), token.getVarType());  
     }
     
-    protected void addThisVar(ProgramBuilder programBuilder) throws CompilerException {
-        
-        
+    protected void addThisVar(ProgramBuilder programBuilder) throws CompilerException {      
         funcDescr.addArgDecription("this", VarType.Integer);
-
         programBuilder.addLocalVar("this", VarType.Integer);
 
     }
@@ -58,7 +65,7 @@ public class FunctionCompiler extends AstCompiler{
         Token token = node.getToken(); 
         switch(token.getTagName()){
             case "Id":
-                addVarLoadCommand(token.getValue(), programBuilder);
+                addVarLoadCommand(token.getValue());
                 programBuilder.addInstruction(VMCommands.Push, VmSysRegister.T2.ordinal(), VarType.Integer);
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetRegister), VarType.Integer);
                 break;
@@ -73,27 +80,19 @@ public class FunctionCompiler extends AstCompiler{
 
     
     @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.  
+    public void compileChild(AstNode node) throws CompilerException {
+        if(firstStage) return;
         switch(node.getName()){
-           
             case "VarDescription":
                 processVarDescription(node, programBuilder);
                 break;  
             case "StartFunctionBody":
-                // MetaClassesInfo.getInstance().addFunction(funcDescr);
                 programBuilder.addInstruction(VMCommands.NOP);
                 funcDescr.setStartBody(programBuilder.commandsSize());
                 programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.ArrangeFuncParams), VarType.Integer);
-  
                 break;
-            case "ReturnStatement":
-
-               
-                
+            case "ReturnStatement":             
                 processReturnStatement(node, programBuilder);
-                
-                
                 //Return to call address
                 programBuilder.addComment("Load Return Addr");
                 programBuilder.addInstructionVarArg(VMCommands.Var_Load_Local, "__ReturnAddress",  true);
@@ -121,23 +120,32 @@ public class FunctionCompiler extends AstCompiler{
                 
                 break;
             case "EndFunction":
-                
-                //programBuilder.changeCommandArgByNum(totalVarsTableSizeInstr, funcDescr.getTotalVarsCount() * VM.INT_SIZE, VarType.Integer, true);
                 break;
         }
-        //this.callSubscribers(node, programBuilder);
     }
     
      @Override
-    public void compileRootPre(AstNode node, ProgramBuilder programBuilder) {
+    public void compileRootPre(AstNode node) throws CompilerException {
          Token token = node.findChild("FunctionId").getToken();
          programBuilder.setIsLocalContext(true);
          programBuilder.clearLocalVars();
 
          this.funcName = token.getValue();
-         funcDescr = new FunctionDescription(this.funcName);
-         funcDescr.setLineNumber(programBuilder.commandsSize());
-         
+         FuncSignatureBuilder signBuilder = new FuncSignatureBuilder();
+         if(firstStage){
+           funcDescr = new FunctionDescription(this.funcName);
+           funcDescr.setLineNumber(programBuilder.commandsSize());
+         } else{
+           //
+             LinkedList<AstNode> headerVarsNode = node.findChilds("VarDescription"); 
+             for(AstNode varNode: headerVarsNode){
+               signBuilder.addArgFromNode(varNode, programBuilder);
+             }
+             String argSignature = signBuilder.getSignature();
+             ClassCompiler classCompiler = (ClassCompiler)this.getCompiler("Class");
+             ClassInfo classInfo = classCompiler.getClassInfo();
+             funcDescr = classInfo.getMethodDescription(this.funcName, argSignature);
+         }
          LinkedList<AstNode> localVarList = node.findChild("FunctionBody").findChilds("Var");
          funcDescr.setLocalVarsCount(localVarList.size());
          
@@ -148,12 +156,7 @@ public class FunctionCompiler extends AstCompiler{
          programBuilder.setIsLocalContext(false);
          programBuilder.clearLocalVars();
          VarCompiler varCompiler = (VarCompiler)this.getCompiler("Var");
-         //int totalVarsCount = declaredVarsCount + varCompiler.getLocalVarsCount();
-         //funcDescr.setLocalVarsCount(varCompiler.getLocalVarsCount());
          varCompiler.clearLocalVarsCount();
-         
-        
-        
     }
     
     

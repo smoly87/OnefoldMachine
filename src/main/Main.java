@@ -60,19 +60,19 @@ public class Main {
               System.out.println("Type a command:");
               String inpStr = !fullDebug ? reader.readLine() : "compile_run --path_src let_expr.txt"; //;// 
               if(inpStr.equals("exit") ) return;
-              if(!commadInter.executeCommand(inpStr)){
-                System.err.println(commadInter.getError());
+              if(!commadInter.isValidCommand(inpStr)){
+                  System.err.println(commadInter.getError());
               } else {
+                if(!commadInter.executeCommand(inpStr)){
+                   System.err.println(commadInter.getError());
+                }
                 return;
               }
             }  
         } catch (ConfigLoadException ex) {
             System.err.println(ex.getMessage());
-        } catch(CompilerException|ParserException ex){
-            System.err.println(ex.getMessage());
-        } catch(VmExecutionExeption ex){
-            System.err.println(ex.getMessage());
         }
+        
        
         
     }

@@ -40,14 +40,15 @@ public abstract class Parser {
     }
     
     public Parser(){
-        parsersStorage = ParserFactory.getInstance();
+        
         grammarInfo = GrammarInfoStorage.getInstance();
         compilersFactory = CompilersFactory.getInstance();
+        parsersStorage = ParserFactory.getInstance();
     }
     
     protected Parser getParser(String name) {
        try{ 
-         return parsersStorage.getParser(name);
+         return parsersStorage.getElement(name);
        } catch(Exception e){
            System.err.printf("Cannot build parser with name: %s wit error: %s", name, e.getMessage() );
        } 

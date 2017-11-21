@@ -19,15 +19,19 @@ import virtual.machine.VMCommands;
  *
  * @author Andrey
  */
-public class MathExprComplier extends AstCompiler{
+public class MathExprCompiler extends AstCompiler{
+
+    public MathExprCompiler(ProgramBuilder programBuilder) {
+        super(programBuilder);
+    }
 
 
-    public void compileOperChild(AstNode node, boolean transformToFloat, ProgramBuilder programBuilder) throws CompilerException{
+    public void compileOperChild(AstNode node, boolean transformToFloat) throws CompilerException{
         String tagName = node.getToken().getTagName();
         switch(tagName){
             case "Id":
                 String varName = node.getToken().getValue();
-                this.addVarLoadCommand(varName, programBuilder);
+                this.addVarLoadCommand(varName);
                 break;
             case "Integer": case "Float":
                 String constValue = node.getToken().getValue();
@@ -38,7 +42,7 @@ public class MathExprComplier extends AstCompiler{
         }
     }
     
-    protected VarType concludeNodeType(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    protected VarType concludeNodeType(AstNode node) throws CompilerException{
         VarType nodeType = null;
         String tagName = node.getToken().getTagName();
         switch(tagName){
@@ -57,13 +61,13 @@ public class MathExprComplier extends AstCompiler{
     }
     
     
-    protected boolean hasNestedFloats(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    protected boolean hasNestedFloats(AstNode node) throws CompilerException{
         for(AstNode childNode: node.getChildNodes()){
             boolean  res = false; 
             if(childNode.getToken().getTagName().equals("Operator")){
-                res = hasNestedFloats(childNode, programBuilder);
+                res = hasNestedFloats(childNode);
             } else{
-                res = (concludeNodeType(childNode, programBuilder)  == VarType.Float);
+                res = (concludeNodeType(childNode)  == VarType.Float);
             }
             if(res) return true;
         }
@@ -71,15 +75,15 @@ public class MathExprComplier extends AstCompiler{
         return false; 
     } 
     
-    protected void processOperatorNode(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    protected void processOperatorNode(AstNode node ) throws CompilerException{
         
-        boolean transformToFloat = hasNestedFloats(node, programBuilder);
+        boolean transformToFloat = hasNestedFloats(node);
         
         for(AstNode childNode: node.getChildNodes()){
             if(childNode.getToken().getTagName().equals("Operator")){
-                processOperatorNode(childNode, programBuilder);
+                processOperatorNode(childNode);
             } else{
-                compileOperChild(childNode, transformToFloat, programBuilder);
+                compileOperChild(childNode, transformToFloat);
             }
             
         }
@@ -101,8 +105,8 @@ public class MathExprComplier extends AstCompiler{
     }
     
     @Override
-    public void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
-        processOperatorNode(node, programBuilder);
+    public void compileRootPre(AstNode node) throws CompilerException {
+        processOperatorNode(node);
     }
     
 }

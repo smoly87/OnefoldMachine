@@ -39,6 +39,8 @@ public class MetaClassesInfo {
         funcsMap = new HashMap<>();
     }
     
+   
+    
     public boolean isFuncExists(String funcName, String signature){
         String fullName = FunctionDescription.getFullName(funcName, signature);
         return funcsMap.containsKey(fullName);

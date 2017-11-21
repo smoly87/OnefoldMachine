@@ -23,11 +23,8 @@ import syntax.analyser.parser.ParserTag;
  * @author Andrey
  */
 public class NewObjOperatorBuilder extends ParserChain implements ParserBuilder{
-
-   
-       
+    
     public Parser build() {
-        //Указать нужен ли результат парсера
        return this
             
             .addKeyword("New")
@@ -39,7 +36,7 @@ public class NewObjOperatorBuilder extends ParserChain implements ParserBuilder{
     public  AstNode processChainResult(HashMap<String, AstNode> result){
 
         AstNode rootNode = result.get("New");
-        rootNode.setCompiler(new NewObjOperatorCompiler());
+        rootNode.setCompiler(this.getCompiler("NewObjOperator"));
 
         
         rootNode.addChildNode(result.get("Id"), "ClassName");

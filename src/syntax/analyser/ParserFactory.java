@@ -6,10 +6,13 @@
 
 package syntax.analyser;
 
+import compiler.AstCompiler;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
-import sun.security.jca.GetInstance;
-import syntax.analyser.Parser;
+import program.builder.ProgramBuilder;
 import syntax.analyser.builders.ParserBuilder;
+
 
 /**
  *
@@ -17,24 +20,38 @@ import syntax.analyser.builders.ParserBuilder;
  */
 // TODO: Should we implement an singleton interface?
 public class ParserFactory {
-    protected HashMap<String, Parser> parsersStorage;
+
     protected static ParserFactory instance;
+    protected HashMap<String, Parser> elementsStorage;
+    protected  String namespace;
+    protected  String postfix;
     
     private ParserFactory(){
-        this.parsersStorage = new HashMap();
+         super();
+         this.namespace = "syntax.analyser.builders";
+         this.postfix = "Builder";
+         elementsStorage = new HashMap<>();
+    }
+
+
+    public Parser getElement(String name) {
+        if(elementsStorage.containsKey(name)){
+            return elementsStorage.get(name);
+        } else {
+            try {
+                String className = String.format("%s.%s%s", namespace, name, postfix ) ;
+                Constructor constr = Class.forName(className).getConstructor();
+                ParserBuilder parserBuilder = (ParserBuilder)constr.newInstance();
+                Parser element = parserBuilder.build();
+                elementsStorage.put(name, element);
+                return element;
+            } catch (Exception ex) {
+                System.err.println("Dynamic Load error:" + ex.getMessage());
+            } 
+        }
+        return null;
     }
     
-    public Parser getParser(String name) throws ClassNotFoundException, InstantiationException, IllegalAccessException{
-        if(parsersStorage.containsKey(name)){
-            return parsersStorage.get(name);
-        } else {
-            String className = "syntax.analyser.builders." + name +  "Builder";
-            ParserBuilder parserBuilder = (ParserBuilder)Class.forName(className).newInstance();
-            Parser parser = parserBuilder.build();
-            parsersStorage.put(name, parser);
-            return parser;
-        }
-    }
     
     public static ParserFactory getInstance(){
         if(instance == null){
@@ -42,6 +59,8 @@ public class ParserFactory {
         }
         return instance;
     }
+
+ 
 }
 
 

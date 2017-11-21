@@ -14,5 +14,5 @@ import syntax.analyser.AstNode;
  * @author Andrey
  */
 public interface CompilerSubscriber {
-    public void compileChild(AstNode node, ProgramBuilder programBuilder)  throws CompilerException;
+    public void compileChild(AstNode node)  throws CompilerException;
 }

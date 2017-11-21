@@ -65,6 +65,7 @@ public class ProgramBuilder  {
     protected Integer lineCount;
 
     protected TypesInfo typesInfo;
+    protected static ProgramBuilder instance;
     
     public Integer commandsSize() {
         return progData.size();
@@ -84,7 +85,7 @@ public class ProgramBuilder  {
         totalLocalVarSizes = 0;
     }
     
-    public ProgramBuilder() throws CompilerException{
+    private ProgramBuilder() {
         asmText = new StringJoiner("\\n");
         instructionsService = Instructions.getInstance();
         binConvertorService = DataBinConvertor.getInstance();
@@ -97,7 +98,16 @@ public class ProgramBuilder  {
         totalLocalVarSizes = 0;
         typesInfo = TypesInfo.getInstance();
         commandsCount = 0;
-        addInstruction(VMCommands.NOP);
+        //addInstruction(VMCommands.NOP);
+    }
+    
+    public static ProgramBuilder getInstance() {
+
+        if(instance == null){
+            instance = new ProgramBuilder();
+        }
+        return instance;
+    
     }
     
     public void addVar(String name, VarType type){

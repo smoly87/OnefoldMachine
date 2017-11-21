@@ -18,7 +18,11 @@ import virtual.machine.VMCommands;
  * @author Andrey
  */
 public class FieldCompiler extends AstCompiler{
-
+    
+    public FieldCompiler(ProgramBuilder programBuilder) {
+        super(programBuilder);
+    }
+    
    
     
     

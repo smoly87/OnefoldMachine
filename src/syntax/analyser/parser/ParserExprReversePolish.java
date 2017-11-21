@@ -7,13 +7,14 @@
 package syntax.analyser.parser;
 
 import common.Token;
-import compiler.expr.MathExprComplier;
+import compiler.expr.MathExprCompiler;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Stack;
 import javax.xml.bind.annotation.XmlElement;
 import lexer.LexerResult;
+import program.builder.ProgramBuilder;
 import syntax.analyser.AstNode;
 import syntax.analyser.Parser;
 
@@ -27,7 +28,8 @@ public abstract class ParserExprReversePolish extends Parser{
     protected HashSet<String> allowedOperandTags;
     protected   String OperatorTag = "Operator";
     
-    public ParserExprReversePolish(){
+    public ParserExprReversePolish( ){
+
         priors = new HashMap<>();
         allowedOperandTags = new HashSet<String>();
         setPriorsTable();
@@ -145,7 +147,7 @@ public abstract class ParserExprReversePolish extends Parser{
        }
        if(stack.size() > 0){
           AstNode resNode = stack.pop(); 
-          resNode.setCompiler(new MathExprComplier());
+          resNode.setCompiler(this.getCompiler("MathExpr") );
           this.setParseResult(resNode);
           return true;
        } else{

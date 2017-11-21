@@ -18,7 +18,7 @@ public class AstCompilerList extends AstCompiler{
     protected LinkedList<AstCompiler> compilersList;
     
     public AstCompilerList(){
-        super();
+        super(null);
         compilersList = new LinkedList<>();
     }
     
@@ -27,24 +27,24 @@ public class AstCompilerList extends AstCompiler{
     }
     
     @Override    
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    public void compileChild(AstNode node) throws CompilerException{
         for(AstCompiler compiler : compilersList){
-            compiler.compileChild(node, programBuilder);
+            compiler.compileChild(node);
         }
     }
     
     @Override  
-    public  void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    public  void compileRootPost(AstNode node ) throws CompilerException{
        for(AstCompiler compiler : compilersList){
-            compiler.compileRootPost(node, programBuilder);
+            compiler.compileRootPost(node);
        }
         
     }
     
     @Override  
-    public  void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    public  void compileRootPre(AstNode node) throws CompilerException{
         for(AstCompiler compiler : compilersList){
-            compiler.compileRootPre(node, programBuilder);
+            compiler.compileRootPre(node);
        }
     }
 }

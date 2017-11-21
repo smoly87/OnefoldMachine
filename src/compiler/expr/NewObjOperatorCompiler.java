@@ -9,14 +9,10 @@ import common.Token;
 import common.VarType;
 import compiler.AstCompiler;
 import compiler.exception.CompilerException;
-import java.awt.geom.Line2D;
-import java.util.LinkedList;
 import compiler.metadata.ClassInfo;
-import compiler.metadata.FunctionDescription;
 import compiler.metadata.MetaClassesInfo;
 import program.builder.ProgramBuilder;
 import syntax.analyser.AstNode;
-import virtual.machine.VM;
 import virtual.machine.VMCommands;
 import virtual.machine.VMSysFunction;
 import virtual.machine.memory.Memory;
@@ -27,12 +23,16 @@ import virtual.machine.memory.Memory;
  */
 public class NewObjOperatorCompiler extends AstCompiler{
 
+    public NewObjOperatorCompiler(ProgramBuilder programBuilder) {
+        super(programBuilder);
+    }
+
    
    
    
     
     @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    public void compileChild(AstNode node) throws CompilerException{
         Token token =  node.getToken();
         String tokName = token.getTagName();
         switch(tokName){
@@ -57,11 +57,11 @@ public class NewObjOperatorCompiler extends AstCompiler{
                 programBuilder.addInstruction(VMCommands.Dup, 0, VarType.Integer);
                 
                 //Set ClassID
-                addCommandSetFieldValue(programBuilder, 0, classInfo.getCode());
+                addCommandSetFieldValue( 0, classInfo.getCode());
                 programBuilder.addInstruction(VMCommands.Dup, 0, VarType.Integer); //Dup for save Ptr
                 
                 //Set LinksCount
-                addCommandSetFieldValue(programBuilder, 1, 1);
+                addCommandSetFieldValue( 1, 1);
                // programBuilder.addInstruction(VMCommands.Dup, 0, VarType.Integer); //Dup for save Ptr
 
 

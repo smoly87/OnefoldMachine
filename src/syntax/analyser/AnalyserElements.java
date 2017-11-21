@@ -5,6 +5,8 @@
  */
 package syntax.analyser;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,7 +16,7 @@ import syntax.analyser.builders.ParserBuilder;
  *
  * @author Andrey
  */
-public class AnalyserElements<ElementType> {
+public abstract class AnalyserElements<ElementType> {
     protected HashMap<String, ElementType> elementsStorage;
     protected  String namespace;
     protected  String postfix;
@@ -23,22 +25,8 @@ public class AnalyserElements<ElementType> {
         elementsStorage = new HashMap<>();
     }
     
+     
     
-    public ElementType getElement(String name) {
-        if(elementsStorage.containsKey(name)){
-            return elementsStorage.get(name);
-        } else {
-            try {
-                String className = String.format("%s.%s%s", namespace, name, postfix ) ;
-                ElementType element = (ElementType)Class.forName(className).newInstance();
-                
-                elementsStorage.put(name, element);
-                return element;
-            } catch (Exception ex) {
-                System.err.println("Dynamic Load error:" + ex.getMessage());
-            } 
-        }
-        return null;
-    }
+ 
     
 }

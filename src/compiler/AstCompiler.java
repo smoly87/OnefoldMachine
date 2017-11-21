@@ -24,40 +24,37 @@ import virtual.machine.memory.VmSysRegister;
 public abstract class AstCompiler {
     protected CompilersFactory compilersFactory;
     protected LinkedList<CompilerSubscriber> subscribers;
-    
-   /* public void addSubscriber(CompilerSubscriber subscriber){
-        subscribers.add(subscriber);
+    protected boolean enabled = true;
+    protected ProgramBuilder programBuilder;
+    public boolean isEnabled() {
+        return enabled;
     }
-    
-    public void removeSubscriber(){
-    }*/
-    
-   /* protected void callSubscribers(AstNode node, ProgramBuilder programBuilder){
-       
-        for (CompilerSubscriber subscriber : subscribers) {
-           subscriber.compileChild(node, programBuilder);
-        }
-    }*/
-    
-    public AstCompiler(){
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+ 
+    public AstCompiler(ProgramBuilder programBuilder){
+        this.programBuilder = programBuilder;
         subscribers = new LinkedList<>();
         compilersFactory = CompilersFactory.getInstance();
+        setEnabled(true);
     }
     
     protected AstCompiler getCompiler(String compilerName){
         return compilersFactory.getElement(compilerName);
     }
     
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
-        //if(subscribers.size() > 0) callSubscribers(node, programBuilder);
-    }
-    
-    public  void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
-       // if(subscribers.size() > 0) callSubscribers(node, programBuilder);
+    public void compileChild(AstNode node) throws CompilerException{
         
     }
-    public  void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
-       // if(subscribers.size() > 0) callSubscribers(node, programBuilder);
+    
+    public  void compileRootPost(AstNode node) throws CompilerException{
+      
+        
+    }
+    public  void compileRootPre(AstNode node) throws CompilerException{
+       
     }
     
     protected String regToStr(VmSysRegister reg){
@@ -68,7 +65,7 @@ public abstract class AstCompiler {
         return Integer.toString(sysFunc.ordinal());
     }
     
-    protected void addVarLoadCommand(String varName,  ProgramBuilder programBuilder) throws CompilerException{
+    protected void addVarLoadCommand(String varName) throws CompilerException{
         
         
         if (programBuilder.isLocalVariableExists(varName)) {
@@ -92,15 +89,15 @@ public abstract class AstCompiler {
         throw new CompilerException(">>Undeclared variable: " + varName);
     }
     
-    protected void addCommandSetFieldValue(ProgramBuilder programBuilder, Integer fieldNum, Integer value) throws CompilerException{
+    protected void addCommandSetFieldValue(Integer fieldNum, Integer value) throws CompilerException{
         programBuilder.addInstruction(VMCommands.Push, value, VarType.Integer);// fieldValue
         programBuilder.addInstruction(VMCommands.Push, fieldNum, VarType.Integer); // fieldNum
         programBuilder.addInstruction(VMCommands.Invoke_Sys_Function, sysFuncToStr(VMSysFunction.SetPtrField), VarType.Integer);
     }
     
-     protected void addCommandChangeFieldValue(ProgramBuilder programBuilder, String varName,Integer fieldNum, Integer step) throws CompilerException{
+     protected void addCommandChangeFieldValue( String varName,Integer fieldNum, Integer step) throws CompilerException{
         
-        addVarLoadCommand(varName, programBuilder);
+        addVarLoadCommand(varName);
         
         programBuilder.addInstruction(VMCommands.Dup);
         programBuilder.addInstruction(VMCommands.Push, fieldNum, VarType.Integer); 

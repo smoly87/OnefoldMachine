@@ -47,7 +47,7 @@ public class CommandInterpreter {
         }
     }
     
-    public boolean executeCommand(String commandText) throws ParserException, CompilerException, IOException, Exception{
+    public boolean isValidCommand(String commandText){
         command = new ShellCommand(commandText);
         
         if(!commandsParams.containsKey(command.getCommandName())){
@@ -62,23 +62,18 @@ public class CommandInterpreter {
             return false;
         }
         
-        
-        
+        return true;
+    }
+    
+    public boolean executeCommand(String commandText) throws  IOException{
         try {
             switch (command.getCommandName()) {
                 case "compile":
-                    
                     this.compileStage();
                     break;
-                case "compile_run":
-                    try {
-                        prog = this.compileStage();
-                    } catch (ParserException parserException) {
-                        throw parserException;
-                    } catch (CompilerException compilerException) {
-                        throw compilerException;
-                    }                    
-                    this.runProgram(prog);
+                case "compile_run":               
+                    prog = this.compileStage();
+                    if(prog != null) this.runProgram(prog);
                     break;
                 case "run":
                     prog = ProgramFileSys.load(command.getOption("path"));
@@ -86,18 +81,22 @@ public class CommandInterpreter {
                     break;
             }
         } 
-        catch (CompilerException|ParserException compilerException) {
-          throw compilerException;
-        }
-        
-         
-        
+        catch (CompilerException ex) {
+            this.setError("Compilation error: " + ex.getMessage());
+            return false;
+        }catch(ParserException ex){
+            this.setError("Parsing error: " + ex.getMessage());
+            return false;
+        } catch(VmExecutionExeption ex){
+            this.setError("VM execution error: " + ex.getMessage());
+            return false;
+        }  
         return true;
     }
     
     
     protected Program compileStage() throws FileNotFoundException, ParserException, CompilerException, IOException{
-        
+     
         Program prog = this.compile();
         ProgramFileSys programFileSys = new ProgramFileSys();
         

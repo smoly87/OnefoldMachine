@@ -21,8 +21,12 @@ import virtual.machine.VMCommands;
 public class WhileCompiler extends AstCompiler{
     protected Integer logExprCmdNum = 0;
     protected Integer jmpOutCycleAddr = -1;
+
+    public WhileCompiler(ProgramBuilder programBuilder) {
+        super(programBuilder);
+    }
     @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
+    public void compileChild(AstNode node) throws CompilerException {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.  
         switch(node.getName()){
             case "StartCycle":

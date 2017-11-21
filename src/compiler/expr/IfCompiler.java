@@ -22,6 +22,10 @@ public class IfCompiler extends AstCompiler{
     protected Boolean hasElseBlock = false;
     protected Integer jmpOutCmdNum = -1;
     protected Integer jmpOutIf = -1;
+
+    public IfCompiler(ProgramBuilder programBuilder) {
+        super(programBuilder);
+    }
     
     protected void addJumpOutCmd(int commandNum, ProgramBuilder programBuilder) throws CompilerException{
         programBuilder.addInstruction(VMCommands.NOP);
@@ -30,7 +34,7 @@ public class IfCompiler extends AstCompiler{
     }
     
     @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
+    public void compileChild(AstNode node) throws CompilerException {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.  
         switch(node.getName()){
             case "StartIf":
@@ -69,11 +73,11 @@ public class IfCompiler extends AstCompiler{
     }
     
     @Override
-    public  void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    public  void compileRootPre(AstNode node ) throws CompilerException{
         if(node.findChild("StartIf")!=null){
             this.hasElseBlock = (node.findChild("ElseBlock") != null);
         }
         
-        super.compileRootPre(node, programBuilder);
+        super.compileRootPre(node);
     }
 }

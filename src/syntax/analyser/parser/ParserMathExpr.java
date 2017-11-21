@@ -7,7 +7,7 @@
 package syntax.analyser.parser;
 
 import common.Token;
-import compiler.expr.MathExprComplier;
+import compiler.expr.MathExprCompiler;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;

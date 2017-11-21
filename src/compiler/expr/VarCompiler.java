@@ -33,7 +33,8 @@ public class VarCompiler extends AstCompiler{
     protected TypesInfo typesInfo;
 
     
-    public VarCompiler(){
+    public VarCompiler(ProgramBuilder programBuilder){
+        super(programBuilder);
         typesInfo = TypesInfo.getInstance();
     }
     
@@ -46,14 +47,14 @@ public class VarCompiler extends AstCompiler{
     }
     
     @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) {
+    public void compileChild(AstNode node) {
       
     }
 
     
     
     @Override
-    public void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
+    public void compileRootPost(AstNode node ) throws CompilerException {
         AstNode idNode = node.findChild("Id");
         AstNode typeNode = node.findChild("Type");  
         String varName = idNode.getToken().getValue();

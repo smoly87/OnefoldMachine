@@ -21,7 +21,7 @@ public class TreeWalkerASTCompiler  {
     protected ProgramBuilder programBuilder;
     
     public TreeWalkerASTCompiler() throws CompilerException{
-        this.programBuilder = new ProgramBuilder();
+        this.programBuilder =  ProgramBuilder.getInstance();
     }
     
     public ProgramBuilder walkTree(AstNode rootNode) throws CompilerException{
@@ -38,7 +38,7 @@ public class TreeWalkerASTCompiler  {
             }
             
             
-            if(compiler != null) compiler.compileRootPre(node, programBuilder);
+            if(compiler != null) compiler.compileRootPre(node);
             if(node.hasChildNodes()){
                 for(AstNode curNode : node.getChildNodes()){
                     if(curNode == null) continue;
@@ -50,14 +50,14 @@ public class TreeWalkerASTCompiler  {
                         walk(curNode, compilerL);
                         
                     } else{
-                        if(compiler != null)  compiler.compileChild(curNode, programBuilder);
+                        if(compiler != null)  compiler.compileChild(curNode);
                     }
                 }
-                if(compiler != null) compiler.compileRootPost(node, programBuilder);
+                if(compiler != null) compiler.compileRootPost(node);
                 
             }
         } catch (CompilerException ex) {
-           System.err.println(">Compilation error: " + ex.getMessage()  );
+           throw ex;
         }
     }
 }

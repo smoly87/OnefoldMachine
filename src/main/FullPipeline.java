@@ -35,7 +35,7 @@ import virtual.machine.VMCommands;
  *
  * @author Andrey
  */
-//Это шаблон стратегия
+
 public class FullPipeline {
     protected String stageDebugText;
 

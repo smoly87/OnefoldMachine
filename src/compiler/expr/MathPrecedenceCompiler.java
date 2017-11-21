@@ -17,14 +17,18 @@ import virtual.machine.VMCommands;
  * @author Andrey
  */
 public class MathPrecedenceCompiler extends AstCompiler{
+
+    public MathPrecedenceCompiler(ProgramBuilder programBuilder) {
+        super(programBuilder);
+    }
     
     @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
+    public void compileChild(AstNode node) throws CompilerException {
         switch(node.getToken().getTagName()){
             //TODO: convension of naming
             case "Id":
                 String varName = node.getToken().getValue();
-                this.addVarLoadCommand(varName, programBuilder);
+                this.addVarLoadCommand(varName);
                 
                 break;
             case "Integer": case "Float":
@@ -37,7 +41,7 @@ public class MathPrecedenceCompiler extends AstCompiler{
     }
     
     @Override
-    public  void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    public  void compileRootPost(AstNode node) throws CompilerException{
        switch(node.getToken().getValue()){
            case "*":
                programBuilder.addInstruction(VMCommands.IMul);

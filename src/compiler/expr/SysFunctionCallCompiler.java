@@ -34,13 +34,14 @@ public class SysFunctionCallCompiler extends AstCompiler{
     Link to caller(this)|Stack Position out of Frame|Return address
     */
    
-    public SysFunctionCallCompiler(){
+    public SysFunctionCallCompiler(ProgramBuilder programBuilder){
+        super(programBuilder);
         typesInfo = TypesInfo.getInstance();
     }
 
     
     @Override
-    public void compileChild(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
+    public void compileChild(AstNode node) throws CompilerException{
         Token token =  node.getToken();
         String nodeName = "";
         if(node.getName() != null) nodeName = node.getName();
@@ -67,16 +68,7 @@ public class SysFunctionCallCompiler extends AstCompiler{
        
     }
 
-    @Override
-    public void compileRootPre(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
-       /* callFromLineNum = programBuilder.getLineCount();
-        programBuilder.addInstruction(VMCommands.Jmp, callFromLineNum.toString());*/
-    }
-
-    @Override
-    public void compileRootPost(AstNode node, ProgramBuilder programBuilder) throws CompilerException {
-      // programBuilder.addInstruction(VMCommands.Jmp, programBuilder.getLineCount().toString(), VarType.Integer);
-    }
+   
     
  
    
