@@ -253,12 +253,14 @@ public class VM {
                         frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart) ;
                         frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
                         varAddr = memStack.getIntValue(frameHeadersPosEnd + varInd * INT_SIZE);
-                       intVal = memStack.getPtrIntField(varAddr, INT_SIZE);
-                      //  value = memoryManager.getPtrByteValue(varAddr,INT_SIZE);
+                       // int ptrSize = memStack.getPtrSize(varAddr);
+                       // intVal = memStack.getPtrIntField(varAddr, INT_SIZE);
+                        value = memoryManager.getPtrByteValue(varAddr,INT_SIZE);
+                        memStack.push(value);
                         // intVal = binConvertorService.bytesToInt(value, 0);
                       // 
                        // if(isDebug)codeDebuger.addLog(String.format("Local var load: varInd: %s : %s " ,varInd, intVal ));
-                        memStack.push(binConvertorService.integerToByte(intVal));
+                        //memStack.push(binConvertorService.integerToByte(intVal));
                         break;    
                     case Mov:
                         int regInd = memoryManager.getIntPtrValue(addr);
