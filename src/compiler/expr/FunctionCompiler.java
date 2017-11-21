@@ -51,7 +51,7 @@ public class FunctionCompiler extends AstCompiler{
       
     protected void processVarDescription(AstNode node, ProgramBuilder programBuilder) throws CompilerException{
         Token token = node.getToken();
-        funcDescr.addArgDecription(token.getValue(), token.getVarType());
+        //funcDescr.addArgDecription(token.getValue(), token.getVarType());
         programBuilder.addLocalVar(token.getValue(), token.getVarType());  
     }
     
@@ -81,7 +81,13 @@ public class FunctionCompiler extends AstCompiler{
     
     @Override
     public void compileChild(AstNode node) throws CompilerException {
-        if(firstStage) return;
+        if(firstStage) {
+            if(node.getName().equals("VarDescription")){
+                Token token = node.getToken();
+                funcDescr.addArgDecription(token.getValue(), token.getVarType());
+            } 
+            return;
+        }
         switch(node.getName()){
             case "VarDescription":
                 processVarDescription(node, programBuilder);
@@ -139,15 +145,17 @@ public class FunctionCompiler extends AstCompiler{
            //
              LinkedList<AstNode> headerVarsNode = node.findChilds("VarDescription"); 
              for(AstNode varNode: headerVarsNode){
-               signBuilder.addArgFromNode(varNode, programBuilder);
+               signBuilder.addArgType(varNode.getToken().getVarType());
              }
              String argSignature = signBuilder.getSignature();
              ClassCompiler classCompiler = (ClassCompiler)this.getCompiler("Class");
              ClassInfo classInfo = classCompiler.getClassInfo();
              funcDescr = classInfo.getMethodDescription(this.funcName, argSignature);
+             
+             LinkedList<AstNode> localVarList = node.findChild("FunctionBody").findChilds("Var");
+             funcDescr.setLocalVarsCount(localVarList.size());
          }
-         LinkedList<AstNode> localVarList = node.findChild("FunctionBody").findChilds("Var");
-         funcDescr.setLocalVarsCount(localVarList.size());
+        
          
          
     }

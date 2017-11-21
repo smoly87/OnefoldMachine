@@ -65,7 +65,7 @@ public class CommandInterpreter {
         return true;
     }
     
-    public boolean executeCommand(String commandText) throws  IOException{
+    public boolean executeCommand(String commandText) throws  Exception{
         try {
             switch (command.getCommandName()) {
                 case "compile":
@@ -81,10 +81,10 @@ public class CommandInterpreter {
                     break;
             }
         } 
-        catch (CompilerException ex) {
+      /*  catch (CompilerException ex) {
             this.setError("Compilation error: " + ex.getMessage());
-            return false;
-        }catch(ParserException ex){
+            return false;*/
+        catch(ParserException ex){
             this.setError("Parsing error: " + ex.getMessage());
             return false;
         } catch(VmExecutionExeption ex){

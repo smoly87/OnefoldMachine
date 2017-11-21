@@ -3,7 +3,7 @@ Var b:Integer;
 Let a = 2;
 Let b =7;
 Let b= 2*3*4;*/
-Var a:Integer;
+Var a:Float;
 Var b:Float;
 Var c:Boolean;
 /*Let a = 1.2;

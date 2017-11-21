@@ -38,7 +38,7 @@ public class TreeWalkerASTCompiler  {
             }
             
             
-            if(compiler != null) compiler.compileRootPre(node);
+            if(compiler != null && compiler.isEnabled()) compiler.compileRootPre(node);
             if(node.hasChildNodes()){
                 for(AstNode curNode : node.getChildNodes()){
                     if(curNode == null) continue;
@@ -50,10 +50,10 @@ public class TreeWalkerASTCompiler  {
                         walk(curNode, compilerL);
                         
                     } else{
-                        if(compiler != null)  compiler.compileChild(curNode);
+                        if(compiler != null && compiler.isEnabled())  compiler.compileChild(curNode);
                     }
                 }
-                if(compiler != null) compiler.compileRootPost(node);
+                if(compiler != null && compiler.isEnabled()) compiler.compileRootPost(node);
                 
             }
         } catch (CompilerException ex) {

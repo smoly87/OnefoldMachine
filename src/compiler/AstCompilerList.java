@@ -25,18 +25,20 @@ public class AstCompilerList extends AstCompiler{
     public void addCompiler(AstCompiler compiler){
         compilersList.add(compiler);
     }
-    
+
+   
+
     @Override    
     public void compileChild(AstNode node) throws CompilerException{
         for(AstCompiler compiler : compilersList){
-            compiler.compileChild(node);
+            if(compiler.isEnabled()) compiler.compileChild(node);
         }
     }
     
     @Override  
     public  void compileRootPost(AstNode node ) throws CompilerException{
        for(AstCompiler compiler : compilersList){
-            compiler.compileRootPost(node);
+           if(compiler.isEnabled())  compiler.compileRootPost(node);
        }
         
     }
@@ -44,7 +46,7 @@ public class AstCompilerList extends AstCompiler{
     @Override  
     public  void compileRootPre(AstNode node) throws CompilerException{
         for(AstCompiler compiler : compilersList){
-            compiler.compileRootPre(node);
+           if(compiler.isEnabled())  compiler.compileRootPre(node);
        }
     }
 }

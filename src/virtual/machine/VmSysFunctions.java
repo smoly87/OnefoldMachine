@@ -162,7 +162,7 @@ public class VmSysFunctions {
             
             
             
-              System.out.println(String.format("Local vaar with ind %s address is %s, value: %s stored at %s",varInd,  varAddr, memStack.getPtrIntField(varAddr, VM.INT_SIZE), varCellAddr));
+//              System.out.println(String.format("Local vaar with ind %s address is %s, value: %s stored at %s",varInd,  varAddr, memStack.getPtrIntField(varAddr, VM.INT_SIZE), varCellAddr));
            // }
           varAddr = memStack.getIntPtrValue(varAddr);
             

@@ -58,7 +58,7 @@ public class Main {
 
            while(true){
               System.out.println("Type a command:");
-              String inpStr = !fullDebug ? reader.readLine() : "compile_run --path_src let_expr.txt"; //;// 
+              String inpStr = !fullDebug ? reader.readLine() : "compile_run --path_src class_expr.txt"; //;// 
               if(inpStr.equals("exit") ) return;
               if(!commadInter.isValidCommand(inpStr)){
                   System.err.println(commadInter.getError());

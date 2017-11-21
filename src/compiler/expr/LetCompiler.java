@@ -151,9 +151,11 @@ public class LetCompiler extends AstCompiler {
             case "LeftVarName":
                 String varName = node.getToken().getValue();
                 paramsObj.setVarName(varName);
-                VarDescription varDescr = programBuilder.getVarDescription(varName);
+                VarDescription varDescr = programBuilder.getVarDescription(paramsObj.isObjLeftPart() ? paramsObj.getLeftObjName() : varName);
+                
                 if(paramsObj.isObjLeftPart()){
                    if(!this.className.equals("")){ 
+                      
                       String varClass = varDescr.getClassName();
                       if(varClass != null && !varClass.equals(this.className)){
                         throw new CompilerException(String.format("Variable %s is decalred as %s. But there is an attempt to assign it to instance of %s",
@@ -202,7 +204,7 @@ public class LetCompiler extends AstCompiler {
           }
         } else{
             //This place is produced after MathParser Type conclusion.
-            rightPartType =  node.getToken().getVarType();
+            if(node.getName().equals("RightPartExpr")) rightPartType =  node.getToken().getVarType();
         }
         
         

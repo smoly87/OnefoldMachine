@@ -46,7 +46,7 @@ Let d = 98989;
 /*Let a.bazar = 850;*/
 /*Let b = Call a.protest(111, 222);*/
 /*Let b = Call a.test(888,d);*/
-Let b = Call a.fac(7);
+Let b = Call a.fac(5);
 /*Let b = 3;
 Let d = d-2000;*/
 /*Sys PrintObjField(a, 3);*/

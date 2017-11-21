@@ -9,6 +9,8 @@ package main;
 import common.Token;
 import compiler.TreeWalkerASTCompiler;
 import compiler.exception.CompilerException;
+import compiler.expr.ClassCompiler;
+import compiler.expr.FunctionCompiler;
 import grammar.GrammarInfoStorage;
 import grammar.GrammarInfo;
 import java.io.File;
@@ -21,6 +23,7 @@ import lexer.LexerResult;
 import main.Main;
 import program.builder.ProgramBuilder;
 import syntax.analyser.AstNode;
+import syntax.analyser.CompilersFactory;
 import syntax.analyser.Parser;
 import syntax.analyser.UnexpectedSymbolException;
 import syntax.analyser.parser.ParserException;
@@ -61,7 +64,27 @@ public class FullPipeline {
     
     public Program compile(AstNode astTree) throws CompilerException{
         TreeWalkerASTCompiler tw = new TreeWalkerASTCompiler();
-        ProgramBuilder progBuilder = tw.walkTree(astTree);
+        
+        //Two stage compilation
+        CompilersFactory compilerFactory = CompilersFactory.getInstance();
+        ClassCompiler classCompiler = (ClassCompiler)compilerFactory.getElement("Class");
+        FunctionCompiler funcCompiler = (FunctionCompiler)compilerFactory.getElement("Function");
+        
+        //First stage
+        compilerFactory.setEnabledAll(false);
+        classCompiler.setEnabled(true);
+        funcCompiler.setEnabled(true);
+        tw.walkTree(astTree);
+        
+        //Second stage
+        compilerFactory.setEnabledAll(true);
+        classCompiler.setFirtStage(false);
+        funcCompiler.setFirtStage(false);
+        tw.walkTree(astTree);
+        
+        
+        ProgramBuilder progBuilder = ProgramBuilder.getInstance();
+        
         this.stageDebugText = progBuilder.getAsmText();
         TreeWalkerDST walker = new TreeWalkerDSTPrint();
         walker.walkTree(astTree);

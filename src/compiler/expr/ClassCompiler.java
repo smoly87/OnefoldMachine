@@ -54,9 +54,17 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
        Token token = node.getToken();
        
        if(!firstStage) {
-           if(node.getName().equals("StartClass")){
-              classInfo = MetaClassesInfo.getInstance().getClassInfo(node.getToken().getValue());
-           }
+            switch(node.getName()){
+                case "StartClass":
+                    classInfo = MetaClassesInfo.getInstance().getClassInfo(node.getToken().getValue());
+                    break;
+                case "EndClass":
+                    programBuilder.addInstruction(VMCommands.NOP);
+                    classInfo.setEndClassLine(programBuilder.commandsSize());
+                    break;
+            }
+          
+          
            return; 
        }
        switch(node.getName()){
@@ -68,8 +76,7 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
                 classInfo.setParentClass(node.getToken().getValue());
                 break;
             case "EndClass":
-                programBuilder.addInstruction(VMCommands.NOP);
-                classInfo.setEndClassLine(programBuilder.commandsSize());
+                
                 MetaClassesInfo.getInstance().addClassInfo(classInfo);
                 classInfo = new ClassInfo(node.getToken().getValue());
                 break;

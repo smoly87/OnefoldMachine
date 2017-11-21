@@ -40,10 +40,16 @@ public class CompilersFactory {
                 elementsStorage.put(name, element);
                 return element;
             } catch (Exception ex) {
-                System.err.println("Dynamic Load error:" + ex.getMessage());
+                System.err.println("Dynamic compiler Load error:" + ex.getMessage());
             } 
         }
         return null;
+    }
+    
+    public void setEnabledAll(boolean enabled){
+        elementsStorage.forEach(
+            (String key, AstCompiler compiler) -> compiler.setEnabled(enabled)
+        );
     }
     
     public static CompilersFactory getInstance(){
