@@ -54,6 +54,7 @@ public class VMProgramAllocator {
         BinaryReader binReader = new BinaryReader(program.getData());
         binReader.setCurPos(secStart);
  
+        int k = 0;
         while( binReader.getCurPos() < secEnd){
              int varInd = binReader.readIntAndNext();
              int varSize = binReader.readIntAndNext(); 
@@ -62,7 +63,9 @@ public class VMProgramAllocator {
              memHeap.putPtrValue(ptrAddr, varSize);
              memHeap.putValue(ptrAddr, isObjPtrFlag);
              addrTables.setAddrForIndex(VmExeHeader.VarTableSize, varInd, ptrAddr);
+             k++;
         }
+        //System.err.println("Vars allocated:" + k);
     }
     
     protected void allocateData() throws VMOutOfMemoryException, VmExecutionExeption{

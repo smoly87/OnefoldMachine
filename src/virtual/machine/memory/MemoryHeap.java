@@ -78,7 +78,7 @@ public class MemoryHeap extends Memory{
         
    
     public int dataSize(){
-        return this.data.size();
+        return this.size;
     }
     
     public int getFreeMemSize(){
@@ -124,22 +124,33 @@ public class MemoryHeap extends Memory{
         gcBlock.setBlockStart(blockPos);
         
         int gcBlockSize = 0;
-        //Composite pointegers in blocks & find gaps
+        GarbageCollectorBlock prevBlock = null;
+        
+       
+        //Composite pointers in blocks & find gaps
+        int varsCnt = 0;
         while(blockPos < endAddr){
              int curBlockSize = getPtrSizeWithHeaders(blockPos);
             if(isNullLinks(blockPos)){
                 
-                gcBlock.setSize(gcBlockSize); 
-                blocksList.add(gcBlock);
-                gcBlockSize = 0;
-                        
-                GarbageCollectorBlock gcGap = new GarbageCollectorBlock();
-                gcGap.setIsGap(true);
-                gcGap.setSize(curBlockSize);
-                blocksList.add(gcGap);
                 
+                        
+                if(prevBlock != null && prevBlock.getIsGap()){
+                    prevBlock.setSize(prevBlock.getSize() + curBlockSize);
+                } else{
+                    gcBlock.setSize(gcBlockSize);
+                    blocksList.add(gcBlock);
+                    gcBlockSize = 0;
+                    
+                    GarbageCollectorBlock gcGap = new GarbageCollectorBlock();
+                    gcGap.setIsGap(true);
+                    gcGap.setSize(curBlockSize);
+                    blocksList.add(gcGap);
+                    prevBlock = gcGap;
+                }
+     
                 gcBlock = new GarbageCollectorBlock(); 
-                 blockPos += curBlockSize;
+                blockPos += curBlockSize;
                 gcBlock.setBlockStart(blockPos);
                 
                 clearedSize += curBlockSize;
@@ -149,24 +160,34 @@ public class MemoryHeap extends Memory{
                 gcBlockSize += curBlockSize;
             }
             blockPos += curBlockSize;
+            varsCnt++;
         }
         
         if(gcBlock.getPtrAddressesLst().size() > 0){
              gcBlock.setSize(gcBlockSize);
              blocksList.add(gcBlock);
+        } 
+        
+        
+        //System.err.println("Vars:" + varsCnt);
+        
+        if(blocksList.getLast().getIsGap()){
+            blocksList.removeLast();
         }
         
-        //
+        
         boolean flag = true;
         Iterator<GarbageCollectorBlock> iter = blocksList.iterator();
         
         int blocksCnt = blocksList.size();
         int k = 0;
+        
+        GarbageCollectorBlock block1;
+        boolean needNext = true;
+        block1 = iter.next();
+        
         while(k < blocksCnt){
-            GarbageCollectorBlock block1 = iter.next();
-            //TODO: figure out with this condition
-            //Addition of shift!!!
-            //Recount block start & end
+             
             if(blocksCnt - k > 2){ 
                 
                 GarbageCollectorBlock gap = iter.next();
@@ -178,18 +199,16 @@ public class MemoryHeap extends Memory{
                 data.subList(block1.getBlockEnd(), block2.getBlockEnd()).clear();
                 data.addAll(block1.getBlockEnd(), block2Data);
 
-                //System.arraycopy(data, block2.getBlockStart(), data, block1.getBlockEnd(), block2.getSize()); 
                 block2.shiftAddresses(-gapSize);
                 block1 = block1.merge(block2);
-                
-                
-                          
-                blocksCnt -= 2;
+
                 iter.remove();
-                //TODO: change block cnt
+ 
+            } else{
+                break;
             }
            
-            k+=3;
+            k+=2;
         }
         
         //Always one block left in the end, either exception should be thrown
@@ -198,7 +217,7 @@ public class MemoryHeap extends Memory{
            finalBlock = blocksList.getFirst();
             
         } else{
-            throw new VmExecutionExeption("Error in garbage collection logic");
+            throw new VmExecutionExeption("Error in garbage collection logic.Try to clear:" + clearedSize);
         }
         
         

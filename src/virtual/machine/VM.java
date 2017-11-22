@@ -215,11 +215,13 @@ public class VM {
                         //if(isDebug)codeDebuger.addLog("Program finished with Halt Command"); 
                         break;
                     case Var_Declare_Local_Def_value: 
-                        intVal = stackPopInt();
+                         intVal = stackPopInt();
                          int varInd = memoryManager.getIntPtrValue(addr) ;//binConvertorService.bytesToInt(addr, 0) ; 
                          int varSize = stackPopInt();
                          memStack.push(new Byte[varSize]);
                          int  locVarAddr = memoryManager.getSysRegister(VmSysRegister.StackHeadPos);
+                         memStack.putValue(locVarAddr, (byte)intVal);
+                         
                          int  frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart)  ;
                         
                          int  frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
@@ -235,17 +237,9 @@ public class VM {
                         frameStart = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart) ;
                         frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
                         int varAddr = memStack.getIntValue(frameHeadersPosEnd + varInd * INT_SIZE);
-                  
-                        if(varAddr > 0){
-                           memStack.pop(varAddr, INT_SIZE);  
-                        } else{
-                            intVal = stackPopInt();
-                            if(isDebug)codeDebuger.addLog("Put_Local_Var ERR: " + intVal);
-                        }
                         
-                        //value =
-                        intVal =  memStack.getPtrIntField(varAddr, INT_SIZE);
-                        if(isDebug)codeDebuger.addLog("Put Local_Var: " + intVal);
+                        memStack.pop(varAddr, INT_SIZE);
+                        
                         break;
                     case Var_Load_Local:
                         varInd = addr ;

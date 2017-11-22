@@ -156,7 +156,7 @@ public class VmCodeDebuger {
          
          String strValue = "";
          switch(varType){
-             case Integer:
+             case Integer: case Pointer:
                  strValue = Integer.toString(memHeap.getIntPtrValue(varAddrPtr));
                  break;
                  

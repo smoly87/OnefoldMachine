@@ -1,13 +1,11 @@
 Class baz {
 Public bazar:Integer;
-Function Integer test(Var al:Integer;Var bl:Integer;Var obj:foo;){
-Var d:Integer;
-Var g:Integer;
-Let d =8888;
-Let bl = 104;
-Let this.bazar = 4444;
-Let obj.bazar = 9999;
-Return 8888;
+Function Integer test(Var a:Integer;){
+Var d:foo;
+Var g:foo;
+Let d = New foo() ;
+Let g = New foo() ;
+Return d;
 }
 }
 Class foo : Extends baz{
@@ -26,16 +24,22 @@ Var b:foo;
 Var c:foo;
 Var d:foo;
 Var e:foo;
-Var r:Integer;
+/*Var r:Integer;*/
 /*Let g = 44;*/
 Let a = New foo();
 Let b = New foo();
 Let c = New foo();
 Let d = New foo();
 Let e = New foo();
-/*Let d.bar = 333;
-Sys PrintObjField(d, 3);*/
-Let r = Call a.testtest(2, 3);
+/*Sys PrintHeapSize();*/
+Let d.rebar = 333;
+/*Sys PrintObjField(d, 3);*/
+/*Let r = Call a.testtest(2, 3);*/
+Let d =  Call a.test(2);
+Sys PrintHeapSize();
+/*Let a = Null;
 Let c = Null;
+Let d = Null;
+Let e = Null;*/
 Sys GarbageCollect();
 /*Sys PrintObjField(d, 3);*/

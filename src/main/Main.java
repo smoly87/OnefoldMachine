@@ -6,44 +6,14 @@
 
 package main;
 
-import common.TokenInfo;
-import common.VarType;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Scanner;
-import lexer.LexerResult;
-import syntax.analyser.AstNode;
-import compiler.TreeWalkerASTCompiler;
-import compiler.exception.CompilerException;
-import grammar.GrammarInfo;
-import grammar.GrammarInfoStorage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import utils.TreeWalkerDST;
-import utils.TreeWalkerDSTPrint;
-import virtual.machine.Instructions;
-import program.builder.ProgramBuilder;
-import program.builder.ProgramFileSys;
-import syntax.analyser.parser.ParserException;
-import virtual.machine.DataBinConvertor;
-import virtual.machine.Program;
-import virtual.machine.VM;
-import virtual.machine.VMCommands;
-import virtual.machine.VmExeHeader;
-import virtual.machine.exception.VmExecutionExeption;
 
 /**
  *
  * @author Andrey
  */
 public class Main {
-
-    
     /**
      * @param args the command line arguments
      */
@@ -58,7 +28,7 @@ public class Main {
 
            while(true){
               System.out.println("Type a command:");
-              String inpStr = !fullDebug ? reader.readLine() : "compile_run --path_src class_expr.txt"; //;// 
+              String inpStr = !fullDebug ? reader.readLine() : "compile_run --path_src gc.txt"; //;// class_expr
               if(inpStr.equals("exit") ) return;
               if(!commadInter.isValidCommand(inpStr)){
                   System.err.println(commadInter.getError());

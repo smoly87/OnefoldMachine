@@ -57,7 +57,7 @@ public class VmSysFunctions {
         int dataSize = memoryManager.stackPopInt();
         int ptrStart = memHeap.memAlloc(dataSize);
         
-        memStack.push(binConvertorService.toBin(ptrStart)); 
+        memStack.push(binConvertorService.toBin(ptrStart), VarType.Pointer.ordinal()); 
         return ptrStart;
     }
     
@@ -196,7 +196,7 @@ public class VmSysFunctions {
         
         int frmStart = memoryManager.getSysRegister(VmSysRegister.FrameStackPos);
         int frameHeaders = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart);
-        int varCount = memStack.getPtrSize(frameHeaders) / VM.INT_SIZE - 2; 
+        int varCount = memStack.getPtrSize(frameHeaders) / VM.INT_SIZE - 1; 
         int frameStart = frameHeaders + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
         int frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
         for(int varInd = 0; varInd < varCount; varInd++){
@@ -239,7 +239,11 @@ public class VmSysFunctions {
         memHeap.putValue(ptrAddr + Memory.PTR_HEADERS_SIZE + fieldOffset, value + delta);
     }
     
-     protected void callSysFunc(int funcTypeAddrPtr) throws VmExecutionExeption{   
+    protected void sysPrintHeapSize(){
+        System.out.println("###Heap size:" + memoryManager.getMemHeap().dataSize());
+    }
+    
+    protected void callSysFunc(int funcTypeAddrPtr) throws VmExecutionExeption{   
         MemoryStack memStack = this.memoryManager.getMemStack();
         int funcType  = memStack.getIntPtrValue(funcTypeAddrPtr);
         int arg;
@@ -291,6 +295,9 @@ public class VmSysFunctions {
                 break;
             case PrintObjField:
                 sysPrintObjField();
+                break;
+            case PrintHeapSize:
+                sysPrintHeapSize();
                 break;
             case GarbageCollect:
                 sysGarbageCollect();

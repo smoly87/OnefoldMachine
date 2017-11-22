@@ -21,6 +21,10 @@ public class MemoryStack extends Memory{
     
     protected static int firstElementOffset = 2;
     protected int stackSize;
+
+    public int getStackSize() {
+        return stackSize;
+    }
     
     public MemoryStack(int stackSize, int segmentOffset, DataBinConvertor binConvertorService) throws VmExecutionExeption{
         super(segmentOffset, binConvertorService);
@@ -61,8 +65,11 @@ public class MemoryStack extends Memory{
     }
     
     
-    
     public int push(Byte[] value) throws VMStackOverflowException, VmExecutionExeption{
+        return push(value, 0);
+    }
+    
+    public int push(Byte[] value, int varTypeCode) throws VMStackOverflowException, VmExecutionExeption{
        int headAddr = this.getSysRegister(VmSysRegister.StackHeadPos);
        //First 4 bytes is length of pointer
        // Next 4 bytes is previous element
@@ -87,7 +94,7 @@ public class MemoryStack extends Memory{
        //value = ByteUtils.concat(new Byte[]{0}, value);
        
        this.putPtrValue(newHeadAddr, value);
-       
+       if(varTypeCode != 0 ) this.putValue(newHeadAddr, (byte)varTypeCode);
        this.setSysRegister(VmSysRegister.StackHeadPos, newHeadAddr);
        return newHeadAddr;
     }

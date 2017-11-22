@@ -12,7 +12,7 @@ import java.util.Arrays;
  *
  * @author Andrey
  */
-public class TypeClassPtr extends TypeInteger{
+public class TypePointer extends TypeInteger{
 
  
 

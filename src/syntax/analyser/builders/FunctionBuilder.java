@@ -46,13 +46,18 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
         return altParser;
     }
     
-    
+    public Parser getReturnTypeHeaderParser(){
+        ParserAlternative altParser = new ParserAlternative();
+        altParser.add(new ParserTag("Type"))
+                 .add(new ParserTag("Id"));
+        return altParser;
+    }
     
     public Parser build() {
         //Указать нужен ли результат парсера
        return this
             .addKeyword("Function") 
-            .addTag("Type")
+            .add(getReturnTypeHeaderParser(), "Type")
             .addTag("Id")
             .addKeyword("(")
             .add(getVarBlockRepeatedParser(), "VarsBlock")
@@ -140,7 +145,7 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
          if(typesSet.contains(typeName) ){
              type = VarType.valueOf(typeName);
          } else{
-             type = VarType.ClassPtr;
+             type = VarType.Pointer;
          }
          
          

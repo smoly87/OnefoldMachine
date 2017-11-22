@@ -116,7 +116,7 @@ public class ProgramBuilder  {
     
     public void addVar(String name, String className ){
         
-       addVar(name, VarType.ClassPtr, className, varsMap) ;   
+       addVar(name, VarType.Pointer, className, varsMap) ;   
     }
     
     public void addLocalVar(String name, VarType type){
