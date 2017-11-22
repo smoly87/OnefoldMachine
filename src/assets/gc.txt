@@ -35,11 +35,11 @@ Let e = New foo();
 Let d.rebar = 333;
 /*Sys PrintObjField(d, 3);*/
 /*Let r = Call a.testtest(2, 3);*/
-Let d =  Call a.test(2);
+/*Let d =  Call a.test(2);*/
 Sys PrintHeapSize();
-/*Let a = Null;
+Let a = Null;
 Let c = Null;
 Let d = Null;
-Let e = Null;*/
+Let e = Null;
 Sys GarbageCollect();
 /*Sys PrintObjField(d, 3);*/

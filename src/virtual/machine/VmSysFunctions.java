@@ -194,28 +194,7 @@ public class VmSysFunctions {
         int stackRegRestore = memoryManager.stackPopInt();
         int stackTableRegRestore = memoryManager.stackPopInt();
         
-        int frmStart = memoryManager.getSysRegister(VmSysRegister.FrameStackPos);
-        int frameHeaders = memoryManager.getSysRegister(VmSysRegister.FrameStackTableStart);
-        int varCount = memStack.getPtrSize(frameHeaders) / VM.INT_SIZE - 1; 
-        int frameStart = frameHeaders + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
-        int frameHeadersPosEnd = frameStart + Memory.PTR_HEADERS_SIZE + VM.INT_SIZE;
-        for(int varInd = 0; varInd < varCount; varInd++){
-            int varAddr = memStack.getIntValue(frameStart + varInd * INT_SIZE);
-            
-            Byte[] value = memStack.getPtrByteValue(varAddr, INT_SIZE);
-            
-            Byte[] objFlag = memStack.getValue(varAddr, 1);
-            
-            if(objFlag[0] == Memory.GC_FLAG_PTR){
-                //TODO: Remove magic constants
-                int ptr = memStack.getPtrIntField(varAddr, VM.INT_SIZE);
-                changeIntFieldValue(ptr, 1, -1);
-            }
-        }
-
-        System.out.println( String.format(">> StackHead moved from %s to %s " , memoryManager.getSysRegister(VmSysRegister.StackHeadPos), frmStart));
-        //memoryManager.setSysRegister(VmSysRegister.StackHeadPos, frmStart);
-        //copyRegister(VmSysRegister.StackHeadPos);
+    
         memoryManager.setSysRegister(VmSysRegister.StackHeadPos, stackRegRestore);
         memoryManager.setSysRegister(VmSysRegister.FrameStackTableStart, stackTableRegRestore);
         //memStack.putValue(frameHeadersPosEnd + varInd * INT_SIZE, locVarAddr);

@@ -5,13 +5,18 @@
  */
 package virtual.machine.memory;
 
+import common.VarType;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import utils.Pair;
 import virtual.machine.DataBinConvertor;
+import virtual.machine.MemoryVariable;
+import virtual.machine.MemoryVariables;
 import virtual.machine.exception.VMOutOfMemoryException;
 import virtual.machine.VM;
 import virtual.machine.exception.VmExecutionExeption;
@@ -109,17 +114,56 @@ public class MemoryHeap extends Memory{
         return false;
     }
     
-    
-    protected void shiftPtrInVariables(){
+    protected MemoryVariables getMemVarsIterator(){
+        int blockPos = getSysRegister(VmSysRegister.ProgDataMemHeapOffset) ;
+        int endAddr = this.segmentOffset + this.size;
+        MemoryVariables memVars = new MemoryVariables(this, blockPos, endAddr);
+        return memVars;
     }
+    
+    protected  HashMap<Integer, Boolean> createObjReacheablityMap(){
+        MemoryVariables memVars = getMemVarsIterator();
+        HashMap<Integer, Boolean> objReachabilityMap = new HashMap<>();
+        while(memVars.hasNext()){
+            MemoryVariable memoryVariable = memVars.next();
+            if(memoryVariable.getVarType() == VarType.Object){
+                objReachabilityMap.put(memoryVariable.getAddr(), false);
+            }
+        }
+        
+        return objReachabilityMap;
+    }
+    
+    public void countReachable() throws VmExecutionExeption{
+  
+      HashMap<Integer, Boolean> objReachabilityMap = createObjReacheablityMap();
+      MemoryVariables memVars = getMemVarsIterator();
+      while(memVars.hasNext()){
+          MemoryVariable memoryVariable = memVars.next();
+          if(memoryVariable.getVarType() != VarType.Pointer) continue;
+          
+          int objAddr = this.getIntPtrValue(memoryVariable.getAddr());
+          if(objReachabilityMap.containsKey(objAddr)){
+              objReachabilityMap.put(objAddr, true);
+          }  
+      }  
+
+      for(Map.Entry<Integer, Boolean> entry: objReachabilityMap.entrySet()){
+          int value =entry.getValue() ? 1: 0;
+          this.putPtrIntField(entry.getKey(), value, VM.INT_SIZE);   
+          
+      }
+        //System.err.println(k);
+    }
+  
     
     public Pair<Integer, GarbageCollectorBlock> garbageCollect() throws VmExecutionExeption{
         int blockPos = getSysRegister(VmSysRegister.ProgDataMemHeapOffset) ;
         int endAddr = this.segmentOffset + this.size;
         int clearedSize = 0; 
         LinkedList<GarbageCollectorBlock> blocksList = new LinkedList<>();
-        
-        //int curBlockSize = getPtrSizeWithHeaders(blockPos);
+        countReachable();
+       // //int curBlockSize = getPtrSizeWithHeaders(blockPos);
         GarbageCollectorBlock gcBlock = new GarbageCollectorBlock();
         gcBlock.setBlockStart(blockPos);
         
@@ -130,6 +174,7 @@ public class MemoryHeap extends Memory{
         //Composite pointers in blocks & find gaps
         int varsCnt = 0;
         while(blockPos < endAddr){
+             varsCnt++;
              int curBlockSize = getPtrSizeWithHeaders(blockPos);
             if(isNullLinks(blockPos)){
                 
@@ -160,7 +205,7 @@ public class MemoryHeap extends Memory{
                 gcBlockSize += curBlockSize;
             }
             blockPos += curBlockSize;
-            varsCnt++;
+           
         }
         
         if(gcBlock.getPtrAddressesLst().size() > 0){
@@ -169,7 +214,7 @@ public class MemoryHeap extends Memory{
         } 
         
         
-        //System.err.println("Vars:" + varsCnt);
+        System.err.println("Vars:" + varsCnt);
         
         if(blocksList.getLast().getIsGap()){
             blocksList.removeLast();

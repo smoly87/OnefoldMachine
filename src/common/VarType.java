@@ -10,5 +10,5 @@ package common;
  * @author Andrey
  */
 public enum VarType {
-    Integer, Float, Boolean, String, Pointer
+    Integer, Float, Boolean, String, Pointer, Object
 }
