@@ -25,7 +25,8 @@ public class BinBuilderClassesMetaInfo {
      protected TypesInfo typesInfo;
      public static final int HEADERS_SIZE = VmMetaClassHeader.values().length;
      public static final int METHOD_FIELDS_DESCR_COUNT  = 3;
-             
+     public static final int METHOD_DESCR_SIZE  = 3;
+      
      public BinBuilderClassesMetaInfo(){
 
          this.typesInfo = TypesInfo.getInstance();

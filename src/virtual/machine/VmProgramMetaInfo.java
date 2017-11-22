@@ -5,6 +5,7 @@
  */
 package virtual.machine;
 
+import program.builder.BinBuilder;
 import virtual.machine.exception.VmExecutionExeption;
 import program.builder.BinBuilderClassesMetaInfo;
 import program.builder.BinaryReader;
@@ -118,7 +119,7 @@ public class VmProgramMetaInfo {
         int fieldsCount = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.FIELDS_COUNT);
         int methodsCount = readClassMetaDataHeader(classMetaDataPtr, VmMetaClassHeader.METHODS_COUNT);
         int headersSize = BinBuilderClassesMetaInfo.HEADERS_SIZE * VM.INT_SIZE;
-        int fieldsStart = headersSize + methodsCount * 2 * VM.INT_SIZE;
+        int fieldsStart = headersSize + methodsCount * BinBuilderClassesMetaInfo.METHOD_DESCR_SIZE * VM.INT_SIZE;
         
         binReader.setCurPos(classMetaDataPtr + fieldsStart);
         
