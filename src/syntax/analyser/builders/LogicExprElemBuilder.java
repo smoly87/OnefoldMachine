@@ -39,7 +39,7 @@ public class LogicExprElemBuilder extends  ParserChain implements ParserBuilder{
         rootNode.addChildNode(result.get("Arg1"));
         rootNode.addChildNode(result.get("Arg2"));
         rootNode.setCompiler(this.getCompiler("LogicExprElem"));
-        System.out.println("LogExpr parser has been reached");
+
         return rootNode;
        
     }

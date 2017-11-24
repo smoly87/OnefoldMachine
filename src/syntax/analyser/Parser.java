@@ -14,16 +14,20 @@ import grammar.GrammarInfoStorage;
 import grammar.GrammarPart;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import lexer.Lexer;
 import lexer.LexerResult;
 import syntax.analyser.parser.ParserException;
+import syntax.analyser.parser.Subscribeable;
 import utils.Pair;
+import syntax.analyser.parser.IParserSubscriber;
+import syntax.analyser.parser.ProgramBuildingStage;
 
 /**
  *
  * @author Andrey
  */
-public abstract class Parser {
+public abstract class Parser extends ProgramBuildingStage{
     AstNode parseResult;
     protected  ParserFactory parsersStorage;
     protected GrammarInfo grammarInfo;
@@ -31,16 +35,19 @@ public abstract class Parser {
     protected CompilersFactory compilersFactory;
     protected int parserStopPos;
 
+
     public int getParserStopPos() {
         return parserStopPos;
     }
+    
+    
     
     protected AstCompiler getCompiler(String compilerName){
         return compilersFactory.getElement(compilerName);
     }
     
     public Parser(){
-        
+       
         grammarInfo = GrammarInfoStorage.getInstance();
         compilersFactory = CompilersFactory.getInstance();
         parsersStorage = ParserFactory.getInstance();
@@ -69,8 +76,7 @@ public abstract class Parser {
     
        
     public boolean parse(LexerResult lexerResults) throws UnexpectedSymbolException, ParserException{
-        //Если результат неуспешен нужно откатить состояние
-        //Для составных тоже не проблема
+        //If parsing is failed, we should restore LexerResult to pass it to other parser in chain.
         int pos = lexerResults.getCurPos();
         parseResult = null;
         boolean res = this.parseLexerResult(lexerResults);
@@ -78,6 +84,8 @@ public abstract class Parser {
             parserStopPos = lexerResults.getCurPos();
             lexerResults.setCurPos(pos);
         }
+        
+        if(hasSubscribers) this.callSubscribers("PARSER_REACHED", String.format("Parser %s has been reached", this.getClass().getCanonicalName()));
         
         return res;
     }

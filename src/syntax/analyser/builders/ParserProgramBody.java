@@ -28,9 +28,7 @@ public class ParserProgramBody extends ParserStatementBuilder{
         this.add(this.getParser("Function"));
 
         this.add(this.getParser("Class"));
-        
-        //possibleAlts.add(this.getParser("ParserStatement"));
-        
+    
         return new ParserRepeated(this) ;
     }
     
@@ -40,7 +38,6 @@ public class ParserProgramBody extends ParserStatementBuilder{
             Parser parser = entry.getValue();
             if(parser.parse(lexerResults)){
                 AstNode resultNode = parser.getParseResult();
-               // resultNode.setName(entry.getKey());
                 if(resultNode == null) return false;
                 this.setParseResult(resultNode);
                 return true;
@@ -48,7 +45,7 @@ public class ParserProgramBody extends ParserStatementBuilder{
         }
         parserStopPos = lexerResults.getCurPos();
         if(lexerResults.hasNext()){
-            throw new ParserException("Errorhj in parse src near: " + lexerResults.getLexerPosDescription());
+            throw new ParserException("Error while parsing src near: " + lexerResults.getLexerPosDescription());
         } 
         
         return false;

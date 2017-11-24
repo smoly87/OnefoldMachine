@@ -11,6 +11,7 @@ import virtual.machine.exception.VmExecutionExeption;
 import virtual.machine.exception.VMStackOverflowException;
 import common.VarType;
 import java.io.UnsupportedEncodingException;
+import syntax.analyser.parser.ProgramBuildingStage;
 import types.TypeString;
 import types.TypesInfo;
 import utils.Pair;
@@ -26,7 +27,7 @@ import virtual.machine.memory.VmSysRegister;
  *
  * @author Andrey
  */
-public class VmSysFunctions {
+public class VmSysFunctions extends ProgramBuildingStage{
     protected MemoryManager memoryManager; 
     protected VmProgramMetaInfo progMetaInfo;
     protected DataBinConvertor binConvertorService;
@@ -43,9 +44,7 @@ public class VmSysFunctions {
          
         Byte[] data = new Byte[dataSize];
         int ptrStart = memStack.push(data);
-         //memStack.push(data); 
-         
-        // System.out.println(String.format("Allocate on stack: %s in addr# %s", dataSize, ptrStart));
+
         memStack.push(ptrStart);
         return ptrStart;
     }
@@ -69,7 +68,6 @@ public class VmSysFunctions {
         int dataSize = memoryManager.stackPopInt();
         
         int ptrStart = memHeap.memAllocPtr(dataSize);
-        //System.err.println("Create ptr at:" + ptrStart);
         memHeap.putValue(ptrStart, new Byte[]{objType});
         memHeap.putPtrValue(ptrStart, dataSize);
         
@@ -92,15 +90,10 @@ public class VmSysFunctions {
         preventForNullPointer(ptrAddr);
         int fieldOffset = fieldNum * INT_SIZE;
         if(fieldNum > 1){
-             /*if(ptrAddr < 2000){
-                 ptrAddr = memHeap.getPtrIntField(ptrAddr,0);
-             }*/
              fieldOffset = progMetaInfo.getFieldOffsetObj(ptrAddr, fieldNum);
         }
         
         memHeap.putValue(ptrAddr + Memory.PTR_HEADERS_SIZE + fieldOffset, fieldValue);
-        
-       // memHeap.putValue(ptrAddr, fieldValue);
        
         
     }
@@ -110,7 +103,7 @@ public class VmSysFunctions {
         Byte[] val =  memoryManager.getMemHeap().getPtrByteValue(ptrAddr);
         TypeString stringBinConv = (TypeString)TypesInfo.getInstance().getConvertor(VarType.String);
         try{
-            System.err.println("SYS_PRINT: " + stringBinConv.getValue(val));
+            System.out.println(stringBinConv.getValue(val));
         } catch(UnsupportedEncodingException ex){
             throw new VmExecutionExeption(ex.getClass().getName() + ":" + ex.getMessage());
         }
@@ -123,7 +116,7 @@ public class VmSysFunctions {
         preventForNullPointer(ptrAddr);
         int fieldOffset = progMetaInfo.getFieldOffsetObj(ptrAddr, fieldNum);
         int value = memoryManager.getMemHeap().getPtrIntField(ptrAddr,  fieldOffset);
-        System.err.println(String.format("PRINT_OBJ_FIELD: Value: %s FieldNum: %s  ", value, fieldNum) );
+        System.out.println(String.format("PRINT_OBJ_FIELD: Value: %s FieldNum: %s  ", value, fieldNum) );
     }
     
  
@@ -158,13 +151,8 @@ public class VmSysFunctions {
             int varCellAddr = frameHeadersPosEnd + varInd * INT_SIZE;
             memStack.putValue(varCellAddr, varAddr);
             int size = memStack.getPtrSize(varAddr);
-            //if(size == 8){
-            
-            
-            
-//              System.out.println(String.format("Local vaar with ind %s address is %s, value: %s stored at %s",varInd,  varAddr, memStack.getPtrIntField(varAddr, VM.INT_SIZE), varCellAddr));
-           // }
-          varAddr = memStack.getIntPtrValue(varAddr);
+  
+            varAddr = memStack.getIntPtrValue(varAddr);
             
         }
 
@@ -178,7 +166,7 @@ public class VmSysFunctions {
       memoryManager.reallocateAddresses(gcFinalBlock);
       
       
-      System.out.println("GC: Freed space after clean: " + freedSpace);
+      if(hasSubscribers)this.callSubscribers("SYS_FUNCTION", "GC: Freed space after clean: " + freedSpace);
     }
     
     protected void sysDeferPtrValue() throws VmExecutionExeption{
@@ -197,7 +185,6 @@ public class VmSysFunctions {
     
         memoryManager.setSysRegister(VmSysRegister.StackHeadPos, stackRegRestore);
         memoryManager.setSysRegister(VmSysRegister.FrameStackTableStart, stackTableRegRestore);
-        //memStack.putValue(frameHeadersPosEnd + varInd * INT_SIZE, locVarAddr);
     }
      
     protected void preventForNullPointer(int ptrAddr) throws VmExecutionExeption {
@@ -230,11 +217,10 @@ public class VmSysFunctions {
         
         VMSysFunction sysFunc = VMSysFunction.values()[funcType];
       
-         System.out.println("###Sys func called: " + sysFunc.toString() + "(" + funcTypeAddrPtr + ")");
+        if(hasSubscribers)this.callSubscribers("SYS_FUNCTION", "###Sys func called: " + sysFunc.toString() + "(" + funcTypeAddrPtr + ")");
         switch(sysFunc){
             case MemAlloc:
                 retVal = sysMemAlloc();
-                System.out.println("Mem alloc at adress: " + retVal);
                 break;
             case MemAllocStack:
                 sysMemAllocStack();
@@ -246,19 +232,14 @@ public class VmSysFunctions {
                 arg = memoryManager.stackPopInt();
                 VmSysRegister register = VmSysRegister.values()[arg];
                 int regValue = memoryManager.getSysRegister(register);       
-                System.out.println(String.format("Get Register %s is %s", register.toString(), regValue));
                 memStack.push(binConvertorService.toBin(regValue));
                 break;
             case SetRegister:
                 int regNum = memoryManager.stackPopInt();
                 regValue = memoryManager.stackPopInt();  
                 register =  VmSysRegister.values()[regNum];
-                /*if(register == VmSysRegister.F1){
-                    regValue -= memoryManager.getSysRegister(VmSysRegister.ProgOffsetAddr);
-                }*/
-                
                 memoryManager.setSysRegister(register, regValue);
-                System.out.println(String.format("Set Register %s is %s", register.toString(), regValue));
+                
                 break;
             case SetPtrField:
                 sysSetPtrField();
@@ -291,11 +272,11 @@ public class VmSysFunctions {
                 sysArrangeFuncParams();
                 break;
             default:
-                System.err.println("Callede unreliased function: " + sysFunc.toString());
+                throw new VmExecutionExeption("Calle undecalred system function: " + sysFunc.toString());
         }
     }
     protected void sysGetPtrField() throws VmExecutionExeption{
-        //TODO: Absolutley need to count field address, not ptr
+
         MemoryHeap memHeap = this.memoryManager.getMemHeap();
         MemoryStack memStack = this.memoryManager.getMemStack();
         
@@ -311,8 +292,6 @@ public class VmSysFunctions {
         
         int val = memHeap.getPtrIntField(ptrAddr,  fieldOffset);
         memStack.push(val);
-       // memHeap.putValue(ptrAddr, fieldValue);
-       
-        
+  
     }
 }

@@ -12,6 +12,7 @@ import compiler.metadata.FieldDescription;
 import common.VarType;
 import java.util.ArrayList;
 import java.util.Map;
+import syntax.analyser.parser.ProgramBuildingStage;
 import types.TypesInfo;
 import virtual.machine.VM;
 import virtual.machine.VmMetaClassHeader;
@@ -20,7 +21,7 @@ import virtual.machine.VmMetaClassHeader;
  *
  * @author Andrey
  */
-public class BinBuilderClassesMetaInfo {
+public class BinBuilderClassesMetaInfo extends ProgramBuildingStage{
     
      protected TypesInfo typesInfo;
      public static final int HEADERS_SIZE = VmMetaClassHeader.values().length;
@@ -36,7 +37,7 @@ public class BinBuilderClassesMetaInfo {
         BinObjBuilder binObjBuilder = new BinObjBuilder();
         //ClassCode|TotalSize|MethodsCount|FieldsCount|   MethodsList|FieldsList
         int totalSize = 0;
-         System.out.println(">>Class " + classInfo.getCode());
+        this.addTextToEvent(">>Class " + classInfo.getCode());
         binObjBuilder.addInt(classInfo.getCode())
                      .addInt(totalSize)
                      .addInt(classInfo.getMethodsList().size())
@@ -50,7 +51,7 @@ public class BinBuilderClassesMetaInfo {
            binObjBuilder.addInt(methodDescr.getCode())
                         .addInt(methodDescr.getLineNumber())
                         .addInt(methodDescr.getStartBody());
-           System.out.println(String.format(">>Method: %s %s" , methodDescr.getCode(), methodDescr.getLineNumber()) );
+           this.addTextToEvent(String.format(">>Method: %s %s" , methodDescr.getCode(), methodDescr.getLineNumber()) );
         }
         
        
@@ -61,12 +62,13 @@ public class BinBuilderClassesMetaInfo {
            totalSize += typeSize;
            binObjBuilder.addInt(fieldDescr.getCode())
                         .addInt(typeSize);
-            System.out.println(String.format(">>fieldCode: %s %s" , fieldDescr.getCode(), fieldDescr.getFieldName()) );
+           this.addTextToEvent(String.format(">>fieldCode: %s %s" , fieldDescr.getCode(), fieldDescr.getFieldName()) );
         }
         // 4 is headers size
         totalSize += (classInfo.getMethodsList().size() * METHOD_FIELDS_DESCR_COUNT + classInfo.getFieldsList().size() + HEADERS_SIZE) * VM.INT_SIZE;
         binObjBuilder.setInt(1, totalSize);
        
+        this.callSubscribers("CLASS_METAINFO");
         return  binObjBuilder.getResult();
     }
     

@@ -11,9 +11,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.*;
 import java.util.regex.Pattern;
+import main.ProgramLogger;
+import syntax.analyser.parser.ProgramBuildingStage;
 import utils.Pair;
 
-public class Lexer {
+public class Lexer extends ProgramBuildingStage{
   protected ArrayList<TokenInfo> tokensInfo;// лучше linkedlist
   protected GrammarInfo grammarInfo;
   protected ArrayList<Token> tokens;
@@ -27,8 +29,8 @@ public class Lexer {
   protected void getAllTokensInfo(){
      this.tokensInfo = new ArrayList<TokenInfo>();
      LinkedHashMap<String, GrammarPart> info = grammarInfo.getFullInfo();
-     //Собираем все токены из всех разделов
-     //Каждый раздел содержит ещё разные виды токенов - ved, id итд
+
+     //It's needed to collect tokens info from parts
      for (Map.Entry<String, GrammarPart> entry : info.entrySet()) {
          GrammarPart part = entry.getValue();
          LinkedHashMap<String, ArrayList<TokenInfo>> allPartTokens = part.getFullInfo();
@@ -61,7 +63,9 @@ public class Lexer {
        Pair<Token, Integer> res = this.find(text, pos);
        if(res != null){
            tokens.add(res.getObj1());
-           System.out.println(res.getObj1().getTagName()+ " " +  res.getObj1().getValue()+ "  at " + pos);
+           if(hasSubscribers) this.callSubscribers("LEXEM_FIND", 
+                String.format("Find lexem %s with value %s at %s", res.getObj1().getTagName(), res.getObj1().getValue(), pos
+           ));
            pos = res.getObj2();
        } else{
            return null;

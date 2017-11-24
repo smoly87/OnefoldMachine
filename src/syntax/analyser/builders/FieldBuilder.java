@@ -31,7 +31,7 @@ public class FieldBuilder extends ParserChain implements ParserBuilder{
         
        ParserAlternative AccessLevelParserAlt = new ParserAlternative();
       
-       AccessLevelParserAlt.add(new ParserKeyword("Private"));
+
        AccessLevelParserAlt.add(new ParserKeyword("Protected"));
        AccessLevelParserAlt.add(new ParserKeyword("Public"));
        
@@ -48,20 +48,34 @@ public class FieldBuilder extends ParserChain implements ParserBuilder{
         //Composite result
         AstNode rootNode = new AstNode();
         
-        rootNode.setName("FieldRoot")
-                .setCompiler(this.getCompiler("Field"));
+        rootNode.setName("FieldRoot");
+                //.setCompiler(this.getCompiler("Field"));
                
         
         String fieldName = result.get("Id").getToken().getValue();
         String fieldTypeName = result.get("Type").getToken().getValue();
         
         Token token = new Token();
-        token.setVarType(VarType.valueOf(fieldTypeName));
-        token.setValue(fieldName);
-        token.setTag(new Tag("Field"));
         
         AstNode resNode = new AstNode();
         resNode.setToken(token);
+        
+        if(grammarInfo.getTypesList().contains(fieldTypeName)){
+           token.setVarType(VarType.valueOf(fieldTypeName));
+        } else{
+           token.setVarType(VarType.Pointer);
+           AstNode classNode = new AstNode();
+           Token classToken = new Token("FieldClassName", new Tag("Type"), fieldTypeName);
+           classNode.setToken(classToken);
+           resNode.addChildNode(classNode, "FieldClassName");
+        }
+        
+        
+        token.setValue(fieldName);
+        
+        token.setTag(new Tag("Field"));
+        
+        
         rootNode.addChildNode(resNode, "Field");
 
         

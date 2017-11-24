@@ -46,6 +46,32 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
     }
     protected int funcStartLine = -1;
 
+    @Override
+    public void compileRootPre(AstNode node) throws CompilerException {
+       if(node.getName().equals("Field")){
+           if(firstStage){
+               Token token = node.getToken();
+               classInfo.addField(token.getValue(), token.getVarType());
+           } else{
+               AstNode classNode = node.findChild("FieldClassName");
+                    if(classNode != null){
+                        String className = classNode.getToken().getValue();
+                        if(!MetaClassesInfo.getInstance().getClassesMap().containsKey(className)){
+                            throw new CompilerException(
+                                    String.format(
+                                            "There is attemp to describe field %s of class %s as type of class %s which is not existed.",
+                                           getClassInfo().getClassName(), node.getToken().getValue(), className
+                                    )
+                            );
+                        }
+                    }
+           }
+           
+
+       }
+    }
+
+    
     
     @Override
     public void compileChild(AstNode node) throws CompilerException { 
@@ -62,6 +88,7 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
                     programBuilder.addInstruction(VMCommands.NOP);
                     classInfo.setEndClassLine(programBuilder.commandsSize());
                     break;
+     
             }
           
           
@@ -85,9 +112,7 @@ public class ClassCompiler extends AstCompiler implements CompilerSubscriber{
                 FunctionCompiler funcCompiler  = (FunctionCompiler)this.getCompiler("Function");
                 classInfo.addMethod(funcCompiler.getCurrentFunction());
                 break;
-            case "Field":
-                classInfo.addField(token.getValue(), token.getVarType());
-                break;    
+   
             
         }
     }

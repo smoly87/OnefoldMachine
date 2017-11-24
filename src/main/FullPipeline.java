@@ -6,29 +6,25 @@
 
 package main;
 
-import common.Token;
+
 import compiler.TreeWalkerASTCompiler;
 import compiler.exception.CompilerException;
 import compiler.expr.ClassCompiler;
 import compiler.expr.FunctionCompiler;
 import grammar.GrammarInfoStorage;
-import grammar.GrammarInfo;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
-import java.util.StringJoiner;
 import lexer.Lexer;
-import syntax.analyser.builders.ParserStatementBuilder;
 import lexer.LexerResult;
-import main.Main;
 import program.builder.ProgramBuilder;
 import syntax.analyser.AstNode;
 import syntax.analyser.CompilersFactory;
 import syntax.analyser.Parser;
-import syntax.analyser.UnexpectedSymbolException;
+import syntax.analyser.ParserFactory;
 import syntax.analyser.parser.ParserException;
-import syntax.analyser.parser.ParserMathExpr;
 import syntax.analyser.builders.ParserProgramBody;
+import syntax.analyser.parser.IProgramBuildingSubscriber;
 import utils.TreeWalkerDST;
 import utils.TreeWalkerDSTPrint;
 import virtual.machine.Program;
@@ -39,21 +35,49 @@ import virtual.machine.VMCommands;
  * @author Andrey
  */
 
-public class FullPipeline {
+public class FullPipeline implements IProgramBuildingSubscriber{
     protected String stageDebugText;
+    protected ShellCommand command;
 
+    
     public void setStageDebugText(String stageDebugText) {
         this.stageDebugText = stageDebugText;
     }
+
+    public FullPipeline(ShellCommand command) {
+        this.command = command;
+    }
+    
+    protected ProgramLogger createLogger(String flagName, String header){
+      
+       return new ProgramLogger(getDebugOptionEnabled(flagName), header);
+              
+        
+    }
+    
+    protected boolean getDebugOptionEnabled(String flagName){
+       boolean enabled = false;  
+       if(command.isOptionExists("debug") || command.isOptionExists(flagName)){
+          enabled = true;
+       }
+       return enabled;
+    }
+    
     
     public LexerResult tokenise(String programSrc){
-        Lexer lex = new Lexer( GrammarInfoStorage.getInstance());
+        Lexer lex = new Lexer(GrammarInfoStorage.getInstance());
+        if(getDebugOptionEnabled("debug_show_lexer")){
+            lex.addSubscriber(this);
+        }
         return lex.parse(programSrc);
     }
     
    
     
-    public AstNode buildAst(LexerResult lexerResult) throws ParserException{   
+    public AstNode buildAst(LexerResult lexerResult) throws ParserException{
+        ParserFactory parserFactory = ParserFactory.getInstance();
+        parserFactory.getElement("Class").addSubscriber(this);
+        
         Parser rootParser = new ParserProgramBody().build();
         if(!rootParser.parse(lexerResult) && lexerResult.hasNext()){
             String nearTokens = lexerResult.getLexerPosDescription();
@@ -85,9 +109,11 @@ public class FullPipeline {
         
         ProgramBuilder progBuilder = ProgramBuilder.getInstance();
         
-        this.stageDebugText = progBuilder.getAsmText();
-        TreeWalkerDST walker = new TreeWalkerDSTPrint();
-        walker.walkTree(astTree);
+        if(getDebugOptionEnabled("debug_ast")){
+              TreeWalkerDST walker = new TreeWalkerDSTPrint(createLogger("debug_ast", "Abstract syntax tree"));
+              walker.walkTree(astTree);
+        }
+      
 
         progBuilder.addInstruction(VMCommands.Halt);
         Program prog = progBuilder.getResult();
@@ -105,6 +131,11 @@ public class FullPipeline {
         programSrc = programSrc.replaceAll("/\\*.*?\\*/", "");
         
         return programSrc;
+    }
+
+    @Override
+    public void programEvent(Class<?> callerClass, String caption, String text) {
+        System.err.println("Event fired: " + text);
     }
 
 }

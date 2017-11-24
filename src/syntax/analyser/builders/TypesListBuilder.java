@@ -30,13 +30,11 @@ import syntax.analyser.parser.ParserTag;
  */
 public class TypesListBuilder extends  ParserAlternative implements ParserBuilder{
     public Parser build() {
-        //Указать нужен ли результат парсера
+
         
         GrammarInfo gs = GrammarInfoStorage.getInstance();
         HashSet<String> typesSet = gs.getTypesList();
-        
-        //ParserAlternative altParser = new ParserAlternative(); 
-       
+
         for(String typeName:typesSet){
              this.add(new ParserTag(typeName));
         }

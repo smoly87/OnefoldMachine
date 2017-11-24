@@ -49,7 +49,6 @@ public class WhileBuilder extends  ParserChain implements ParserBuilder{
         rootNode.addChildNode(result.get("End"), "End");
      
         rootNode.setCompiler(this.getCompiler("While"));
-        System.out.println("While parser has been reached");
         
         return rootNode;
     }

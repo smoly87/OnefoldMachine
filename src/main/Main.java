@@ -28,7 +28,7 @@ public class Main {
 
            while(true){
               System.out.println("Type a command:");
-              String inpStr = !fullDebug ? reader.readLine() : "compile_run --path_src gc.txt"; //;// class_expr
+              String inpStr = !fullDebug ? reader.readLine() : "compile_run --path_src gc.txt --debug"; //;// class_expr
               if(inpStr.equals("exit") ) return;
               if(!commadInter.isValidCommand(inpStr)){
                   System.err.println(commadInter.getError());

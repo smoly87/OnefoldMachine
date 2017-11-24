@@ -1,5 +1,5 @@
 Class baz {
-Public bazar:Integer;
+/*Public bazar:Integer;*/
 Function Integer test(Var a:Integer;){
 Var d:foo;
 Var g:foo;
@@ -9,10 +9,10 @@ Return d;
 }
 }
 Class foo : Extends baz{
-Public bar:Integer;
+/*Public bar:Integer;
 Public rebar:Integer;
-Public rerebar:Integer;
-Public barbar:Integer;
+Public rerebar:Integer;*/
+Public barbar:foo;
 Function Integer testtest(Var al:Integer;Var bl:Integer;){
 Var g:baz;
 Let g = New baz();
@@ -32,7 +32,7 @@ Let c = New foo();
 Let d = New foo();
 Let e = New foo();
 /*Sys PrintHeapSize();*/
-Let d.bar = 333;
+/*Let d.bar = 333;*/
 /*Sys PrintObjField(d, 3);*/
 /*Let r = Call a.testtest(2, 3);*/
 /*Let d =  Call a.test(2);*/

@@ -70,8 +70,7 @@ public class IfBuilder extends  ParserChain implements ParserBuilder{
         }
      
         rootNode.setCompiler(this.getCompiler("If"));
-        System.out.println("If parser has been reached");
-        
+ 
         return rootNode;
     }
     

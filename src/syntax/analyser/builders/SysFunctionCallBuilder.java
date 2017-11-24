@@ -84,7 +84,7 @@ public class SysFunctionCallBuilder extends  ParserChain implements ParserBuilde
         rootNode.addChildNode(result.get("Id"), "FunctionId");
           
         rootNode.setCompiler(this.getCompiler("SysFunctionCall") );
-        System.out.println("SysFunctionCall parser has been reached");
+      
         
         return rootNode;
     }

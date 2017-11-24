@@ -40,10 +40,7 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
     }
     
     protected Parser getReturnStatementParser(){
-        ParserAlternative altParser = new ParserAlternative();
-        altParser.add(this.getParser("TypesList"))
-                 .add(new ParserTag("Id"));
-        return altParser;
+        return this.getParser("TypesList");
     }
     
     public Parser getReturnTypeHeaderParser(){
@@ -96,7 +93,7 @@ public class FunctionBuilder extends  ParserChain implements ParserBuilder{
                           .addChildNode(result.get("ReturnStatement"), "ReturnStatement")
                           .addChildNode(result.get("EndFunction"), "EndFunction")
                           .setCompiler(this.getCompiler(this.compilerName));
-        System.out.println("Function parser has been reached");
+      
         return rootNode;
     }
     

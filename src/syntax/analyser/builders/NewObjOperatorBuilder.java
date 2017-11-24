@@ -40,7 +40,6 @@ public class NewObjOperatorBuilder extends ParserChain implements ParserBuilder{
 
         
         rootNode.addChildNode(result.get("Id"), "ClassName");
-        System.out.println("New obj has been reached");
         return rootNode;
     }
     

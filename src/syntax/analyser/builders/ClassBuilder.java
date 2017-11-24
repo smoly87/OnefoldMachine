@@ -63,7 +63,7 @@ public class ClassBuilder extends  ParserChain implements ParserBuilder{
         //Reorder operators by calculations
         AstNode rootNode = result.get("Class");
         rootNode.setCompiler(this.getCompiler("Class"));
-        System.out.println("Class parser has been reached");
+      
         rootNode.addChildNode(result.get("Id"), "StartClass");
         if(result.get("ExtendsBlock") != null) {
             AstNode extendsBlock = result.get("ExtendsBlock");

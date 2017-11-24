@@ -107,7 +107,7 @@ public class VMProgramAllocator {
             int classInd = binReader.readIntAndNext();
             int metaInfoSize = binReader.readInt();
             int metaTablePtr =  memHeap.memAlloc(metaInfoSize);
-            System.out.println(String.format("Class_ID: %s MetaSize: %s", classInd, metaInfoSize)  );
+            //System.out.println(String.format("Class_ID: %s MetaSize: %s", classInd, metaInfoSize)  );
             addrTables.setAddrForIndex(VmExeHeader.ClassesTableSize, classInd, metaTablePtr);
             
             binReader.prevBytes(VM.INT_SIZE);

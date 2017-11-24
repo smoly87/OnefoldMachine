@@ -81,9 +81,10 @@ public class CommandInterpreter {
                     break;
             }
         } 
-      /*  catch (CompilerException ex) {
+        catch (CompilerException ex) {
             this.setError("Compilation error: " + ex.getMessage());
-            return false;*/
+            return false;
+        }
         catch(ParserException ex){
             this.setError("Parsing error: " + ex.getMessage());
             return false;
@@ -108,7 +109,7 @@ public class CommandInterpreter {
     }
     
     protected Program compile() throws FileNotFoundException, ParserException, CompilerException{
-        FullPipeline fullPipe = new FullPipeline();
+        FullPipeline fullPipe = new FullPipeline(command);
         String programSrc = fullPipe.getSrcTextProcessed(command.getOption("path_src"));
         this.addReport("show_src", "Program_Src", programSrc);
         LexerResult lexRes = fullPipe.tokenise(programSrc);
@@ -118,8 +119,9 @@ public class CommandInterpreter {
     }
     
     protected void runProgram(Program prog) throws VmExecutionExeption{
-        VM virtMachine = new VM();
-        virtMachine.run(prog);   
+        VM virtMachine = new VM(command);
+        virtMachine.allocateProgram(prog);
+        virtMachine.run();   
     }
     
     
