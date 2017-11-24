@@ -41,7 +41,7 @@ Var b:Integer;
 Var d:Integer;
 /*Var s:String;*/
 Let a = New foo();
-Let a.bar = 450;
+/*Let a.bar = 450;*/
 Let d = 98989;
 /*Let a.bazar = 850;*/
 /*Let b = Call a.protest(111, 222);*/

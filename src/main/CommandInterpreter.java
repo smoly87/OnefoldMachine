@@ -9,10 +9,18 @@ import compiler.exception.CompilerException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import lexer.LexerResult;
+import perfomance.mesuare.EstimateResult;
+import perfomance.mesuare.EstimatorChainedTasks;
+import perfomance.mesuare.TaskBuildAst;
+import perfomance.mesuare.TaskCompile;
+import perfomance.mesuare.TaskExecution;
+import perfomance.mesuare.TaskTokenise;
 import program.builder.ProgramFileSys;
 import syntax.analyser.AstNode;
+import syntax.analyser.CompilationException;
 import syntax.analyser.parser.ParserException;
 import virtual.machine.Program;
 import virtual.machine.VM;
@@ -65,13 +73,26 @@ public class CommandInterpreter {
         return true;
     }
     
+    
+    
     public boolean executeCommand(String commandText) throws  Exception{
         try {
             switch (command.getCommandName()) {
                 case "compile":
                     this.compileStage();
                     break;
-                case "compile_run":               
+                case "compile_run": 
+                    if(command.isOptionExists("estimate_compilation")){
+                        estimateCompilationStages();
+                        return true;
+                    }
+                    
+                    if(command.isOptionExists("estimate_execution")){
+                        estimateExecutionStages();
+                        return true;
+                    }
+                    
+                    
                     prog = this.compileStage();
                     if(prog != null) this.runProgram(prog);
                     break;
@@ -116,6 +137,44 @@ public class CommandInterpreter {
         AstNode ast = fullPipe.buildAst(lexRes);
         Program prog = fullPipe.compile(ast);
         return prog;
+    }
+    
+    
+    protected EstimatorChainedTasks getCompilationEstimator(int repeatTimes, boolean forExecution) throws FileNotFoundException, ParserException, CompilerException, CompilationException, VmExecutionExeption{
+        FullPipeline fullPipe = new FullPipeline(command);
+        String programSrc = fullPipe.getSrcTextProcessed(command.getOption("path_src"));
+        
+        EstimatorChainedTasks estimator = new EstimatorChainedTasks(programSrc, repeatTimes);
+        estimator.add(new TaskTokenise("Tokenize", fullPipe), forExecution)
+                 .add(new TaskBuildAst("Build AST", fullPipe), forExecution)
+                 .add(new TaskCompile("Compilation", fullPipe), forExecution);
+        
+        return estimator;
+    }
+    
+    protected void showEstimatorResults(HashMap<String, EstimateResult> res){
+        for(Map.Entry<String, EstimateResult> entry : res.entrySet()){
+            System.out.println(String.format("Average time of %s is %s", entry.getKey(), entry.getValue().getAverageTime()));
+        }
+    }
+    
+    protected void estimateCompilationStages()throws FileNotFoundException, ParserException, CompilerException, CompilationException, VmExecutionExeption{
+        int repeatTimes =  Integer.valueOf(command.getOption("estimate_compilation"));
+        EstimatorChainedTasks estimator = getCompilationEstimator(repeatTimes, false);
+        HashMap<String, EstimateResult> res = estimator.getResults();
+        showEstimatorResults(res);
+    }
+        
+    protected void estimateExecutionStages()throws FileNotFoundException, ParserException, CompilerException, CompilationException, VmExecutionExeption{
+        FullPipeline fullPipe = new FullPipeline(command);
+        int repeatTimes =  Integer.valueOf(command.getOption("estimate_execution"));
+        EstimatorChainedTasks estimator = getCompilationEstimator(repeatTimes, false);
+        VM virtualMachine = new VM(command);
+        estimator.add(new TaskExecution("Execution", fullPipe, virtualMachine));
+        
+        HashMap<String, EstimateResult> res = estimator.getResults();
+        showEstimatorResults(res);    
+
     }
     
     protected void runProgram(Program prog) throws VmExecutionExeption{

@@ -75,8 +75,8 @@ public class FullPipeline implements IProgramBuildingSubscriber{
    
     
     public AstNode buildAst(LexerResult lexerResult) throws ParserException{
-        ParserFactory parserFactory = ParserFactory.getInstance();
-        parserFactory.getElement("Class").addSubscriber(this);
+       /* ParserFactory parserFactory = ParserFactory.getInstance();
+        parserFactory.getElement("Class").addSubscriber(this);*/
         
         Parser rootParser = new ParserProgramBody().build();
         if(!rootParser.parse(lexerResult) && lexerResult.hasNext()){

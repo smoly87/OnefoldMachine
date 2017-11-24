@@ -51,7 +51,7 @@ public class VM extends ProgramBuildingStage{
     public VM(ShellCommand command) throws VmExecutionExeption{
         this.binConvertorService =  DataBinConvertor.getInstance();
         this.instructionsService = Instructions.getInstance();
-        this.memoryManager = new MemoryManager(binConvertorService);
+        
         this.typesInfo = TypesInfo.getInstance();
         this.shellCommand = command;
     }
@@ -76,7 +76,7 @@ public class VM extends ProgramBuildingStage{
     
     public void allocateProgram(Program program) throws VmExecutionExeption{
         this.program = program;
-        
+        this.memoryManager = new MemoryManager(binConvertorService);
         
         int startInstrsInd = program.readHeader(VmExeHeader.InstructionsStart);
         
