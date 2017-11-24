@@ -168,7 +168,7 @@ public class CommandInterpreter {
     protected void estimateExecutionStages()throws FileNotFoundException, ParserException, CompilerException, CompilationException, VmExecutionExeption{
         FullPipeline fullPipe = new FullPipeline(command);
         int repeatTimes =  Integer.valueOf(command.getOption("estimate_execution"));
-        EstimatorChainedTasks estimator = getCompilationEstimator(repeatTimes, false);
+        EstimatorChainedTasks estimator = getCompilationEstimator(repeatTimes, true);
         VM virtualMachine = new VM(command);
         estimator.add(new TaskExecution("Execution", fullPipe, virtualMachine));
         
