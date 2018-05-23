@@ -3,16 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package syntax.analyser;
+package perfomance.measure;
 
 /**
  *
  * @author Andrey
  */
-public class CompilerUndeclaredVariableException extends CompilationException{
-    
-    public CompilerUndeclaredVariableException(String varName) {
-        super("Undeclared variable: " + varName);
+public class ProgramStagesEstimator {
+    public void estimateCompile(){
     }
-    
 }

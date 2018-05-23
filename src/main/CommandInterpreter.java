@@ -12,12 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lexer.LexerResult;
-import perfomance.mesuare.EstimateResult;
-import perfomance.mesuare.EstimatorChainedTasks;
-import perfomance.mesuare.TaskBuildAst;
-import perfomance.mesuare.TaskCompile;
-import perfomance.mesuare.TaskExecution;
-import perfomance.mesuare.TaskTokenise;
+import perfomance.measure.EstimateResult;
+import perfomance.measure.EstimatorChainedTasks;
+import perfomance.measure.TaskBuildAst;
+import perfomance.measure.TaskCompile;
+import perfomance.measure.TaskExecution;
+import perfomance.measure.TaskTokenise;
 import program.builder.ProgramFileSys;
 import syntax.analyser.AstNode;
 import syntax.analyser.CompilationException;

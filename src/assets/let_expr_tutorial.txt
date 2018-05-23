@@ -1,0 +1,6 @@
+Var a:Integer;
+Var b:Integer;
+Var c:Integer;
+Let b = 33;
+Let c = 22;
+Let a = b+c;
